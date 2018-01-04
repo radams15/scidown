@@ -1,4 +1,4 @@
-CFLAGS = -g -O3 -ansi -pedantic -Wall -Wextra -Wno-unused-parameter
+CFLAGS = -g -O3 -ansi -pedantic -Wall -Wextra -Wno-unused-parameter -lm
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
