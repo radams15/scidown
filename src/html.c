@@ -10,8 +10,6 @@
 
 #define USE_XHTML(opt) (opt->flags & HOEDOWN_HTML_USE_XHTML)
 #define bDelimiters  MTEX2MML_DELIMITER_DOLLAR | MTEX2MML_DELIMITER_DOUBLE
-#define begin "$$"
-#define end "$$"
 
 hoedown_html_tag
 hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname)
@@ -551,18 +549,6 @@ rndr_footnote_ref(hoedown_buffer *ob, unsigned int num, const hoedown_renderer_d
 	return 1;
 }
 
-static char * clean(const char* text, int displaymode)
-{
-	unsigned long size =strlen(text);
-	
-	char * str = malloc(sizeof(char)*(size+4));
-	strcat(str, begin);
-	strcat(str, text);
-	strcat(str, end);
-
-	return str;
-}
-
 static int
 rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const hoedown_renderer_data *data)
 {
@@ -572,29 +558,29 @@ rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const
     if ((state->flags & HOEDOWN_HTML_MATHML) != 0 )
     {	
 
-		unsigned long size = text->size;
-		char * input = malloc(size*sizeof(char));
-		memcpy(input, text->data, size);
-		char * data = clean(input, displaymode);
 		
-		size = strlen(data);
-   		char *result;
+	
+		unsigned long size = text->size;
+
+		char * clean = malloc(sizeof(char)*(size+(displaymode ? 2 : 1)*2));
+		
+		memcpy(clean, (displaymode ? "$$" : "$"), (displaymode ? 2 : 1));
+		memcpy(clean+(displaymode ? 2 : 1), text->data, size);
+		memcpy(clean+(displaymode ? 2 : 1)+size, (displaymode ? "$$" : "$"), (displaymode ? 2 : 1));
+		
+		size += (displaymode ? 2 : 1)*2;
+		
+   		static char *result;
    		
-   		mtex2MML_text_filter (data, size, bDelimiters);
+   		mtex2MML_text_filter (clean, size, MTEX2MML_DELIMITER_DEFAULT);
     	result = mtex2MML_output();
-    	free(input);
-        free(data);
-        
+
         if (result)
         {
 			size = strlen(result);
     	    hoedown_buffer_put(ob, (const uint8_t *)result, size);
-    	    free(result);
-    	}
-    	else{
-    		hoedown_buffer_put(ob, (const uint8_t *)(displaymode ? "\\[" : "\\("), 2);
-	    	escape_html(ob, text->data, text->size);
-    		hoedown_buffer_put(ob, (const uint8_t *)(displaymode ? "\\]" : "\\)"), 2);
+    	
+			return 2;
     	}
     }
     else

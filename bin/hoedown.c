@@ -411,7 +411,7 @@ main(int argc, char **argv)
 	
 	/* Perform Markdown rendering */
 	ob = hoedown_buffer_new(data.ounit);
-	document = hoedown_document_new(renderer, data.extensions | HOEDOWN_EXT_MATH, data.max_nesting);
+	document = hoedown_document_new(renderer, data.extensions, data.max_nesting);
 	
 	t1 = clock();
 	hoedown_document_render(document, ob, ib->data, ib->size);
