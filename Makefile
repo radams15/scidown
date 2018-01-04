@@ -3,6 +3,7 @@ PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 INCLUDEDIR = $(PREFIX)/include
+YYPREFIX = mtex2MML_yy
 
 HOEDOWN_CFLAGS = $(CFLAGS) -Isrc
 ifneq ($(OS),Windows_NT)
@@ -23,7 +24,14 @@ HOEDOWN_SRC=\
 	src/html_blocks.o \
 	src/html_smartypants.o \
 	src/stack.o \
-	src/version.o
+	src/version.o\
+	src/mtex2MLL/string_extras.o\
+	src/mtex2MLL/string_dup.o\
+	src/mtex2MLL/environment.o\
+	src/mtex2MLL/colors.o\
+	src/mtex2MLL/em.o\
+	src/mtex2MLL/parser.o\
+	src/mtex2MLL/lexer.o
 
 .PHONY:		all test test-pl clean
 
@@ -88,8 +96,14 @@ install:
 
 # Generic object compilations
 
-%.o: %.c
+%.o: %.c 
 	$(CC) $(HOEDOWN_CFLAGS) -c -o $@ $<
+	
+%.c: %.y
+	bison -y -v -p $(YYPREFIX) -d -o $@ $<
 
+%.c: %.l
+	flex -P $(YYPREFIX) -o $@ $<
+     
 src/html_blocks.o: src/html_blocks.c
 	$(CC) $(HOEDOWN_CFLAGS) -Wno-static-in-inline -c -o $@ $<
