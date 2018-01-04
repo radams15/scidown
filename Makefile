@@ -1,9 +1,11 @@
-CFLAGS = -g -O3 -ansi -pedantic -Wall -Wextra -Wno-unused-parameter -lm
+CFLAGS = -g -O3 -ansi -pedantic -Wall -Wextra -Wno-unused-parameter
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 INCLUDEDIR = $(PREFIX)/include
 YYPREFIX = mtex2MML_yy
+LDFLAGS = -lm
+
 
 HOEDOWN_CFLAGS = $(CFLAGS) -Isrc
 ifneq ($(OS),Windows_NT)
