@@ -10,8 +10,8 @@
 
 #define USE_XHTML(opt) (opt->flags & HOEDOWN_HTML_USE_XHTML)
 #define bDelimiters  MTEX2MML_DELIMITER_DOLLAR | MTEX2MML_DELIMITER_DOUBLE
-#define begin (displaymode ? "$$" : "$")
-#define end (displaymode ? "$$" : "$")
+#define begin "$$"
+#define end "$$"
 
 hoedown_html_tag
 hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname)
@@ -551,16 +551,15 @@ rndr_footnote_ref(hoedown_buffer *ob, unsigned int num, const hoedown_renderer_d
 	return 1;
 }
 
-static const char * clean(const char* text, int displaymode)
+static char * clean(const char* text, int displaymode)
 {
 	unsigned long size =strlen(text);
-	char *body = malloc(sizeof(char)*(size-2));
-	memcpy(body, text, (size-3));
-	char * str = malloc(sizeof(char)*(size+2));
+	
+	char * str = malloc(sizeof(char)*(size+4));
 	strcat(str, begin);
-	strcat(str, body);
+	strcat(str, text);
 	strcat(str, end);
-	free(body);
+
 	return str;
 }
 
@@ -573,16 +572,24 @@ rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const
     if ((state->flags & HOEDOWN_HTML_MATHML) != 0 )
     {	
 
+		unsigned long size = text->size;
+		char * input = malloc(size*sizeof(char));
+		memcpy(input, text->data, size);
+		char * data = clean(input, displaymode);
 		
-		const char * data = clean((const char*)text->data, displaymode);
-		unsigned long size = sizeof(data)/sizeof(char);
-   		static char *result;
+		size = strlen(data);
+   		char *result;
+   		
    		mtex2MML_text_filter (data, size, bDelimiters);
     	result = mtex2MML_output();
+    	free(input);
+        free(data);
+        
         if (result)
         {
 			size = strlen(result);
     	    hoedown_buffer_put(ob, (const uint8_t *)result, size);
+    	    free(result);
     	}
     	else{
     		hoedown_buffer_put(ob, (const uint8_t *)(displaymode ? "\\[" : "\\("), 2);
