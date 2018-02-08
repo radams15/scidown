@@ -102,11 +102,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 	hoedown_html_renderer_state *state = data->opaque;
 	if (lang && (state->flags & HOEDOWN_HTML_CHARTER) != 0 && hoedown_buffer_eqs(lang, "charter") != 0){
 		if (text){
-			if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
-			{
-				HOEDOWN_BUFPUTSL(ob, "<figure>\n");
-				state->counter.figure ++;
-			}
+
 			char * copy = malloc((text->size + 1)*sizeof(char));
 			memset(copy, 0, text->size+1);
 			memcpy(copy, text->data, text->size);
@@ -121,50 +117,16 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 			chart_free(c);
 			free(svg);
 
-			if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
-			{
-				HOEDOWN_BUFPUTSL(ob, "<figcaption>");
-
-				char * buffer = malloc(sizeof(char)*50);
-				memset(buffer,0, 50);
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>",
-				state->counter.figure, state->localization.figure, state->counter.figure);
-				hoedown_buffer_printf(ob, buffer, 50);
-				free(buffer);
-				HOEDOWN_BUFPUTSL(ob, "</figcaption>\n</figure>");
-			}
 		}
 		return;
 	}
 	if (lang && (state->flags & HOEDOWN_HTML_MERMAID) != 0 && hoedown_buffer_eqs(lang, "mermaid") != 0){
 		if (text){
-			if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
-			{
-				HOEDOWN_BUFPUTSL(ob, "<figure>\n");
-				state->counter.figure ++;
-			}
 	        HOEDOWN_BUFPUTSL(ob, "<div class=\"mermaid\">");
 			hoedown_buffer_put(ob, text->data, text->size);
 			HOEDOWN_BUFPUTSL(ob, "</div>");
-			if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
-			{
-				HOEDOWN_BUFPUTSL(ob, "<figcaption>");
-
-				char * buffer = malloc(sizeof(char)*50);
-				memset(buffer,0, 50);
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>",
-				state->counter.figure, state->localization.figure, state->counter.figure);
-				hoedown_buffer_printf(ob, buffer, 50);
-				free(buffer);
-				HOEDOWN_BUFPUTSL(ob, "</figcaption>\n</figure>");
-			}
 		}
 		return;
-	}
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
-	{
-		HOEDOWN_BUFPUTSL(ob, "<figure>\n");
-		state->counter.listing ++;
 	}
 	if (lang) {
 		HOEDOWN_BUFPUTSL(ob, "<pre><code class=\"language-");
@@ -178,18 +140,6 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 		escape_html(ob, text->data, text->size);
 
 	HOEDOWN_BUFPUTSL(ob, "</code></pre>\n");
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
-	{
-		HOEDOWN_BUFPUTSL(ob, "<figcaption>");
-
-		char * buffer = malloc(sizeof(char)*50);
-		memset(buffer,0, 50);
-		sprintf(buffer, "<b id=\"listing_%u\">%s %u</b>",
-		state->counter.listing, state->localization.listing, state->counter.listing);
-		hoedown_buffer_printf(ob, buffer, 50);
-		free(buffer);
-		HOEDOWN_BUFPUTSL(ob, "</figcaption>\n</figure>");
-	}
 }
 
 static void
@@ -454,10 +404,6 @@ rndr_image(hoedown_buffer *ob, const hoedown_buffer *link, const hoedown_buffer 
 	hoedown_html_renderer_state *state = data->opaque;
 	if (!link || !link->size) return 0;
 
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0)
-	{
-		HOEDOWN_BUFPUTSL(ob, "<figure>\n");
-	}
 
 
 	HOEDOWN_BUFPUTSL(ob, "<img src=\"");
@@ -472,36 +418,6 @@ rndr_image(hoedown_buffer *ob, const hoedown_buffer *link, const hoedown_buffer 
 		escape_html(ob, title->data, title->size); }
 	hoedown_buffer_puts(ob, USE_XHTML(state) ? "\"/>" : "\">");
 
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0)
-	{
-		HOEDOWN_BUFPUTSL(ob, "<figcaption>");
-		if ((state->flags & HOEDOWN_HTML_FIGCOUNTER) != 0)
-		{
-			state->counter.figure ++;
-			char * buffer = malloc(sizeof(char)*256);
-			memset(buffer,0, 256);
-			if ((title && title->size) || (alt && alt->size))
-			{
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u:</b> ",
-						state->counter.figure, state->localization.figure, state->counter.figure);
-			}
-			else
-			{
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>",
-						state->counter.figure, state->localization.figure, state->counter.figure);
-			}
-			hoedown_buffer_printf(ob, buffer, 256);
-			free(buffer);
-		}
-		if (title && title->size)
-		{
-			escape_html(ob, title->data, title->size);
-		} else if (alt && alt->size)
-		{
-			escape_html(ob, alt->data, alt->size);
-		}
-		HOEDOWN_BUFPUTSL(ob, "</figcaption>\n</figure>");
-	}
 
 	return 1;
 }
@@ -529,28 +445,9 @@ static void
 rndr_table(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
     if (ob->size) hoedown_buffer_putc(ob, '\n');
-	hoedown_html_renderer_state *state = data->opaque;
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0 ||
-		(state->flags & HOEDOWN_HTML_FIGCOUNTER) != 0)
-	{
-		HOEDOWN_BUFPUTSL(ob, "<figure>\n");
-	}
-    HOEDOWN_BUFPUTSL(ob, "<table>\n");
+	HOEDOWN_BUFPUTSL(ob, "<table>\n");
     hoedown_buffer_put(ob, content->data, content->size);
     HOEDOWN_BUFPUTSL(ob, "</table>\n");
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0 ||
-		(state->flags & HOEDOWN_HTML_FIGCOUNTER) != 0)
-	{
-		state->counter.table ++;
-		HOEDOWN_BUFPUTSL(ob, "<figcaption>");
-		char * buffer = malloc(sizeof(char)*50);
-			memset(buffer,0, 50);
-		sprintf(buffer, "<b id=\"table_%u\">%s %u</b>",
-						state->counter.table, state->localization.table, state->counter.table);
-		hoedown_buffer_printf(ob, buffer, 256);
-		free(buffer);
-		HOEDOWN_BUFPUTSL(ob, "</figcaption>\n</figure>");
-	}
 }
 
 static void
@@ -687,23 +584,9 @@ rndr_footnote_ref(hoedown_buffer *ob, unsigned int num, const hoedown_renderer_d
 static int
 rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const hoedown_renderer_data *data)
 {
-	hoedown_html_renderer_state *state = data->opaque;
-
 	hoedown_buffer_put(ob, (const uint8_t *)(displaymode ? "\\[" : "\\("), 2);
-	if (displaymode && (state->flags & HOEDOWN_HTML_EQCOUNTER) !=0)
-	{
-		HOEDOWN_BUFPUTSL(ob, "\\begin{array}{lr}");
-	}
+
 	escape_html(ob, text->data, text->size);
-	if (displaymode && (state->flags & HOEDOWN_HTML_EQCOUNTER) !=0)
-	{
-		state->counter.equation ++;
-		char * buffer = malloc(sizeof(char)*30);
-		memset(buffer, 0, 30); /*\begin{array}{lr} & \quad(1)\\\end{array}*/
-		sprintf(buffer, "& \\quad(%u)\\end{array}", state->counter.equation);
-		hoedown_buffer_printf(ob, buffer, 30);
-		free(buffer);
-	}
 	hoedown_buffer_put(ob, (const uint8_t *)(displaymode ? "\\]" : "\\)"), 2);
 	return 1;
 }
