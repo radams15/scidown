@@ -26,15 +26,8 @@ SCIDOWN_SRC=\
 	src/html_blocks.o \
 	src/html_smartypants.o \
 	src/stack.o \
-	src/version.o\
-	src/mtex2MLL/string_extras.o\
-	src/mtex2MLL/string_dup.o\
-	src/mtex2MLL/environment.o\
-	src/mtex2MLL/colors.o\
-	src/mtex2MLL/em.o\
-	src/mtex2MLL/parser.o\
-	src/mtex2MLL/lexer.o
-
+	src/version.o
+	
 .PHONY:		all test test-pl clean
 
 all:		libscidown.so libscidown.a scidown smartypants
