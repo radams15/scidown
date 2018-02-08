@@ -35,8 +35,11 @@ typedef enum hoedown_extensions {
 	HOEDOWN_EXT_SPACE_HEADERS = (1 << 12),
 	HOEDOWN_EXT_MATH_EXPLICIT = (1 << 13),
 
+	/* experimental */
+	HOEDOWN_EXT_SCHOLARITY  = (1<<14),
+
 	/* negative flags */
-	HOEDOWN_EXT_DISABLE_INDENTED_CODE = (1 << 14)
+	HOEDOWN_EXT_DISABLE_INDENTED_CODE = (1 << 15)
 } hoedown_extensions;
 
 #define HOEDOWN_EXT_BLOCK (\
