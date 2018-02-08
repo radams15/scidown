@@ -2,11 +2,11 @@
 *.obj
 *.exe
 test.md
-hoedown
-hoedown.dll
-hoedown.exp
-hoedown.lib
+scidown
+scidown.dll
+scidown.exp
+scidown.lib
 smartypants
-libhoedown.so*
-libhoedown.a
+libscidown.so*
+libscidown.a
 *~
