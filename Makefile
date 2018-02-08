@@ -7,9 +7,9 @@ YYPREFIX = mtex2MML_yy
 LDFLAGS = -lm
 
 
-HOEDOWN_CFLAGS = $(CFLAGS) -Isrc
+SCIDOWN_CFLAGS = $(CFLAGS) -Isrc
 ifneq ($(OS),Windows_NT)
-	HOEDOWN_CFLAGS += -fPIC
+	SCIDOWN_CFLAGS += -fPIC
 endif
 
 SONAME = -soname
@@ -17,7 +17,7 @@ ifeq ($(shell uname -s),Darwin)
 	SONAME = -install_name
 endif
 
-HOEDOWN_SRC=\
+SCIDOWN_SRC=\
 	src/autolink.o \
 	src/buffer.o \
 	src/document.o \
@@ -44,18 +44,18 @@ all:		libscidown.so libscidown.a scidown smartypants
 libscidown.so: libscidown.so.3
 	ln -f -s $^ $@
 
-libscidown.so.3: $(HOEDOWN_SRC)
+libscidown.so.3: $(SCIDOWN_SRC)
 	$(CC) -Wl,$(SONAME),$(@F) -shared $^ $(LDFLAGS) -o $@
 
-libscidown.a: $(HOEDOWN_SRC)
+libscidown.a: $(SCIDOWN_SRC)
 	$(AR) rcs libscidown.a $^
 
 # Executables
 
-scidown: bin/scidown.o $(HOEDOWN_SRC)
+scidown: bin/scidown.o $(SCIDOWN_SRC)
 	$(CC) $^ $(LDFLAGS) -o $@
 
-smartypants: bin/smartypants.o $(HOEDOWN_SRC)
+smartypants: bin/smartypants.o $(SCIDOWN_SRC)
 	$(CC) $^ $(LDFLAGS) -o $@
 
 # Perfect hashing
@@ -99,7 +99,7 @@ install:
 # Generic object compilations
 
 %.o: %.c 
-	$(CC) $(HOEDOWN_CFLAGS) -c -o $@ $<
+	$(CC) $(SCIDOWN_CFLAGS) -c -o $@ $<
 	
 %.c: %.y
 	bison -y -v -p $(YYPREFIX) -d -o $@ $<
@@ -108,4 +108,4 @@ install:
 	flex -P $(YYPREFIX) -o $@ $<
      
 src/html_blocks.o: src/html_blocks.c
-	$(CC) $(HOEDOWN_CFLAGS) -Wno-static-in-inline -c -o $@ $<
+	$(CC) $(SCIDOWN_CFLAGS) -Wno-static-in-inline -c -o $@ $<
