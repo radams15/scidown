@@ -2,6 +2,8 @@
 *.obj
 *.exe
 test.md
+test.html
+ref.md
 scidown
 scidown.dll
 scidown.exp
