@@ -114,9 +114,9 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 			chart * c =  parse_chart(copy);
 			char * svg = chart_to_svg(c);
 
-			int n = strlen(svg);		
+			int n = strlen(svg);
 			hoedown_buffer_printf(ob, svg, n);
-			
+
 			free(copy);
 			chart_free(c);
 			free(svg);
@@ -127,7 +127,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 
 				char * buffer = malloc(sizeof(char)*50);
 				memset(buffer,0, 50);
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>", 
+				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>",
 				state->counter.figure, state->localization.figure, state->counter.figure);
 				hoedown_buffer_printf(ob, buffer, 50);
 				free(buffer);
@@ -152,14 +152,14 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 
 				char * buffer = malloc(sizeof(char)*50);
 				memset(buffer,0, 50);
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>", 
+				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>",
 				state->counter.figure, state->localization.figure, state->counter.figure);
 				hoedown_buffer_printf(ob, buffer, 50);
 				free(buffer);
 				HOEDOWN_BUFPUTSL(ob, "</figcaption>\n</figure>");
 			}
 		}
-		return;	
+		return;
 	}
 	if ((state->flags & HOEDOWN_HTML_FIGCAPTION)!=0 && (state->flags & HOEDOWN_HTML_FIGCOUNTER)!=0)
 	{
@@ -184,7 +184,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 
 		char * buffer = malloc(sizeof(char)*50);
 		memset(buffer,0, 50);
-		sprintf(buffer, "<b id=\"listing_%u\">%s %u</b>", 
+		sprintf(buffer, "<b id=\"listing_%u\">%s %u</b>",
 		state->counter.listing, state->localization.listing, state->counter.listing);
 		hoedown_buffer_printf(ob, buffer, 50);
 		free(buffer);
@@ -453,12 +453,12 @@ rndr_image(hoedown_buffer *ob, const hoedown_buffer *link, const hoedown_buffer 
 {
 	hoedown_html_renderer_state *state = data->opaque;
 	if (!link || !link->size) return 0;
-	
+
 	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0)
 	{
 		HOEDOWN_BUFPUTSL(ob, "<figure>\n");
 	}
-	  
+
 
 	HOEDOWN_BUFPUTSL(ob, "<img src=\"");
 	escape_href(ob, link->data, link->size);
@@ -482,12 +482,12 @@ rndr_image(hoedown_buffer *ob, const hoedown_buffer *link, const hoedown_buffer 
 			memset(buffer,0, 256);
 			if ((title && title->size) || (alt && alt->size))
 			{
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u:</b> ", 
+				sprintf(buffer, "<b id=\"figure_%u\">%s %u:</b> ",
 						state->counter.figure, state->localization.figure, state->counter.figure);
 			}
 			else
 			{
-				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>", 
+				sprintf(buffer, "<b id=\"figure_%u\">%s %u</b>",
 						state->counter.figure, state->localization.figure, state->counter.figure);
 			}
 			hoedown_buffer_printf(ob, buffer, 256);
@@ -530,7 +530,7 @@ rndr_table(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_rend
 {
     if (ob->size) hoedown_buffer_putc(ob, '\n');
 	hoedown_html_renderer_state *state = data->opaque;
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0 || 
+	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0 ||
 		(state->flags & HOEDOWN_HTML_FIGCOUNTER) != 0)
 	{
 		HOEDOWN_BUFPUTSL(ob, "<figure>\n");
@@ -538,14 +538,14 @@ rndr_table(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_rend
     HOEDOWN_BUFPUTSL(ob, "<table>\n");
     hoedown_buffer_put(ob, content->data, content->size);
     HOEDOWN_BUFPUTSL(ob, "</table>\n");
-	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0 || 
+	if ((state->flags & HOEDOWN_HTML_FIGCAPTION) != 0 ||
 		(state->flags & HOEDOWN_HTML_FIGCOUNTER) != 0)
 	{
 		state->counter.table ++;
 		HOEDOWN_BUFPUTSL(ob, "<figcaption>");
 		char * buffer = malloc(sizeof(char)*50);
 			memset(buffer,0, 50);
-		sprintf(buffer, "<b id=\"table_%u\">%s %u</b>", 
+		sprintf(buffer, "<b id=\"table_%u\">%s %u</b>",
 						state->counter.table, state->localization.table, state->counter.table);
 		hoedown_buffer_printf(ob, buffer, 256);
 		free(buffer);

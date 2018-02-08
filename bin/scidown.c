@@ -62,6 +62,8 @@ static struct html_flag_info html_flags_info[] = {
 	{HOEDOWN_HTML_ESCAPE, "escape", "Escape all HTML."},
 	{HOEDOWN_HTML_HARD_WRAP, "hard-wrap", "Render each linebreak as <br>."},
 	{HOEDOWN_HTML_USE_XHTML, "xhtml", "Render XHTML."},
+	{HOEDOWN_HTML_CHARTER, "charter", "Render Charter plots."},
+	{HOEDOWN_HTML_MERMAID, "mermaid", "Render mermaid diagrams."},
 };
 
 static const char *category_prefix = "all-";
