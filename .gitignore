@@ -1,6 +1,7 @@
 *.o
 *.obj
 *.exe
+test.md
 hoedown
 hoedown.dll
 hoedown.exp
