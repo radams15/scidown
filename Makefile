@@ -26,8 +26,15 @@ SCIDOWN_SRC=\
 	src/html_blocks.o \
 	src/html_smartypants.o \
 	src/stack.o \
-	src/version.o
-	
+	src/version.o \
+	src/charter/svg_utils.o \
+	src/charter/renderer.o \
+	src/charter/parser.o \
+	src/charter/clist.o \
+	src/charter/charter.o \
+	src/charter/tinyexpr/tinyexpr.o \
+	src/charter/csv_parser/csvparser.o
+
 .PHONY:		all test test-pl clean
 
 all:		libscidown.so libscidown.a scidown smartypants
@@ -91,14 +98,14 @@ install:
 
 # Generic object compilations
 
-%.o: %.c 
+%.o: %.c
 	$(CC) $(SCIDOWN_CFLAGS) -c -o $@ $<
-	
+
 %.c: %.y
 	bison -y -v -p $(YYPREFIX) -d -o $@ $<
 
 %.c: %.l
 	flex -P $(YYPREFIX) -o $@ $<
-     
+
 src/html_blocks.o: src/html_blocks.c
 	$(CC) $(SCIDOWN_CFLAGS) -Wno-static-in-inline -c -o $@ $<

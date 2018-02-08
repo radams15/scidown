@@ -71,6 +71,16 @@ static const char *negative_prefix = "no-";
 #define DEF_OUNIT 64
 #define DEF_MAX_NESTING 16
 
+/* Get local info */
+html_localization get_local()
+{
+  html_localization local;
+  local.figure = "Figure";
+  local.listing = "Listing";
+  local.table = "Table";
+  return local;
+}
+
 
 /* PRINT HELP */
 
@@ -406,13 +416,13 @@ main(int argc, char **argv)
 	if (file != stdin) fclose(file);
 
 	/* Create the renderer */
-	renderer = hoedown_html_renderer_new(data.html_flags | HOEDOWN_HTML_MATHML, data.toc_level);
+	renderer = hoedown_html_renderer_new(data.html_flags, data.toc_level, get_local());
 	renderer_free = hoedown_html_renderer_free;
-	
+
 	/* Perform Markdown rendering */
 	ob = hoedown_buffer_new(data.ounit);
 	document = hoedown_document_new(renderer, data.extensions, data.max_nesting);
-	
+
 	t1 = clock();
 	hoedown_document_render(document, ob, ib->data, ib->size);
 	t2 = clock();
