@@ -37,22 +37,22 @@ HOEDOWN_SRC=\
 
 .PHONY:		all test test-pl clean
 
-all:		libhoedown.so libhoedown.a hoedown smartypants
+all:		libscidown.so libscidown.a scidown smartypants
 
 # Libraries
 
-libhoedown.so: libhoedown.so.3
+libscidown.so: libscidown.so.3
 	ln -f -s $^ $@
 
-libhoedown.so.3: $(HOEDOWN_SRC)
+libscidown.so.3: $(HOEDOWN_SRC)
 	$(CC) -Wl,$(SONAME),$(@F) -shared $^ $(LDFLAGS) -o $@
 
-libhoedown.a: $(HOEDOWN_SRC)
-	$(AR) rcs libhoedown.a $^
+libscidown.a: $(HOEDOWN_SRC)
+	$(AR) rcs libscidown.a $^
 
 # Executables
 
-hoedown: bin/hoedown.o $(HOEDOWN_SRC)
+scidown: bin/scidown.o $(HOEDOWN_SRC)
 	$(CC) $^ $(LDFLAGS) -o $@
 
 smartypants: bin/smartypants.o $(HOEDOWN_SRC)
@@ -65,10 +65,10 @@ src/html_blocks.c: html_block_names.gperf
 
 # Testing
 
-test: hoedown
+test: scidown
 	python test/runner.py
 
-test-pl: hoedown
+test-pl: scidown
 	perl test/MarkdownTest_1.0.3/MarkdownTest.pl \
 		--script=./hoedown --testdir=test/MarkdownTest_1.0.3/Tests --tidy
 
@@ -76,8 +76,8 @@ test-pl: hoedown
 
 clean:
 	$(RM) src/*.o bin/*.o
-	$(RM) libhoedown.so libhoedown.so.1 libhoedown.a
-	$(RM) hoedown smartypants hoedown.exe smartypants.exe
+	$(RM) libscidown.so libscidown.so.3 libscidown.a
+	$(RM) scidown smartypants hoedown.exe smartypants.exe
 
 # Installing
 
