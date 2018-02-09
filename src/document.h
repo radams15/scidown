@@ -109,13 +109,23 @@ struct {
 	float_type type;
 } typedef float_args;
 
+struct {
+	char * title;
+	char * authors;
+	char * keywords;
+	char * style;
+	char * affiliation;
+} typedef  metadata;
+
+
+
 /* hoedown_renderer - functions for rendering parsed data */
 struct hoedown_renderer {
 	/* state object */
 	void *opaque;
 
 	/* document level callbacks */
-	void (*style)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*head)(hoedown_buffer *ob, metadata * doc_metadata);
 	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*authors)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*affiliation)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
@@ -173,14 +183,6 @@ struct hoedown_renderer {
 	void (*doc_footer)(hoedown_buffer *ob, int inline_render, const hoedown_renderer_data *data);
 };
 typedef struct hoedown_renderer hoedown_renderer;
-
-struct {
-	char * title;
-	char * authors;
-	char * keywords;
-	char * style;
-	char * affiliation;
-} typedef  metadata;
 
 
 

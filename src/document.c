@@ -125,6 +125,7 @@ static char_trigger markdown_char_ptrs[] = {
 struct hoedown_document {
 	hoedown_renderer md;
 	hoedown_renderer_data data;
+	metadata * document_metadata;
 
 	struct link_ref *refs[REF_TABLE_SIZE];
 	struct footnote_list footnotes_found;
@@ -2604,6 +2605,14 @@ parse_abstract(
 	{
 		doc->md.abstract(ob);
 		parse_block(ob, doc, data, skip);
+		if (doc->md.keywords && doc->document_metadata->keywords)
+		{
+			hoedown_buffer * b = hoedown_buffer_new(1);
+			hoedown_buffer_puts(b, doc->document_metadata->keywords);
+			doc->md.keywords(ob,b,NULL);
+			hoedown_buffer_free(b);
+
+		}
 		doc->md.close(ob);
 	}
 	if (skip < size)
@@ -3309,13 +3318,7 @@ parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 void
 render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 {
-	if (meta->style != NULL && doc->md.style)
-	{
-		hoedown_buffer * b = hoedown_buffer_new(1);
-		hoedown_buffer_puts(b, meta->style);
-		doc->md.style(ob,b,NULL);
-		hoedown_buffer_free(b);
-	}
+
 	if (meta->title != NULL && doc->md.title)
 	{
 		hoedown_buffer * b = hoedown_buffer_new(1);
@@ -3337,13 +3340,7 @@ render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 		doc->md.affiliation(ob,b,NULL);
 		hoedown_buffer_free(b);
 	}
-	if (meta->keywords != NULL && doc->md.keywords)
-	{
-		hoedown_buffer * b = hoedown_buffer_new(1);
-		hoedown_buffer_puts(b, meta->keywords);
-		doc->md.keywords(ob,b,NULL);
-		hoedown_buffer_free(b);
-	}
+
 }
 
 void
@@ -3364,10 +3361,13 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	}
 
 	metadata * meta = parse_yaml(doc, ob, data, size);
+	if (doc->md.head)
+		doc->md.head(ob, meta);
 	if (doc->md.begin)
 		doc->md.begin(ob);
 	render_metadata(doc, ob, meta);
-	free(meta);
+	doc->document_metadata = meta;
+
 	if (doc->md.inner)
 		doc->md.inner(ob);
 
@@ -3387,6 +3387,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 		free_footnote_list(&doc->footnotes_found, 1);
 		free_footnote_list(&doc->footnotes_used, 0);
 	}
+	free(meta);
 	assert(doc->work_bufs[BUFFER_SPAN].size == 0);
 	assert(doc->work_bufs[BUFFER_BLOCK].size == 0);
 }

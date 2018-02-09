@@ -592,90 +592,105 @@ rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const
 }
 
 static void
-rndr_style(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+rndr_head(hoedown_buffer *ob, metadata * doc_meta)
 {
-	hoedown_buffer_printf(ob,"<style type=\"text/css\">\n@import url(\"");
-	escape_html(ob, content->data, content->size);
-	hoedown_buffer_printf(ob,"\");\n</style>\n");
+	hoedown_buffer_puts(ob, "<!DOCTYPE html>\n<html><head>\n<meta charset=\"UTF-8\">\n");
+	if (doc_meta->title){
+		hoedown_buffer_printf(ob, "<title>%s</title>\n", doc_meta->title);
+	}
+	if (doc_meta->authors)
+	{
+		hoedown_buffer_printf(ob, "<meta name=\"author\" content=\"%s\">\n", doc_meta->authors);
+	}
+	if (doc_meta->keywords)
+	{
+		hoedown_buffer_printf(ob, "<meta name=\"keywords\" content=\"%s\">\n", doc_meta->keywords);
+	}
+	if (doc_meta->style)
+	{
+		hoedown_buffer_printf(ob, "<link rel=\"stylesheet\" href=\"%s\">\n", doc_meta->style);
+	}
+	hoedown_buffer_puts(ob, "</head>\n<body>\n");
 }
 
 static void
 rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<h1 class=\"title\">", 18);
+	hoedown_buffer_puts(ob, "<h1 class=\"title\">");
 	escape_html(ob, content->data, content->size);
-	hoedown_buffer_put(ob, (const uint8_t*) "</h1>\n", 6);
+	hoedown_buffer_puts(ob, "</h1>\n");
 }
 
 static void
 rndr_authors(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"authors\">", 21);
+	hoedown_buffer_puts(ob, "<div class=\"authors\">");
 	escape_html(ob, content->data, content->size);
-	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n", 8);
+	hoedown_buffer_puts(ob, "</div>\n");
 }
 
 static void
 rndr_affiliation(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"affiliation\">", 25);
+	hoedown_buffer_puts(ob, "<div class=\"affiliation\">");
 	escape_html(ob, content->data, content->size);
-	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n", 8);
+	hoedown_buffer_puts(ob, "</div>\n");
 }
 
 static void
 rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"keywords\">", 22);
+	hoedown_buffer_puts(ob, "<div class=\"keywords\">");
+	hoedown_buffer_puts(ob, "<b>Keywords: </b>");
 	escape_html(ob, content->data, content->size);
-	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n", 8);
+	hoedown_buffer_puts(ob, "</div>\n");
 }
 
 static void
 rndr_begin(hoedown_buffer *ob)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"document\">", 22);
+	hoedown_buffer_puts(ob, "<div class=\"document\">");
 }
 
 static void
 rndr_inner(hoedown_buffer *ob)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"inner\">", 19);
+	hoedown_buffer_puts(ob, "<div class=\"inner\">");
 }
 
 static void
 rndr_end(hoedown_buffer *ob)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n</div>\n", 15);
+	hoedown_buffer_puts(ob, "</div>\n</div>\n</body>\n</html>\n");
 }
 
 static void
 rndr_pagebreak(hoedown_buffer *ob)
 {
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"pagebreak\"> </div>", 30);
+	hoedown_buffer_puts(ob, "<div class=\"pagebreak\"> </div>");
 }
 
 
 static void
 rndr_abstract(hoedown_buffer *ob){
-	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"abstract\">\n", 23);
-	hoedown_buffer_put(ob, (const uint8_t*) "<h2>Abstract</h2>\n", 18);
+	hoedown_buffer_puts(ob, "<div class=\"abstract\">\n");
+	hoedown_buffer_puts(ob, "<h2>Abstract</h2>\n");
 }
 
 static void
 rndr_close(hoedown_buffer *ob){
-	hoedown_buffer_put(ob, (const uint8_t*) "\n</div>\n", 8);
+	hoedown_buffer_puts(ob, "\n</div>\n");
 }
 
 static void rndr_open_float(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data)
 {
 	if (args.id){
-		hoedown_buffer_put(ob, (const uint8_t*) "<figure id=\"",12);
+		hoedown_buffer_puts(ob,"<figure id=\"");
 		hoedown_buffer_puts(ob, args.id);
-		hoedown_buffer_put(ob, (const uint8_t*) "\">\n",3);
+		hoedown_buffer_puts(ob, "\">\n");
 		return;
 	}
-	hoedown_buffer_put(ob, (const uint8_t*) "<figure>\n",9);
+	hoedown_buffer_puts(ob, "<figure>\n");
 }
 
 static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data)
@@ -683,7 +698,7 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 	hoedown_html_renderer_state *state = data->opaque;
 
 	if (args.caption){
-		hoedown_buffer_put(ob, (const uint8_t*) "<figcaption><b>", 15);
+		hoedown_buffer_puts(ob, "<figcaption><b>");
 		switch (args.type)
 		{
 		case FIGURE:
@@ -700,9 +715,9 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 			break;
 		}
 		hoedown_buffer_puts(ob, args.caption);
-		hoedown_buffer_put(ob, (const uint8_t*) "</figcaption>\n", 14);
+		hoedown_buffer_puts(ob, "</figcaption>\n");
 	}
-	hoedown_buffer_put(ob, (const uint8_t*) "</figure>\n",10);
+	hoedown_buffer_puts(ob, "</figure>\n");
 }
 
 static void
@@ -853,11 +868,11 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 	static const hoedown_renderer cb_default = {
 		NULL,
 
-		rndr_style,
+		rndr_head,
 		rndr_title,
 		rndr_authors,
 		rndr_affiliation,
-		NULL,
+		rndr_keywords,
 		rndr_begin,
 		rndr_inner,
 		rndr_end,
