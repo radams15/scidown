@@ -642,6 +642,13 @@ rndr_end(hoedown_buffer *ob)
 }
 
 static void
+rndr_pagebreak(hoedown_buffer *ob)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"pagebreak\"> </div>", 30);
+}
+
+
+static void
 rndr_abstract(hoedown_buffer *ob){
 	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"abstract\">\n", 23);
 	hoedown_buffer_put(ob, (const uint8_t*) "<h2>Abstract</h2>\n", 18);
@@ -763,6 +770,7 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 
 		NULL,
 		NULL,
@@ -843,6 +851,7 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 		rndr_begin,
 		rndr_inner,
 		rndr_end,
+		rndr_pagebreak,
 
 		rndr_close,
 		rndr_abstract,

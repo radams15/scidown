@@ -1145,6 +1145,14 @@ char_autolink_email(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, si
     {
     	return parse_include(ob, doc, data, offset, size);
     }
+    if (startsWith("@pagebreak", (char*)data))
+   	{
+	   	if (doc->md.pagebreak)
+   		{
+  			doc->md.pagebreak(ob);
+   		}
+   		return 10;
+   	}
     if (startsWith("@caption(", (char*)data))
    	{
 
@@ -2613,9 +2621,9 @@ parse_caption(uint8_t *data,
 	while (i < size && (data[i] !=')' && data[i] !='\n')){
 		i++;
 	}
-	caption = malloc(i*sizeof(char));
+	caption = malloc((i+1)*sizeof(char));
 	caption[i] = 0;
-	memcpy(caption, data, i-1);
+	memcpy(caption, data, i);
 	return caption;
 }
 

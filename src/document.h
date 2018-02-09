@@ -122,6 +122,7 @@ struct hoedown_renderer {
 	void (*begin)(hoedown_buffer *ob);
 	void (*inner)(hoedown_buffer *ob);
 	void (*end)(hoedown_buffer *ob);
+	void (*pagebreak)(hoedown_buffer *ob);
 
 	/* block level callbacks - NULL skips the block */
 	void (*close)(hoedown_buffer *ob);

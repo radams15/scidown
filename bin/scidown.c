@@ -390,8 +390,8 @@ main(int argc, char **argv)
 	data.filename = NULL;
 	data.renderer = RENDERER_HTML;
 	data.toc_level = 0;
-	data.html_flags = 0;
-	data.extensions = 0;
+	data.html_flags = HOEDOWN_HTML_CHARTER | HOEDOWN_HTML_MERMAID;
+	data.extensions = HOEDOWN_EXT_BLOCK | HOEDOWN_EXT_SPAN | HOEDOWN_EXT_FLAGS;
 	data.max_nesting = DEF_MAX_NESTING;
 
 	argc = parse_options(argc, argv, parse_short_option, parse_long_option, parse_argument, &data);

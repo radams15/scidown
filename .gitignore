@@ -2,9 +2,6 @@ build/
 *.o
 *.obj
 *.exe
-test.md
-test.htm*
-ref.md
 scidown
 scidown.dll
 scidown.exp
