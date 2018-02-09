@@ -66,6 +66,11 @@ figure{
   border: solid 1px #eee;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 figcaption{
   text-align: center;
 }
