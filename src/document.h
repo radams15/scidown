@@ -117,6 +117,11 @@ struct {
 	char * affiliation;
 } typedef  metadata;
 
+struct {
+	char * extra_header;
+	char * extra_closing;
+} typedef ext_definition;
+
 
 
 /* hoedown_renderer - functions for rendering parsed data */
@@ -125,14 +130,14 @@ struct hoedown_renderer {
 	void *opaque;
 
 	/* document level callbacks */
-	void (*head)(hoedown_buffer *ob, metadata * doc_metadata);
+	void (*head)(hoedown_buffer *ob, metadata * doc_metadata, ext_definition * extensions);
 	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*authors)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*affiliation)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*keywords)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*begin)(hoedown_buffer *ob);
 	void (*inner)(hoedown_buffer *ob);
-	void (*end)(hoedown_buffer *ob);
+	void (*end)(hoedown_buffer *ob,  ext_definition * extensions);
 	void (*pagebreak)(hoedown_buffer *ob);
 
 	/* block level callbacks - NULL skips the block */
@@ -195,6 +200,7 @@ typedef struct hoedown_renderer hoedown_renderer;
 hoedown_document *hoedown_document_new(
 	const hoedown_renderer *renderer,
 	hoedown_extensions extensions,
+	ext_definition * exeternal_extensions,
 	size_t max_nesting
 ) __attribute__ ((malloc));
 

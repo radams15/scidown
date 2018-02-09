@@ -592,7 +592,7 @@ rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const
 }
 
 static void
-rndr_head(hoedown_buffer *ob, metadata * doc_meta)
+rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 {
 	hoedown_buffer_puts(ob, "<!DOCTYPE html>\n<html><head>\n<meta charset=\"UTF-8\">\n");
 	if (doc_meta->title){
@@ -610,6 +610,11 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta)
 	{
 		hoedown_buffer_printf(ob, "<link rel=\"stylesheet\" href=\"%s\">\n", doc_meta->style);
 	}
+	if (extension && extension->extra_header)
+	{
+		hoedown_buffer_puts(ob, extension->extra_header);
+	}
+
 	hoedown_buffer_puts(ob, "</head>\n<body>\n");
 }
 
@@ -659,9 +664,14 @@ rndr_inner(hoedown_buffer *ob)
 }
 
 static void
-rndr_end(hoedown_buffer *ob)
+rndr_end(hoedown_buffer *ob, ext_definition * extension)
 {
-	hoedown_buffer_puts(ob, "</div>\n</div>\n</body>\n</html>\n");
+	hoedown_buffer_puts(ob, "</div>\n</div>\n");
+	if (extension && extension->extra_closing)
+	{
+		hoedown_buffer_puts(ob, extension->extra_closing);
+	}
+	hoedown_buffer_puts(ob, "</body>\n</html>\n");
 }
 
 static void

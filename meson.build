@@ -3,7 +3,17 @@ project('Scidown', 'c',
   license : 'GPL3'
 )
 
+PREFIX = get_option('prefix')
 PROJECT_NAME = 'scidown'
+DATA_DIR = join_paths(PREFIX, 'share')
+APP_DIR = join_paths(DATA_DIR, 'scidown')
+SCRIPTS_DIR = join_paths(APP_DIR, 'scripts')
+
+add_global_arguments(
+  '-DSCRIPTS_DIR="@0@/"'.format(SCRIPTS_DIR),
+  language : 'c'
+)
+
 
 lib_sources = [
     'src/autolink.c',
@@ -24,6 +34,7 @@ lib_sources = [
     'src/charter/csv_parser/csvparser.c'
 ]
 
+
 bin_sources = [
   'bin/scidown.c'
 ]
@@ -41,4 +52,9 @@ executable(
     link_args: '-lm',
     c_args: ['-I../src/'],
     install: true
+)
+
+install_subdir(
+  'resources/scripts',
+  install_dir : APP_DIR
 )

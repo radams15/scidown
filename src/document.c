@@ -126,6 +126,7 @@ struct hoedown_document {
 	hoedown_renderer md;
 	hoedown_renderer_data data;
 	metadata * document_metadata;
+	ext_definition * extensions;
 
 	struct link_ref *refs[REF_TABLE_SIZE];
 	struct footnote_list footnotes_found;
@@ -3100,6 +3101,7 @@ hoedown_document *
 hoedown_document_new(
 	const hoedown_renderer *renderer,
 	hoedown_extensions extensions,
+    ext_definition * user_ext,
 	size_t max_nesting)
 {
 	hoedown_document *doc = NULL;
@@ -3109,6 +3111,7 @@ hoedown_document_new(
 	doc = hoedown_malloc(sizeof(hoedown_document));
 	memcpy(&doc->md, renderer, sizeof(hoedown_renderer));
 
+	doc->extensions = user_ext;
 	doc->data.opaque = renderer->opaque;
 
 	hoedown_stack_init(&doc->work_bufs[BUFFER_BLOCK], 4);
@@ -3362,7 +3365,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 
 	metadata * meta = parse_yaml(doc, ob, data, size);
 	if (doc->md.head)
-		doc->md.head(ob, meta);
+		doc->md.head(ob, meta, doc->extensions);
 	if (doc->md.begin)
 		doc->md.begin(ob);
 	render_metadata(doc, ob, meta);
@@ -3379,7 +3382,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	if (doc->md.doc_footer)
 		doc->md.doc_footer(ob, 0, &doc->data);
 	if (doc->md.end)
-		doc->md.end(ob);
+		doc->md.end(ob, doc->extensions);
 	/* clean-up */
 
 	free_link_refs(doc->refs);
