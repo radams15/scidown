@@ -100,7 +100,8 @@ typedef struct hoedown_renderer_data hoedown_renderer_data;
 enum {
 	FIGURE,
 	TABLE,
-	LISTING
+	LISTING,
+	EQUATION
 }typedef float_type;
 
 struct {
@@ -143,6 +144,8 @@ struct hoedown_renderer {
 	/* block level callbacks - NULL skips the block */
 	void (*close)(hoedown_buffer *ob);
 	void (*abstract)(hoedown_buffer *ob);
+	void (*opn_equation)(hoedown_buffer *ob, const char * ref,const hoedown_renderer_data *data);
+	void (*cls_equation)(hoedown_buffer *ob, const hoedown_renderer_data *data);
 	void (*open_float)(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data);
 	void (*close_float)(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data);
 	void (*blockcode)(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buffer *lang, const hoedown_renderer_data *data);

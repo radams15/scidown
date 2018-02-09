@@ -1747,7 +1747,7 @@ prefix_float(uint8_t * data, size_t size)
 	char * txt = (char*) data;
 	return (startsWith("@figure", txt) || startsWith("@table",txt) ||
 	        startsWith("@code", txt) || startsWith("@listing",txt) ||
-	        startsWith("@abstract\n", txt));
+	        startsWith("@abstract\n", txt) || startsWith("@equation", txt));
 }
 
 /* parse_block • parsing of one block, returning next uint8_t to parse */
@@ -2685,6 +2685,50 @@ parse_fl(
 }
 
 static size_t
+parse_eq(
+	hoedown_buffer *ob,
+	hoedown_document *doc,
+	uint8_t *data,
+	size_t size)
+{
+	size_t begin = 0;
+	size_t skip = 0;
+	float_args args = {};
+	args.type = EQUATION;
+
+	if (data[0] == '(')
+	{
+		begin ++;
+		while (begin < size && (data[begin] !=')' && data[begin] !='\n')){
+			begin ++;
+		}
+		args.id = malloc(sizeof(char)*(begin));
+		args.id[begin-1] = 0;
+		memcpy(args.id, data+1, begin-1);
+		begin++;
+	}
+	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
+	{
+		skip ++;
+	}
+
+	if (doc->md.opn_equation)
+	{
+		doc->md.opn_equation(ob, args.id, &doc->data);
+		hoedown_buffer * text = hoedown_buffer_new(skip);
+		hoedown_buffer_put(text, data+begin, skip);
+		if (doc->md.math)
+			doc->md.math(ob, text, 2, &doc->data);
+		doc->md.cls_equation(ob, &doc->data);
+	}
+	if (skip < size)
+	{
+		skip += 4;
+	}
+	return skip + begin;
+}
+
+static size_t
 parse_float(
 	hoedown_buffer *ob,
 	hoedown_document *doc,
@@ -2695,14 +2739,21 @@ parse_float(
     {
 		return parse_abstract(ob, doc, data+10,size-10)+10;
 	}
-	if (startsWith("@figure", (char*)data)){
+	if (startsWith("@figure", (char*)data))
+	{
 		return parse_fl(ob, doc, data+7, size-7, FIGURE)+7;
 	}
-	if (startsWith("@table", (char*)data)){
+	if (startsWith("@table", (char*)data))
+	{
 		return parse_fl(ob, doc, data+6, size-6, TABLE)+6;
 	}
-	if (startsWith("@listing", (char*)data)){
+	if (startsWith("@listing", (char*)data))
+	{
 		return parse_fl(ob, doc, data+8, size-8, LISTING)+8;
+	}
+	if (startsWith("@equation", (char*)data))
+	{
+		return parse_eq(ob, doc, data+9, size-9) + 9;
 	}
 	return 1;
 }

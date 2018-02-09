@@ -692,6 +692,27 @@ rndr_close(hoedown_buffer *ob){
 	hoedown_buffer_puts(ob, "\n</div>\n");
 }
 
+static void rndr_open_equation(hoedown_buffer *ob, const char * ref, const hoedown_renderer_data *data)
+{
+	if (ref){
+		hoedown_buffer_puts(ob,"<div id=\"");
+		hoedown_buffer_puts(ob, ref);
+		hoedown_buffer_puts(ob, "\" class=\"equation\">\n");
+	}
+	else {
+		hoedown_buffer_puts(ob, "<div class=\"equation\">\n");
+	}
+	hoedown_html_renderer_state *state = data->opaque;
+	state->counter.equation ++;
+	hoedown_buffer_printf(ob, "<table class=\"eq_table\"><tr><td class=\"eq_code\">");
+}
+
+static void rndr_close_equation(hoedown_buffer *ob, const hoedown_renderer_data *data)
+{
+	hoedown_html_renderer_state *state = data->opaque;
+	hoedown_buffer_printf(ob, "</td><td class=\"counter\">\\[(%d)\\]</td></tr></table></div>\n", state->counter.equation);
+}
+
 static void rndr_open_float(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data)
 {
 	if (args.id){
@@ -812,6 +833,8 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
+		NULL,
 		toc_header,
 		NULL,
 		NULL,
@@ -890,6 +913,8 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 
 		rndr_close,
 		rndr_abstract,
+		rndr_open_equation,
+		rndr_close_equation,
 		rndr_open_float,
 		rnrd_close_float,
 		rndr_blockcode,

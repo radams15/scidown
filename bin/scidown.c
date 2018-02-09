@@ -424,7 +424,7 @@ main(int argc, char **argv)
 	/* Perform Markdown rendering */
 	ob = hoedown_buffer_new(data.ounit);
 
-	ext_definition ext;
+	ext_definition ext = {NULL, NULL};
 	ext.extra_header = "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css\" crossorigin=\"anonymous\">\n"
 						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js\" crossorigin=\"anonymous\"></script>\n"
 						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.min.js\" crossorigin=\"anonymous\"></script>\n";
