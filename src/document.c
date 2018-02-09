@@ -3263,6 +3263,9 @@ int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t 
 	} else if (!strcmp(keyword, "style"))
 	{
 		meta->style = word;
+	} else if (!strcmp(keyword, "affiliation"))
+	{
+		meta->affiliation = word;
 	} else
 	{
 		free(word);
@@ -3278,6 +3281,7 @@ parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 	meta->authors = NULL;
 	meta->style = NULL;
 	meta->title = NULL;
+	meta->affiliation = NULL;
 	if (startsWith("---\n", (char*)data)){
 		int i = 4;
 		while (i < size){
@@ -3324,6 +3328,13 @@ render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 		doc->md.authors(ob,b,NULL);
 		hoedown_buffer_free(b);
 	}
+	if (meta->affiliation != NULL && doc->md.affiliation)
+	{
+		hoedown_buffer * b = hoedown_buffer_new(1);
+		hoedown_buffer_puts(b, meta->affiliation);
+		doc->md.affiliation(ob,b,NULL);
+		hoedown_buffer_free(b);
+	}
 	if (meta->keywords != NULL && doc->md.keywords)
 	{
 		hoedown_buffer * b = hoedown_buffer_new(1);
@@ -3354,6 +3365,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	if (doc->md.begin)
 		doc->md.begin(ob);
 	render_metadata(doc, ob, meta);
+	free(meta);
 	if (doc->md.inner)
 		doc->md.inner(ob);
 

@@ -118,6 +118,7 @@ struct hoedown_renderer {
 	void (*style)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*authors)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*affiliation)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*keywords)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*begin)(hoedown_buffer *ob);
 	void (*inner)(hoedown_buffer *ob);
@@ -178,6 +179,7 @@ struct {
 	char * authors;
 	char * keywords;
 	char * style;
+	char * affiliation;
 } typedef  metadata;
 
 

@@ -616,6 +616,14 @@ rndr_authors(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_re
 }
 
 static void
+rndr_affiliation(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"affiliation\">", 25);
+	escape_html(ob, content->data, content->size);
+	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n", 8);
+}
+
+static void
 rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
 	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"keywords\">", 22);
@@ -771,6 +779,7 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 
 		NULL,
 		NULL,
@@ -847,6 +856,7 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 		rndr_style,
 		rndr_title,
 		rndr_authors,
+		rndr_affiliation,
 		NULL,
 		rndr_begin,
 		rndr_inner,

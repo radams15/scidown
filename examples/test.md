@@ -2,6 +2,7 @@
 title: Title
 authors: Martino Ferrari
 keywords: Semantic, Web, Markdown
+affiliation: University of Geneva
 style: scidown.css
 ---
 @abstract
@@ -75,10 +76,16 @@ This a plot
 
 @figure
 ```charter
+width: 400
+height: 300
 plot:
 	x: range: 0 2 20
 	y: math: exp(-(x^2))
-	label: sig^1
+	label: gauss
+x-axis:
+	label: frequency
+y-axis:
+	label: energy
 ```
 
 @caption(This is a simple plot, with linear axis and no title.)
