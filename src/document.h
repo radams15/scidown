@@ -97,6 +97,18 @@ struct hoedown_renderer_data {
 };
 typedef struct hoedown_renderer_data hoedown_renderer_data;
 
+enum {
+	FIGURE,
+	TABLE,
+	LISTING
+}typedef float_type;
+
+struct {
+	char * id;
+	char * caption;
+	float_type type;
+} typedef float_args;
+
 /* hoedown_renderer - functions for rendering parsed data */
 struct hoedown_renderer {
 	/* state object */
@@ -114,6 +126,8 @@ struct hoedown_renderer {
 	/* block level callbacks - NULL skips the block */
 	void (*close)(hoedown_buffer *ob);
 	void (*abstract)(hoedown_buffer *ob);
+	void (*open_float)(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data);
+	void (*close_float)(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data);
 	void (*blockcode)(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buffer *lang, const hoedown_renderer_data *data);
 	void (*blockquote)(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data);
 	void (*header)(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data);
@@ -164,6 +178,8 @@ struct {
 	char * keywords;
 	char * style;
 } typedef  metadata;
+
+
 
 
 /*************

@@ -644,12 +644,50 @@ rndr_end(hoedown_buffer *ob)
 static void
 rndr_abstract(hoedown_buffer *ob){
 	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"abstract\">\n", 23);
-	hoedown_buffer_put(ob, (const uint8_t*) "<h2>Abstract</h2>\n", 19);
+	hoedown_buffer_put(ob, (const uint8_t*) "<h2>Abstract</h2>\n", 18);
 }
 
 static void
 rndr_close(hoedown_buffer *ob){
-	hoedown_buffer_put(ob, (const uint8_t*) "\n</div>\n", 9);
+	hoedown_buffer_put(ob, (const uint8_t*) "\n</div>\n", 8);
+}
+
+static void rndr_open_float(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data)
+{
+	if (args.id){
+		hoedown_buffer_put(ob, (const uint8_t*) "<figure id=\"",12);
+		hoedown_buffer_puts(ob, args.id);
+		hoedown_buffer_put(ob, (const uint8_t*) "\">\n",3);
+		return;
+	}
+	hoedown_buffer_put(ob, (const uint8_t*) "<figure>\n",9);
+}
+
+static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data)
+{
+	hoedown_html_renderer_state *state = data->opaque;
+
+	if (args.caption){
+		hoedown_buffer_put(ob, (const uint8_t*) "<figcaption><b>", 15);
+		switch (args.type)
+		{
+		case FIGURE:
+			state->counter.figure++;
+			hoedown_buffer_printf(ob,  "Figure %u.</b> ", state->counter.figure);
+			break;
+		case LISTING:
+			state->counter.listing++;
+			hoedown_buffer_printf(ob,  "Listing %u.</b> ", state->counter.listing);
+			break;
+		case TABLE:
+			state->counter.table++;
+			hoedown_buffer_printf(ob,  "Table %u.</b> ", state->counter.table);
+			break;
+		}
+		hoedown_buffer_puts(ob, args.caption);
+		hoedown_buffer_put(ob, (const uint8_t*) "</figcaption>\n", 14);
+	}
+	hoedown_buffer_put(ob, (const uint8_t*) "</figure>\n",10);
 }
 
 static void
@@ -730,6 +768,8 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
+		NULL,
 		toc_header,
 		NULL,
 		NULL,
@@ -806,6 +846,8 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 
 		rndr_close,
 		rndr_abstract,
+		rndr_open_float,
+		rnrd_close_float,
 		rndr_blockcode,
 		rndr_blockquote,
 		rndr_header,

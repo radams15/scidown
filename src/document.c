@@ -1140,10 +1140,19 @@ char_autolink_www(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size
 static size_t
 char_autolink_email(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size)
 {
+
 	if (startsWith("@include(", (char*)data))
     {
     	return parse_include(ob, doc, data, offset, size);
     }
+    if (startsWith("@caption(", (char*)data))
+   	{
+
+   		/** skip it **/
+   		size_t i;
+   		for (i=9;data[i] != ')' && data[i] != '\n' && i < size; i++){}
+   		return i+1;
+   	}
 	hoedown_buffer *link;
 	size_t link_len, rewind;
 
@@ -1726,8 +1735,8 @@ static size_t
 prefix_float(uint8_t * data, size_t size)
 {
 	char * txt = (char*) data;
-	return (startsWith("@figure(", txt) || startsWith("@table(",txt) ||
-	        startsWith("@code(", txt) || startsWith("@listing(",txt) ||
+	return (startsWith("@figure", txt) || startsWith("@table",txt) ||
+	        startsWith("@code", txt) || startsWith("@listing",txt) ||
 	        startsWith("@abstract\n", txt));
 }
 
@@ -2595,6 +2604,65 @@ parse_abstract(
 	}
 	return skip;
 }
+static char *
+parse_caption(uint8_t *data,
+              size_t size)
+{
+	char * caption;
+	int i=0;
+	while (i < size && (data[i] !=')' && data[i] !='\n')){
+		i++;
+	}
+	caption = malloc(i*sizeof(char));
+	caption[i] = 0;
+	memcpy(caption, data, i-1);
+	return caption;
+}
+
+static size_t
+parse_fl(
+	hoedown_buffer *ob,
+	hoedown_document *doc,
+	uint8_t *data,
+	size_t size,
+    float_type type)
+{
+	size_t skip = 0;
+	float_args args = {};
+	args.type = type;
+
+	if (data[0] == '(')
+	{
+		skip ++;
+		while (skip < size && (data[skip] !=')' && data[skip] !='\n')){
+			skip ++;
+		}
+		args.id = malloc(sizeof(char)*(skip));
+		args.id[skip] = 0;
+		memcpy(args.id, data+1, skip-1);
+	}
+	while (skip < size && !startsWith("\n@/\n", (char*)data+skip))
+	{
+		if (startsWith("\n@caption(",(char*) data+skip))
+		{
+			args.caption = parse_caption(data+skip+10, size-skip-10);
+		}
+		skip ++;
+	}
+
+
+	if (doc->md.open_float)
+	{
+		doc->md.open_float(ob, args, &doc->data);
+		parse_block(ob, doc, data, skip);
+		doc->md.close_float(ob, args, &doc->data);
+	}
+	if (skip < size)
+	{
+		skip += 4;
+	}
+	return skip;
+}
 
 static size_t
 parse_float(
@@ -2606,6 +2674,15 @@ parse_float(
 	if (startsWith("@abstract\n", (char*)data))
     {
 		return parse_abstract(ob, doc, data+10,size-10)+10;
+	}
+	if (startsWith("@figure", (char*)data)){
+		return parse_fl(ob, doc, data+7, size-7, FIGURE)+7;
+	}
+	if (startsWith("@table", (char*)data)){
+		return parse_fl(ob, doc, data+6, size-6, TABLE)+6;
+	}
+	if (startsWith("@listing", (char*)data)){
+		return parse_fl(ob, doc, data+8, size-8, LISTING)+8;
 	}
 	return 1;
 }
