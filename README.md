@@ -117,8 +117,9 @@ plot:
 
 Example
 --------
-An example of `scidwon` syntax is available in the ```examples/``` folder, this is a screenshot of the parsing of a simple example using the ```scidown.css`` style:
+An example of `scidwon` syntax is available in the ```examples/``` folder, this is a screenshot of the parsing of a simple example using the `scidown_article.css` style:
 
 ![screenshot](html_article.png)
 
+The following is the same document using instead the `scidown_report.css` style:
 ![screenshot](html_report.png)
