@@ -1727,7 +1727,8 @@ prefix_float(uint8_t * data, size_t size)
 {
 	char * txt = (char*) data;
 	return (startsWith("@figure(", txt) || startsWith("@table(",txt) ||
-	        startsWith("@code(", txt) || startsWith("@listing(",txt));
+	        startsWith("@code(", txt) || startsWith("@listing(",txt) ||
+	        startsWith("@abstract\n", txt));
 }
 
 /* parse_block • parsing of one block, returning next uint8_t to parse */
@@ -1944,11 +1945,6 @@ parse_blockcode(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t
 	return beg;
 }
 
-static size_t
-parse_float(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t size)
-{
-
-}
 
 
 /* parse_listitem • parsing of a single list item */
@@ -2573,6 +2569,47 @@ parse_table(
 	return i;
 }
 
+static size_t
+parse_abstract(
+	hoedown_buffer *ob,
+	hoedown_document *doc,
+	uint8_t *data,
+	size_t size)
+{
+	size_t skip = 0;
+	while (skip < size && !startsWith("\n@/\n", (char*)data+skip))
+	{
+		skip ++;
+	}
+
+
+	if (doc->md.abstract)
+	{
+		doc->md.abstract(ob);
+		parse_block(ob, doc, data, skip);
+		doc->md.close(ob);
+	}
+	if (skip < size)
+	{
+		skip += 4;
+	}
+	return skip;
+}
+
+static size_t
+parse_float(
+	hoedown_buffer *ob,
+	hoedown_document *doc,
+	uint8_t *data,
+	size_t size)
+{
+	if (startsWith("@abstract\n", (char*)data))
+    {
+		return parse_abstract(ob, doc, data+10,size-10)+10;
+	}
+	return 1;
+}
+
 /* parse_block • parsing of one block, returning next uint8_t to parse */
 static void
 parse_block(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t size)
@@ -3033,7 +3070,22 @@ hoedown_document_new(
 
 	return doc;
 }
-
+size_t
+skip_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
+{
+	size_t skip = 0;
+	if (startsWith("---\n", (char*)data)){
+		skip += 4;
+		while (!startsWith("\n---\n", (char*)data+skip) && skip < size){
+			skip ++;
+		}
+		if (skip < size)
+		{
+			skip += 5;
+		}
+	}
+	return skip;
+}
 
 void
 sub_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
@@ -3088,17 +3140,113 @@ sub_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 		doc->md.doc_header(ob, 0, &doc->data);
 
 	if (text->size) {
+		size_t skip = skip_yaml(doc, ob, text->data, text->size);
 		/* adding a final newline if not already present */
 		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
 			hoedown_buffer_putc(text, '\n');
 
-		parse_block(ob, doc, text->data, text->size);
+		parse_block(ob, doc, text->data+skip, text->size-skip);
 	}
 
 
 	hoedown_buffer_free(text);
 }
 
+int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t size)
+{
+	int j;
+	int skip = 0;
+	int text = 0;
+	for (j = 0 ; j+1 < size && data[j+1] != '\n'; j++){
+		if (!text && data[j] == ' ')
+			skip ++;
+		else if (!text && data[j] != ' ')
+			text = 1;
+	}
+	char * word = malloc(sizeof(char) * (j-skip+3));
+	memset(word, 0, (j-skip+3));
+	memcpy(word, data+skip, (j-skip+1));
+	if (!strcmp(keyword, "title"))
+	{
+		meta->title = word;
+	} else if (!strcmp(keyword, "authors"))
+    {
+		meta->authors = word;
+	} else if (!strcmp(keyword, "keywords"))
+	{
+		meta->keywords = word;
+	} else if (!strcmp(keyword, "style"))
+	{
+		meta->style = word;
+	} else
+	{
+		free(word);
+	}
+	return j+1;
+}
+
+metadata *
+parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
+{
+	metadata * meta = malloc(sizeof(metadata));
+	meta->keywords = NULL;
+	meta->authors = NULL;
+	meta->style = NULL;
+	meta->title = NULL;
+	if (startsWith("---\n", (char*)data)){
+		int i = 4;
+		while (i < size){
+			if (startsWith("---\n", (char*)data+i))
+				break;
+			int j;
+			for (j = 0 ; j+i+1 < size && data[i+j+1] != ':' && data[i+j+1] != '\n'; j++){}
+			if (data[j+i+1] == ':'){
+				char type[j+3];
+				memset(type, 0, j+3);
+				memcpy(type, data+i, j+1);
+				j += parse_keyword(type, meta, data+i+j+2, size - i - j - 2);
+	       }
+
+            i+=j+3;
+		}
+	}
+	return meta;
+}
+
+
+
+void
+render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
+{
+	if (meta->style != NULL && doc->md.style)
+	{
+		hoedown_buffer * b = hoedown_buffer_new(1);
+		hoedown_buffer_puts(b, meta->style);
+		doc->md.style(ob,b,NULL);
+		hoedown_buffer_free(b);
+	}
+	if (meta->title != NULL && doc->md.title)
+	{
+		hoedown_buffer * b = hoedown_buffer_new(1);
+		hoedown_buffer_puts(b, meta->title);
+		doc->md.title(ob,b,NULL);
+		hoedown_buffer_free(b);
+	}
+	if (meta->authors != NULL && doc->md.authors)
+	{
+		hoedown_buffer * b = hoedown_buffer_new(1);
+		hoedown_buffer_puts(b, meta->authors);
+		doc->md.authors(ob,b,NULL);
+		hoedown_buffer_free(b);
+	}
+	if (meta->keywords != NULL && doc->md.keywords)
+	{
+		hoedown_buffer * b = hoedown_buffer_new(1);
+		hoedown_buffer_puts(b, meta->keywords);
+		doc->md.keywords(ob,b,NULL);
+		hoedown_buffer_free(b);
+	}
+}
 
 void
 hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
@@ -3117,6 +3265,13 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 		memset(&doc->footnotes_used, 0x0, sizeof(doc->footnotes_used));
 	}
 
+	metadata * meta = parse_yaml(doc, ob, data, size);
+	if (doc->md.begin)
+		doc->md.begin(ob);
+	render_metadata(doc, ob, meta);
+	if (doc->md.inner)
+		doc->md.inner(ob);
+
 	sub_render(doc, ob, data, size);
 	/* footnotes */
 	if (footnotes_enabled)
@@ -3124,6 +3279,8 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 
 	if (doc->md.doc_footer)
 		doc->md.doc_footer(ob, 0, &doc->data);
+	if (doc->md.end)
+		doc->md.end(ob);
 	/* clean-up */
 
 	free_link_refs(doc->refs);

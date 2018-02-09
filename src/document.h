@@ -30,13 +30,14 @@ typedef enum hoedown_extensions {
 	HOEDOWN_EXT_SUPERSCRIPT = (1 << 8),
 	HOEDOWN_EXT_MATH = (1 << 9),
 
+
 	/* other flags */
 	HOEDOWN_EXT_NO_INTRA_EMPHASIS = (1 << 11),
 	HOEDOWN_EXT_SPACE_HEADERS = (1 << 12),
 	HOEDOWN_EXT_MATH_EXPLICIT = (1 << 13),
 
 	/* experimental */
-	HOEDOWN_EXT_SCHOLARITY  = (1<<14),
+	HOEDOWN_EXT_SCI  = (1<<14),
 
 	/* negative flags */
 	HOEDOWN_EXT_DISABLE_INDENTED_CODE = (1 << 15)
@@ -101,7 +102,18 @@ struct hoedown_renderer {
 	/* state object */
 	void *opaque;
 
+	/* document level callbacks */
+	void (*style)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*authors)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*keywords)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*begin)(hoedown_buffer *ob);
+	void (*inner)(hoedown_buffer *ob);
+	void (*end)(hoedown_buffer *ob);
+
 	/* block level callbacks - NULL skips the block */
+	void (*close)(hoedown_buffer *ob);
+	void (*abstract)(hoedown_buffer *ob);
 	void (*blockcode)(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buffer *lang, const hoedown_renderer_data *data);
 	void (*blockquote)(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data);
 	void (*header)(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data);
@@ -145,6 +157,13 @@ struct hoedown_renderer {
 	void (*doc_footer)(hoedown_buffer *ob, int inline_render, const hoedown_renderer_data *data);
 };
 typedef struct hoedown_renderer hoedown_renderer;
+
+struct {
+	char * title;
+	char * authors;
+	char * keywords;
+	char * style;
+} typedef  metadata;
 
 
 /*************

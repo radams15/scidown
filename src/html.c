@@ -251,12 +251,12 @@ rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const 
 		hoedown_buffer_putc(ob, '\n');
 
 	if (level <= state->toc_data.nesting_level)
-		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d\">", level, state->toc_data.header_count++);
+		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d\">", level+1, state->toc_data.header_count++);
 	else
-		hoedown_buffer_printf(ob, "<h%d>", level);
+		hoedown_buffer_printf(ob, "<h%d>", level+1);
 
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
-	hoedown_buffer_printf(ob, "</h%d>\n", level);
+	hoedown_buffer_printf(ob, "</h%d>\n", level+1);
 }
 
 static int
@@ -592,6 +592,67 @@ rndr_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const
 }
 
 static void
+rndr_style(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+{
+	hoedown_buffer_printf(ob,"<style type=\"text/css\">\n@import url(\"");
+	escape_html(ob, content->data, content->size);
+	hoedown_buffer_printf(ob,"\");\n</style>\n");
+}
+
+static void
+rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<h1 class=\"title\">", 18);
+	escape_html(ob, content->data, content->size);
+	hoedown_buffer_put(ob, (const uint8_t*) "</h1>\n", 6);
+}
+
+static void
+rndr_authors(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"authors\">", 21);
+	escape_html(ob, content->data, content->size);
+	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n", 8);
+}
+
+static void
+rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"keywords\">", 22);
+	escape_html(ob, content->data, content->size);
+	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n", 8);
+}
+
+static void
+rndr_begin(hoedown_buffer *ob)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"document\">", 22);
+}
+
+static void
+rndr_inner(hoedown_buffer *ob)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"inner\">", 19);
+}
+
+static void
+rndr_end(hoedown_buffer *ob)
+{
+	hoedown_buffer_put(ob, (const uint8_t*) "</div>\n</div>\n", 15);
+}
+
+static void
+rndr_abstract(hoedown_buffer *ob){
+	hoedown_buffer_put(ob, (const uint8_t*) "<div class=\"abstract\">\n", 23);
+	hoedown_buffer_put(ob, (const uint8_t*) "<h2>Abstract</h2>\n", 19);
+}
+
+static void
+rndr_close(hoedown_buffer *ob){
+	hoedown_buffer_put(ob, (const uint8_t*) "\n</div>\n", 9);
+}
+
+static void
 toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data)
 {
 	hoedown_html_renderer_state *state = data->opaque;
@@ -657,6 +718,16 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 	static const hoedown_renderer cb_default = {
 		NULL,
 
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+
+		NULL,
+		NULL,
 		NULL,
 		NULL,
 		toc_header,
@@ -725,6 +796,16 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 	static const hoedown_renderer cb_default = {
 		NULL,
 
+		rndr_style,
+		rndr_title,
+		rndr_authors,
+		NULL,
+		rndr_begin,
+		rndr_inner,
+		rndr_end,
+
+		rndr_close,
+		rndr_abstract,
 		rndr_blockcode,
 		rndr_blockquote,
 		rndr_header,

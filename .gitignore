@@ -3,7 +3,7 @@ build/
 *.obj
 *.exe
 test.md
-test.html
+test.htm*
 ref.md
 scidown
 scidown.dll
