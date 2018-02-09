@@ -3484,7 +3484,7 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 			caption = 1;
 		}
 	}
-	if (caption){
+	if (caption || type==EQUATION){
 		int c =0;
 		switch (type)
 		{
@@ -3513,7 +3513,6 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 				char * id = malloc((i)*sizeof(char));
 				id[i] = 0;
 				memcpy(id, data+1, i-1);
-
 				doc->floating_references = add_reference(id, c, type, doc->floating_references);
 			}
 		}

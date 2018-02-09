@@ -19,7 +19,7 @@ vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facil
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
 
-@table(tab:test)
+@table(tab:simple)
 
 | Col. 1 | Col.2 | Col. 3|
 | :----- | :----:| -----:|
