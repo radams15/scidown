@@ -9,6 +9,7 @@
     height: 297mm;
   }
   p {page-break-inside: avoid;}
+  figure {page-break-inside: avoid;}
 }
 
 body
