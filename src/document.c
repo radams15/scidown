@@ -2737,9 +2737,12 @@ parse_eq(
 		while (begin < size && (data[begin] !=')' && data[begin] !='\n')){
 			begin ++;
 		}
-		args.id = malloc(sizeof(char)*(begin));
-		args.id[begin-1] = 0;
-		memcpy(args.id, data+1, begin-1);
+		if (begin > 1)
+		{
+			args.id = malloc(sizeof(char)*(begin));
+			args.id[begin-1] = 0;
+			memcpy(args.id, data+1, begin-1);
+		}
 		begin++;
 	}
 	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
@@ -2750,10 +2753,15 @@ parse_eq(
 	if (doc->md.opn_equation)
 	{
 		doc->md.opn_equation(ob, args.id, &doc->data);
-		hoedown_buffer * text = hoedown_buffer_new(skip);
-		hoedown_buffer_put(text, data+begin, skip);
-		if (doc->md.math)
-			doc->md.math(ob, text, 2, &doc->data);
+		if (skip > 0) {
+
+			hoedown_buffer * text = hoedown_buffer_new(skip);
+			hoedown_buffer_put(text, data+begin, skip);
+			if (doc->md.math)
+				doc->md.math(ob, text, 2, &doc->data);
+			hoedown_buffer_free(text);
+		}
+
 		doc->md.cls_equation(ob, &doc->data);
 	}
 	if (skip < size)
