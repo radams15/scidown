@@ -1,10 +1,3 @@
----
-title: Title
-authors: Martino Ferrari
-keywords: Semantic, Web, Markdown
-affiliation: University of Geneva
-style: scidown_article.css
----
 @abstract
 Lorem **ipsum**
 dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut
@@ -13,7 +6,6 @@ ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis aute
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
 accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
 Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.
-
 @/
 
 # Chapter
@@ -27,12 +19,13 @@ vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facil
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
 
-@table
+@table(tab:test)
 
 | Col. 1 | Col.2 | Col. 3|
 | :----- | :----:| -----:|
 | A      | B     | C     |
 | D      | E     | F     |
+| G      | H     | I     |
 
 @caption(This is a table.)
 
@@ -77,7 +70,7 @@ accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit aug
 
 This a plot
 
-@figure
+@figure(fig:plot)
 ```charter
 width: 400
 height: 300
@@ -99,7 +92,7 @@ dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tinc
 laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 
-@figure
+@figure(fig:falcon)
 ![Falcon Heavy](Falcon_Heavy.jpg)
 @caption(This is an image.)
 @/
@@ -108,4 +101,4 @@ vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facil
 accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
 Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.
 
-@bib(ref.md)
+@bib(references.md)

@@ -2635,25 +2635,27 @@ parse_fl(
 	size_t size,
     float_type type)
 {
+	size_t begin = 0;
 	size_t skip = 0;
 	float_args args = {};
 	args.type = type;
 
 	if (data[0] == '(')
 	{
-		skip ++;
-		while (skip < size && (data[skip] !=')' && data[skip] !='\n')){
-			skip ++;
+		begin ++;
+		while (begin < size && (data[begin] !=')' && data[begin] !='\n')){
+			begin ++;
 		}
-		args.id = malloc(sizeof(char)*(skip));
-		args.id[skip] = 0;
-		memcpy(args.id, data+1, skip-1);
+		args.id = malloc(sizeof(char)*(begin));
+		args.id[begin-1] = 0;
+		memcpy(args.id, data+1, begin-1);
+		begin++;
 	}
-	while (skip < size && !startsWith("\n@/\n", (char*)data+skip))
+	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
 	{
-		if (startsWith("\n@caption(",(char*) data+skip))
+		if (startsWith("\n@caption(",(char*) data+skip+begin))
 		{
-			args.caption = parse_caption(data+skip+10, size-skip-10);
+			args.caption = parse_caption(data+skip+begin+10, size-begin-skip-10);
 		}
 		skip ++;
 	}
@@ -2662,14 +2664,14 @@ parse_fl(
 	if (doc->md.open_float)
 	{
 		doc->md.open_float(ob, args, &doc->data);
-		parse_block(ob, doc, data, skip);
+		parse_block(ob, doc, data+begin, skip);
 		doc->md.close_float(ob, args, &doc->data);
 	}
 	if (skip < size)
 	{
 		skip += 4;
 	}
-	return skip;
+	return skip + begin;
 }
 
 static size_t
