@@ -17,4 +17,6 @@ Example
 --------
 An example of `scidwon` syntax is available in the ```examples/``` folder, this is a screenshot of the parsing of a simple example using the ```scidown.css`` style:
 
-![screenshot](html_results.png)
+![screenshot](html_article.png)
+
+![screenshot](html_report.png)
