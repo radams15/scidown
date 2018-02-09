@@ -3,7 +3,7 @@ title: Title
 authors: Martino Ferrari
 keywords: Semantic, Web, Markdown
 affiliation: University of Geneva
-style: scidown.css
+style: scidown_article.css
 ---
 @abstract
 Lorem **ipsum**
@@ -67,8 +67,11 @@ Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming 
 
 
 ### Subsection
-This is a reference [^1]
+This is a reference [^1].
 
+mcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
+vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
+accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilis
 
 #### Subsubsection
 

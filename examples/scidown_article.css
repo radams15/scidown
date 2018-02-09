@@ -1,0 +1,127 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+  p {page-break-inside: avoid;}
+}
+
+body
+{
+  margin-right: auto;
+  margin-left: auto;
+  width: 210mm;
+  background: #eee;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+.document{
+  background: #fff;
+  padding: 10mm;
+  min-height: 100%
+}
+
+.title{
+  text-align:center;
+  text-transform: uppercase;
+  margin-bottom: 0mm;
+  margin-top: 0;
+}
+.authors{
+  text-align:center;
+  margin-bottom: 0.5em;
+}
+.affiliation{
+  font-size: 0.95em;
+  text-align:center;
+  margin-bottom: 2em;
+}
+.inner
+{
+  text-align: justify;
+  text-justify: inter-word;
+  column-count: 2;
+  column-gap: 10mm;
+}
+
+.abstract{
+  background: #fafafa;
+  border: solid 1px #eee;
+  padding: 1mm 5mm 5mm 5mm;
+}
+.abstract > h2 {
+ font-size: 18px;
+ margin-bottom: 2px;
+}
+
+figure{
+  margin-left: 0;
+  margin-right: 0;
+  padding: 5px;
+  border: solid 1px #eee;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+figcaption{
+  text-align: center;
+}
+
+figure > pre
+{
+  margin: 10px;
+  color: #333;
+}
+
+
+table {
+  margin-left:auto;
+  margin-right:auto;
+  border: 2px solid #FFFFFF;
+  min-width: 70%;
+  text-align: center;
+  border-collapse: collapse;
+}
+table td, table th {
+  border: 1px solid #333;
+  padding: 3px 4px;
+}
+table tbody td {
+  font-size: 13px;
+}
+table td:nth-child(even) {
+  background: #EBEBEB;
+}
+table thead {
+  background: #FFFFFF;
+  border-bottom: 1px solid #333;
+}
+table thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  border-left: 1px solid #333;
+}
+table thead th:first-child {
+  border-left: none;
+}
+
+table tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333333;
+  border-top: 4px solid #333333;
+}
+table tfoot td {
+  font-size: 14px;
+}
+
