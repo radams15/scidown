@@ -18,7 +18,7 @@ Markdown Differences
 A part of the extension added to the language there is only one difference in the output generated from `scidown` and `hoedown` of a standard `markdown` document:
 
  * `# title` becomes `<h2>title</h2>` instead of `<h1>`
- * `## subtitle` becomes `<h3>subtitle</h3>' instead of `<h2>`
+ * `## subtitle` becomes `<h3>subtitle</h3>` instead of `<h2>`
  * well I suppose you get it all the headers are shifted of one
 
 This is due the addition of the title information in form of `YAML` head as explained in the following section.
