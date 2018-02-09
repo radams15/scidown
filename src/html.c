@@ -654,13 +654,13 @@ rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_r
 static void
 rndr_begin(hoedown_buffer *ob)
 {
-	hoedown_buffer_puts(ob, "<div class=\"document\">");
+	hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header\">\n");
 }
 
 static void
 rndr_inner(hoedown_buffer *ob)
 {
-	hoedown_buffer_puts(ob, "<div class=\"inner\">");
+	hoedown_buffer_puts(ob, "</div><div class=\"inner\">");
 }
 
 static void

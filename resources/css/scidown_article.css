@@ -8,17 +8,31 @@
     width: 210mm;
     height: 297mm;
   }
-  p {page-break-inside: avoid;}
   figure {page-break-inside: avoid;}
+  .abstract{page-break-inside: avoid;}
+}
+
+@media screen {
+  figure {page-break-inside: avoid;}
+  .abstract{page-break-inside: avoid;}
 }
 
 body
 {
+  font-size: 11pt;
   margin-right: auto;
   margin-left: auto;
-  width: 210mm;
+  max-width: 210mm;
   background: #eee;
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+a {
+  color: #000;
+}
+
+.header{
+  margin-bottom: 20pt;
 }
 
 .document{
@@ -30,18 +44,21 @@ body
 .title{
   text-align:center;
   text-transform: uppercase;
-  margin-bottom: 0mm;
+  margin-bottom: 2.5mm;
   margin-top: 0;
 }
+
 .authors{
   text-align:center;
-  margin-bottom: 0.5em;
+  margin-bottom:0;
+  font-size: 12pt;
 }
+
 .affiliation{
-  font-size: 0.95em;
+  font-size: 11pt;
   text-align:center;
-  margin-bottom: 2em;
 }
+
 .inner
 {
   text-align: justify;
@@ -50,14 +67,17 @@ body
   column-gap: 10mm;
 }
 
+.keywords{
+  margin-bottom: 10px;
+}
+
 .abstract{
   background: #fafafa;
   border: solid 1px #eee;
-  margin-top: -5mm;
   padding: 0mm 5mm 0mm 5mm;
 }
 .abstract > h2 {
- font-size: 18px;
+ font-size: 14pt;
  margin-bottom: 2px;
 }
 
@@ -78,6 +98,11 @@ figcaption{
   text-align: center;
 }
 
+pre
+{
+  font-size: 10pt;
+}
+
 figure > pre
 {
   background: #eee;
@@ -86,8 +111,7 @@ figure > pre
   color: #333;
 }
 
-
-table {
+table{
   margin-left:auto;
   margin-right:auto;
   border: 2px solid #FFFFFF;
@@ -100,7 +124,7 @@ table td, table th {
   padding: 3px 4px;
 }
 table tbody td {
-  font-size: 12px;
+  font-size: 10pt;
   border-left: 1px solid #333;
 }
 table tr:nth-child(even) {
@@ -111,7 +135,7 @@ table thead {
   border-bottom: 1px solid #333;
 }
 table thead th {
-  font-size: 15px;
+  font-size: 12pt;
   font-weight: bold;
   color: #333333;
   text-align: center;
@@ -120,4 +144,41 @@ table thead th {
 table thead th:first-child {
   border-left: none;
 }
+
+table.eq_table {
+  border-collapse: collapse;
+  border: 0;
+  width: 100%;
+}
+table.eq_table td, table.eq_table th {
+  padding: 3px 2px;
+  font-size: 11pt;
+  border-left: 0;
+}
+table.eq_table tfoot td {
+  font-size: 11pt;
+  border-left: 0;
+}
+table.eq_table tfoot .links {
+  text-align: right;
+}
+table.eq_table tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+td.counter {
+  text-align: right;
+
+}
+
+td.eq_code {
+  width: 100%;
+  text-align: center;
+}
+
+
 

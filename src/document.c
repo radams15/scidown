@@ -3476,14 +3476,15 @@ int find_ref(reference * refs, char*id, int *counter)
 void
 check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_counter * counter, float_type type)
 {
+	int caption = 0;
 	size_t i = 0;
-	while (i < size && data[i] != '\n' && data[i] !=')'){
-		i ++ ;
+	while (i < size && !startsWith("@/\n", (char*)data+i)){
+		i++;
+		if (startsWith("@caption(", (char*)data+i)){
+			caption = 1;
+		}
 	}
-	if (i > 1){
-		char * id = malloc((i+1)*sizeof(char));
-		id[i] = 0;
-		memcpy(id, data, i);
+	if (caption){
 		int c =0;
 		switch (type)
 		{
@@ -3501,7 +3502,18 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 			break;
 		}
 
-		doc->floating_references = add_reference(id, c, type, doc->floating_references);
+		i = 0;
+		while (i < size && data[i] != '\n' && data[i] !=')'){
+			i ++ ;
+		}
+		if (i > 1){
+			char * id = malloc((i+1)*sizeof(char));
+			id[i] = 0;
+			memcpy(id, data, i);
+
+
+			doc->floating_references = add_reference(id, c, type, doc->floating_references);
+		}
 	}
 }
 
