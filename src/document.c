@@ -3502,17 +3502,20 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 			break;
 		}
 
-		i = 0;
-		while (i < size && data[i] != '\n' && data[i] !=')'){
-			i ++ ;
-		}
-		if (i > 1){
-			char * id = malloc((i+1)*sizeof(char));
-			id[i] = 0;
-			memcpy(id, data, i);
+		if (data[0] == '('){
+			i = 1;
+			while (i < size && data[i] != '\n' && data[i] !=')')
+			{
+				i ++ ;
+			}
+			if (i > 1)
+			{
+				char * id = malloc((i)*sizeof(char));
+				id[i] = 0;
+				memcpy(id, data+1, i-1);
 
-
-			doc->floating_references = add_reference(id, c, type, doc->floating_references);
+				doc->floating_references = add_reference(id, c, type, doc->floating_references);
+			}
 		}
 	}
 }
@@ -3522,21 +3525,21 @@ void
 look_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_counter * counter)
 {
 
-	if (startsWith("@figure(", (char*)data))
+	if (startsWith("@figure", (char*)data))
 	{
-		check_for_ref(doc, data+8, size-8, counter, FIGURE);
+		check_for_ref(doc, data+7, size-7, counter, FIGURE);
 	}
-	if (startsWith("@table(", (char*)data))
+	if (startsWith("@table", (char*)data))
 	{
-		check_for_ref(doc, data+7, size-7,counter, TABLE);
+		check_for_ref(doc, data+6, size-6,counter, TABLE);
 	}
-	if (startsWith("@listing(", (char*)data))
+	if (startsWith("@listing", (char*)data))
 	{
-		check_for_ref(doc, data+9, size-9,counter,  LISTING);
+		check_for_ref(doc, data+8, size-8,counter,  LISTING);
 	}
-	if (startsWith("@equation(", (char*)data))
+	if (startsWith("@equation", (char*)data))
 	{
-		check_for_ref(doc, data+10, size-10,counter, EQUATION);
+		check_for_ref(doc, data+9, size-9,counter, EQUATION);
 	}
 }
 
