@@ -3511,7 +3511,7 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 			if (i > 1)
 			{
 				char * id = malloc((i)*sizeof(char));
-				id[i] = 0;
+				id[i-1] = 0;
 				memcpy(id, data+1, i-1);
 				doc->floating_references = add_reference(id, c, type, doc->floating_references);
 			}
