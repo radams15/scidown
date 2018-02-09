@@ -3198,6 +3198,7 @@ hoedown_document_new(
 	memcpy(&doc->md, renderer, sizeof(hoedown_renderer));
 
 	doc->extensions = user_ext;
+	doc->floating_references = NULL;
 	doc->data.opaque = renderer->opaque;
 
 	hoedown_stack_init(&doc->work_bufs[BUFFER_BLOCK], 4);

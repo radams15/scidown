@@ -6,4 +6,6 @@ affiliation: University of Geneva
 style: scidown_report.css
 ---
 
+@tableofcontent
+
 @include(example.md)
