@@ -105,6 +105,9 @@ x = \sum_{i=1}{N} i
 
 In line and block equation with the classical syntax `$inline equation$` and `$$block equation$$` are still available but not numbered.
 
+### Reference
+To refer to a figure, a listing, a table or an equation labeled is enough to write `(#id)` and it will be replaced by `(<a href="#id">number</a>)` where `number` is the number that appear in the caption.
+
 ### Plots
 
 using the `charter` syntax in a code block:
