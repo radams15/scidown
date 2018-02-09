@@ -21,6 +21,10 @@ body
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
 
+a {
+  color: #000;
+}
+
 .document{
   background: #fff;
   padding: 10mm;

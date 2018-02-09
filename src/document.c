@@ -24,6 +24,7 @@
 #define HOEDOWN_LI_END 8	/* internal list flag */
 
 const char *hoedown_find_block_tag(const char *str, unsigned int len);
+int find_ref(reference * refs, char*id, int *counter);
 
 /***************
  * LOCAL TYPES *
@@ -83,6 +84,7 @@ static size_t char_link(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data
 static size_t char_image(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size);
 static size_t char_superscript(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size);
 static size_t char_math(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size);
+static size_t char_ref(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size);
 
 void sub_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size);
 
@@ -102,6 +104,7 @@ enum markdown_char_t {
 	MD_CHAR_SUPERSCRIPT,
 	MD_CHAR_QUOTE,
 	MD_CHAR_MATH,
+	MD_CHAR_REF
 };
 
 static char_trigger markdown_char_ptrs[] = {
@@ -119,13 +122,15 @@ static char_trigger markdown_char_ptrs[] = {
 	&char_autolink_www,
 	&char_superscript,
 	&char_quote,
-	&char_math
+	&char_math,
+	&char_ref
 };
 
 struct hoedown_document {
 	hoedown_renderer md;
 	hoedown_renderer_data data;
 	metadata * document_metadata;
+	reference * floating_references;
 	ext_definition * extensions;
 
 	struct link_ref *refs[REF_TABLE_SIZE];
@@ -531,6 +536,7 @@ parse_inline(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t si
 
 		if (end >= size) break;
 		i = end;
+
 		end = markdown_char_ptrs[ (int)active_char[data[end]] ](ob, doc, data + i, i - consumed, size - i);
 		if (!end) /* no action from the callback */
 			end = i + 1;
@@ -805,7 +811,7 @@ parse_math(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offs
 }
 
 static char*
-load_file(const char* path, long * size)
+load_file(const char* path, size_t * size)
 {
 	FILE *f;
 	if (path[0] != '/'){
@@ -848,7 +854,7 @@ parse_include(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t o
 		path[n] = 0;
 		memcpy(path, data+9, n);
 		if (is_regular_file(path)){
-			long neu_size = 0;
+			size_t neu_size = 0;
 			char * buffer = load_file(path, &neu_size);
 
 			sub_render(doc, ob, (uint8_t*)buffer, neu_size);
@@ -1137,7 +1143,33 @@ char_autolink_www(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size
 	return link_len;
 }
 
+static size_t
+char_ref(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size)
+{
 
+	if (startsWith("(#", (char*)data)){
+		size_t i;
+		for (i=2; i < size; i++)
+		{
+			if (data[i]==')')
+				break;
+			if (data[i]==')')
+				return 1;
+		}
+		char * ref_id = malloc((i-1)*sizeof(char));
+		ref_id[i-2] = 0;
+		memcpy(ref_id, data+2, i-2);
+
+		int count = 0;
+		if (find_ref(doc->floating_references, ref_id, &count))
+		{
+			if (doc->md.ref)
+				doc->md.ref(ob, ref_id, count);
+			return i+1;
+		}
+	}
+	return 0;
+}
 
 static size_t
 char_autolink_email(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset, size_t size)
@@ -2656,10 +2688,13 @@ parse_fl(
 		while (begin < size && (data[begin] !=')' && data[begin] !='\n')){
 			begin ++;
 		}
-		args.id = malloc(sizeof(char)*(begin));
-		args.id[begin-1] = 0;
-		memcpy(args.id, data+1, begin-1);
+		if (begin > 2){
+			args.id = malloc(sizeof(char)*(begin));
+			args.id[begin-1] = 0;
+			memcpy(args.id, data+1, begin-1);
+		}
 		begin++;
+
 	}
 	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
 	{
@@ -2851,7 +2886,7 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 				path[n] = 0;
 				strncpy(path, (char*)data+beg+5, n);
 				if (is_regular_file(path)){
-					long size = 0;
+					size_t size = 0;
 					char * bib = load_file(path, &size);
 					load_notes((uint8_t*)bib, size, list);
 					free(bib);
@@ -3213,6 +3248,8 @@ hoedown_document_new(
 	if (extensions & HOEDOWN_EXT_MATH)
 		doc->active_char['$'] = MD_CHAR_MATH;
 
+	doc->active_char['('] = MD_CHAR_REF;
+
 	/* Extension data */
 	doc->ext_flags = extensions;
 	doc->max_nesting = max_nesting;
@@ -3338,6 +3375,33 @@ int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t 
 	return j+1;
 }
 
+void
+append(reference * head, reference * next)
+{
+	if (!head)
+		return;
+	if (head->next)
+		append(head->next, next);
+	else
+		head->next = next;
+}
+
+reference *
+add_reference(char * id, int counter, float_type type, reference * ref)
+{
+	reference * next = malloc(sizeof(reference));
+	next->next = NULL;
+	next->id = id;
+	next->type = type;
+	next->counter = counter;
+	if (ref)
+	{
+		append(ref, next);
+		return ref;
+	}
+	return next;
+}
+
 metadata *
 parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
 {
@@ -3367,8 +3431,6 @@ parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 	return meta;
 }
 
-
-
 void
 render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 {
@@ -3396,6 +3458,131 @@ render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 	}
 
 }
+int find_ref(reference * refs, char*id, int *counter)
+{
+	if (!refs)
+		return 0;
+
+	if (strcmp(refs->id, id) == 0)
+	{
+
+		*counter = refs->counter;
+		return 1;
+	}
+	return find_ref(refs->next, id, counter);
+}
+
+void
+check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_counter * counter, float_type type)
+{
+	size_t i = 0;
+	while (i < size && data[i] != '\n' && data[i] !=')'){
+		i ++ ;
+	}
+	if (i > 1){
+		char * id = malloc((i+1)*sizeof(char));
+		id[i] = 0;
+		memcpy(id, data, i);
+		int c =0;
+		switch (type)
+		{
+		case EQUATION:
+			c = ++(counter->equation);
+			break;
+		case TABLE:
+			c = ++(counter->table);
+			break;
+		case LISTING:
+			c = ++(counter->listing);
+			break;
+		case FIGURE:
+			c = ++(counter->figure);
+			break;
+		}
+
+		doc->floating_references = add_reference(id, c, type, doc->floating_references);
+	}
+}
+
+
+void
+look_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_counter * counter)
+{
+
+	if (startsWith("@figure(", (char*)data))
+	{
+		check_for_ref(doc, data+8, size-8, counter, FIGURE);
+	}
+	if (startsWith("@table(", (char*)data))
+	{
+		check_for_ref(doc, data+7, size-7,counter, TABLE);
+	}
+	if (startsWith("@listing(", (char*)data))
+	{
+		check_for_ref(doc, data+9, size-9,counter,  LISTING);
+	}
+	if (startsWith("@equation(", (char*)data))
+	{
+		check_for_ref(doc, data+10, size-10,counter, EQUATION);
+	}
+}
+
+char*
+load_text(uint8_t *data, size_t size, size_t * new_size)
+{
+	/* @include(path) */
+	size_t i = 9;
+	size_t n = 0;
+	*new_size = 0;
+	for (;i < size; i++)
+	{
+		if (data[i] == ')')
+		{
+			break;
+		}
+		n++;
+	}
+	if (n){
+		char * path = malloc((n+1)*sizeof(uint8_t));
+		path[n] = 0;
+		memcpy(path, data+9, n);
+		if (is_regular_file(path)){
+
+			char * buffer = load_file(path, new_size);
+			free(path);
+			return buffer;
+
+
+		}
+		free(path);
+	}
+	return NULL;
+}
+
+
+
+void
+find_references(hoedown_document *doc, const uint8_t *data, size_t size, html_counter * counter)
+{
+	size_t i;
+	for (i = 0; i < size; i++)
+	{
+		if (prefix_float((uint8_t*)data+i, size-i))
+		{
+			look_for_ref(doc, data+i, size-i, counter);
+		}
+		else if (startsWith("@include(", (char*) data+i))
+		{
+			size_t text_size;
+			char * text = load_text((uint8_t*)data+i, size-i, &text_size);
+			if (text_size && text)
+			{
+				find_references(doc,(const uint8_t*) text, text_size, counter);
+				free(text);
+			}
+		}
+	}
+}
 
 void
 hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
@@ -3413,6 +3600,8 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 		memset(&doc->footnotes_found, 0x0, sizeof(doc->footnotes_found));
 		memset(&doc->footnotes_used, 0x0, sizeof(doc->footnotes_used));
 	}
+	html_counter counter = {0,0,0,0};
+	find_references(doc, data, size, &counter);
 
 	metadata * meta = parse_yaml(doc, ob, data, size);
 	if (doc->md.head)
@@ -3493,6 +3682,17 @@ hoedown_document_render_inline(hoedown_document *doc, hoedown_buffer *ob, const 
 }
 
 void
+free_references(reference * ref)
+{
+	if (ref)
+	{
+		free(ref->id);
+		free_references(ref->next);
+		free(ref->next);
+	}
+}
+
+void
 hoedown_document_free(hoedown_document *doc)
 {
 	size_t i;
@@ -3505,6 +3705,7 @@ hoedown_document_free(hoedown_document *doc)
 
 	hoedown_stack_uninit(&doc->work_bufs[BUFFER_SPAN]);
 	hoedown_stack_uninit(&doc->work_bufs[BUFFER_BLOCK]);
+	free_references(doc->floating_references);
 
 	free(doc);
 }

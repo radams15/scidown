@@ -42,13 +42,7 @@ struct {
 }typedef html_localization;
 
 
-struct
-{
-	uint32_t figure;
-	uint32_t equation;
-	uint32_t listing;
-	uint32_t table;
-}typedef html_counter;
+
 
 
 struct hoedown_html_renderer_state {

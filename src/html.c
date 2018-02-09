@@ -692,6 +692,12 @@ rndr_close(hoedown_buffer *ob){
 	hoedown_buffer_puts(ob, "\n</div>\n");
 }
 
+int rndr_ref (hoedown_buffer *ob, char * id, int count)
+{
+	hoedown_buffer_printf(ob, "(<a href=\"#%s\">%d</a>)", id, count);
+	return 1;
+}
+
 static void rndr_open_equation(hoedown_buffer *ob, const char * ref, const hoedown_renderer_data *data)
 {
 	if (ref){
@@ -743,6 +749,8 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 		case TABLE:
 			state->counter.table++;
 			hoedown_buffer_printf(ob,  "Table %u.</b> ", state->counter.table);
+			break;
+		default:
 			break;
 		}
 		hoedown_buffer_puts(ob, args.caption);
@@ -865,6 +873,7 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 
 		NULL,
 		rndr_normal_text,
@@ -948,6 +957,7 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 		rndr_superscript,
 		rndr_footnote_ref,
 		rndr_math,
+		rndr_ref,
 		rndr_raw_html,
 
 		NULL,

@@ -123,7 +123,20 @@ struct {
 	char * extra_closing;
 } typedef ext_definition;
 
+struct {
+	char * id;
+	int32_t counter;
+	float_type type;
+	void * next;
+} typedef reference;
 
+struct
+{
+	uint32_t figure;
+	uint32_t equation;
+	uint32_t listing;
+	uint32_t table;
+}typedef html_counter;
 
 /* hoedown_renderer - functions for rendering parsed data */
 struct hoedown_renderer {
@@ -180,6 +193,7 @@ struct hoedown_renderer {
 	int (*superscript)(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data);
 	int (*footnote_ref)(hoedown_buffer *ob, unsigned int num, const hoedown_renderer_data *data);
 	int (*math)(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, const hoedown_renderer_data *data);
+	int (*ref)(hoedown_buffer *ob, char * id, int count);
 	int (*raw_html)(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_renderer_data *data);
 
 	/* low level callbacks - NULL copies input directly into the output */

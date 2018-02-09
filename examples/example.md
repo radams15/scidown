@@ -40,9 +40,9 @@ vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facil
 ## Section
 Lorem ipsum
 dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut
-laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation
+laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation this is a reference to the figure (#fig:falcon) representing a falcon rocket.
 
-@listing
+@listing()
 ```c
 int main(int argc, char** argv)
 {
@@ -57,6 +57,7 @@ ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis aute
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
 accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
 Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.
+This is a link [google](www.google.com)
 
 
 ### Subsection
@@ -74,6 +75,7 @@ The following instead is a numbered and labeled equation:
 x = \sum_{i=-10}^n e^{-|n|}
 @/
 
+The reference to a floating element is done in this way: the equation (#eq:1) show absolutely nothing.
 mcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
 accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilis

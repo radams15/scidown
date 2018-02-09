@@ -103,6 +103,8 @@ x = \sum_{i=1}{N} i
 @/
 ```
 
+In line and block equation with the classical syntax `$inline equation$` and `$$block equation$$` are still available but not numbered.
+
 ### Plots
 
 using the `charter` syntax in a code block:
