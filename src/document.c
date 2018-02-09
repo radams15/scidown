@@ -1747,7 +1747,7 @@ prefix_float(uint8_t * data, size_t size)
 	char * txt = (char*) data;
 	return (startsWith("@figure", txt) || startsWith("@table",txt) ||
 	        startsWith("@code", txt) || startsWith("@listing",txt) ||
-	        startsWith("@abstract\n", txt) || startsWith("@equation", txt));
+	        startsWith("@abstract", txt) || startsWith("@equation", txt));
 }
 
 /* parse_block • parsing of one block, returning next uint8_t to parse */
@@ -2735,9 +2735,9 @@ parse_float(
 	uint8_t *data,
 	size_t size)
 {
-	if (startsWith("@abstract\n", (char*)data))
+	if (startsWith("@abstract", (char*)data))
     {
-		return parse_abstract(ob, doc, data+10,size-10)+10;
+		return parse_abstract(ob, doc, data+9,size-9)+9;
 	}
 	if (startsWith("@figure", (char*)data))
 	{
