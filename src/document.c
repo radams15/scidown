@@ -2773,9 +2773,12 @@ parse_eq(
 		while (begin < size && (data[begin] !=')' && data[begin] !='\n')){
 			begin ++;
 		}
-		args.id = malloc(sizeof(char)*(begin));
-		args.id[begin-1] = 0;
-		memcpy(args.id, data+1, begin-1);
+		if (begin > 1)
+		{
+			args.id = malloc(sizeof(char)*(begin));
+			args.id[begin-1] = 0;
+			memcpy(args.id, data+1, begin-1);
+		}
 		begin++;
 	}
 	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
@@ -2786,10 +2789,15 @@ parse_eq(
 	if (doc->md.opn_equation)
 	{
 		doc->md.opn_equation(ob, args.id, &doc->data);
-		hoedown_buffer * text = hoedown_buffer_new(skip);
-		hoedown_buffer_put(text, data+begin, skip);
-		if (doc->md.math)
-			doc->md.math(ob, text, 2, &doc->data);
+		if (skip > 0) {
+
+			hoedown_buffer * text = hoedown_buffer_new(skip);
+			hoedown_buffer_put(text, data+begin, skip);
+			if (doc->md.math)
+				doc->md.math(ob, text, 2, &doc->data);
+			hoedown_buffer_free(text);
+		}
+
 		doc->md.cls_equation(ob, &doc->data);
 	}
 	if (skip < size)
@@ -3554,7 +3562,7 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 			if (i > 1)
 			{
 				char * id = malloc((i)*sizeof(char));
-				id[i] = 0;
+				id[i-1] = 0;
 				memcpy(id, data+1, i-1);
 				doc->floating_references = add_reference(id, c, type, doc->floating_references);
 			}
