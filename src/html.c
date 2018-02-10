@@ -243,24 +243,32 @@ rndr_linebreak(hoedown_buffer *ob, const hoedown_renderer_data *data)
 }
 
 static void
-rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter * counter)
+rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter counter, int numbering)
 {
-
 	if (ob->size)
 		hoedown_buffer_putc(ob, '\n');
 
-	if (counter){
-		if (counter->subsection){
-			hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d.%d\">%d.%d.%d. ", level+1, counter->chapter, counter->section, counter->subsection, counter->chapter, counter->section, counter->subsection);
-		} else if (counter->section)
-		{
-			hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d\">%d.%d. ", level+1, counter->chapter, counter->section,counter->chapter, counter->section);
-		} else if (counter->chapter)
-		{
-			hoedown_buffer_printf(ob, "<h%d id=\"toc_%d\">%d. ", level+1, counter->chapter, counter->chapter);
+	if (level > 3) {
+		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d.%d.%d\">", level+1, counter.chapter, counter.section, counter.subsection, level);
+	} else if (counter.subsection) {
+		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d.%d\">", level+1, counter.chapter, counter.section, counter.subsection);
+	} else if (counter.section) {
+		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d\">", level+1, counter.chapter, counter.section);
+	} else if (counter.chapter) {
+		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d\">", level+1, counter.chapter);
+	}
+
+	if (numbering && level <= 3)
+	{
+		if (counter.subsection) {
+			hoedown_buffer_printf(ob, "%d.%d.%d. ", counter.chapter, counter.section, counter.subsection);
+		} else if (counter.section) {
+			hoedown_buffer_printf(ob, "%d.%d. ", counter.chapter, counter.section);
+		} else if (counter.chapter) {
+			hoedown_buffer_printf(ob, "%d. ", counter.chapter);
 		}
-	} else
-		hoedown_buffer_printf(ob, "<h%d>", level+1);
+	}
+
 
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
 	hoedown_buffer_printf(ob, "</h%d>\n", level+1);
@@ -767,7 +775,7 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 }
 
 static void
-toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter * none)
+toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter none, int numbering)
 {
 	hoedown_html_renderer_state *state = data->opaque;
 
