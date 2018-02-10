@@ -2704,10 +2704,14 @@ parse_caption(hoedown_document *doc,
 	while (i < size && (data[i] !=')' && data[i] !='\n')){
 		i++;
 	}
-	hoedown_buffer * buf = hoedown_buffer_new(1);
-	parse_inline(buf, doc, data, i);
-	buf->data[buf->size]=0;
-	return buf->data;
+	if (i) {
+		hoedown_buffer * buf = hoedown_buffer_new(1);
+		parse_inline(buf, doc, data, i);
+		buf->data[buf->size]=0;
+
+		return buf->data;
+	}
+	return NULL;
 }
 
 static size_t
