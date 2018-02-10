@@ -132,6 +132,7 @@ struct hoedown_document {
 	metadata * document_metadata;
 	reference * floating_references;
 	ext_definition * extensions;
+	toc * table_of_contents;
 	h_counter counter;
 
 	struct link_ref *refs[REF_TABLE_SIZE];
@@ -1773,7 +1774,8 @@ prefix_float(uint8_t * data, size_t size)
 	char * txt = (char*) data;
 	return (startsWith("@figure", txt) || startsWith("@table",txt) ||
 	        startsWith("@code", txt) || startsWith("@listing",txt) ||
-	        startsWith("@abstract", txt) || startsWith("@equation", txt));
+	        startsWith("@abstract", txt) || startsWith("@equation", txt) ||
+	        startsWith("@toc", txt));
 }
 
 /* parse_block • parsing of one block, returning next uint8_t to parse */
@@ -2802,6 +2804,12 @@ parse_eq(
 	return skip + begin;
 }
 
+int
+is_separator(uint8_t chr)
+{
+	return chr == ' ' || chr == '(' || chr == '\t' || chr == '\n';
+}
+
 static size_t
 parse_float(
 	hoedown_buffer *ob,
@@ -2809,26 +2817,28 @@ parse_float(
 	uint8_t *data,
 	size_t size)
 {
-	if (startsWith("@abstract", (char*)data))
-    {
+	if (startsWith("@abstract", (char*)data) && is_separator(data[9])) {
 		return parse_abstract(ob, doc, data+9,size-9)+9;
 	}
-	if (startsWith("@figure", (char*)data))
-	{
+	if (startsWith("@figure", (char*)data) && is_separator(data[7])) {
 		return parse_fl(ob, doc, data+7, size-7, FIGURE)+7;
 	}
-	if (startsWith("@table", (char*)data))
-	{
+	if (startsWith("@table", (char*)data) && is_separator(data[6])) {
 		return parse_fl(ob, doc, data+6, size-6, TABLE)+6;
 	}
-	if (startsWith("@listing", (char*)data))
-	{
+	if (startsWith("@listing", (char*)data) && is_separator(data[8])) {
 		return parse_fl(ob, doc, data+8, size-8, LISTING)+8;
 	}
-	if (startsWith("@equation", (char*)data))
-	{
+	if (startsWith("@equation", (char*)data) && is_separator(data[9])) {
 		return parse_eq(ob, doc, data+9, size-9) + 9;
 	}
+	if (startsWith("@toc", (char*)data) && is_separator(data[4]))
+	{
+		if (doc->md.toc && doc->table_of_contents)
+			doc->md.toc(ob, doc->table_of_contents, doc->document_metadata->numbering);
+		return 4;
+	}
+
 	return 1;
 }
 
@@ -3241,6 +3251,7 @@ hoedown_document_new(
 	doc->counter = (h_counter){0, 0, 0};
 
 	doc->floating_references = NULL;
+	doc->table_of_contents = NULL;
 	doc->data.opaque = renderer->opaque;
 
 	hoedown_stack_init(&doc->work_bufs[BUFFER_BLOCK], 4);
@@ -3662,40 +3673,13 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 				if (level <= 3 && title)
 				{
 					toc * next = malloc(sizeof(toc));
-					next->parent = NULL;
-					next->child = NULL;
 					next->sibling = NULL;
-					next->id = 1;
 					next->nesting = level;
 					next->text = (char*) title;
-					if (!current)
-					{
+					if (!current) {
 						root = next;
-					}
-					else {
-						if (current->nesting == level)
-						{
-							current->sibling = next;
-							next->parent = current->parent;
-							next->id = current->id + 1;
-						}
-						if (current->nesting < level)
-						{
-							current->child = next;
-							next->parent = current;
-
-						}
-						if (current->nesting > level)
-						{
-							toc * par = current;
-							while (par->parent != NULL && par->nesting > level)
-							{
-								par = par->parent;
-							}
-							par->sibling = next;
-							next->parent = par->parent;
-							next->id = par->id + 1;
-						}
+					} else {
+						current->sibling = next;
 					}
 					current = next;
 				}
@@ -3739,9 +3723,9 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	html_counter counter = {0,0,0,0};
 	find_references(doc, data, size, &counter);
 
-	/**
-	 * toc * tree = generate_toc(doc, data, size, NULL);
-	 * */
+
+	doc->table_of_contents = generate_toc(doc, data, size, NULL);
+
 
 	metadata * meta = parse_yaml(doc, ob, data, size);
 	if (doc->md.head)
@@ -3833,6 +3817,17 @@ free_references(reference * ref)
 }
 
 void
+free_toc(toc * ToC)
+{
+	if (ToC)
+	{
+		free(ToC->text);
+		free_toc(ToC->sibling);
+		free(ToC);
+	}
+}
+
+void
 hoedown_document_free(hoedown_document *doc)
 {
 	size_t i;
@@ -3846,6 +3841,7 @@ hoedown_document_free(hoedown_document *doc)
 	hoedown_stack_uninit(&doc->work_bufs[BUFFER_SPAN]);
 	hoedown_stack_uninit(&doc->work_bufs[BUFFER_BLOCK]);
 	free_references(doc->floating_references);
+	free_toc(doc->table_of_contents);
 
 	free(doc);
 }

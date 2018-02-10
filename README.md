@@ -7,7 +7,7 @@ a c Markdown parser. `Scidown` however it parse not only Markdown but also Scido
 Features
 --------
 
-*	**Integrated plot** using [charter](https://github.com/mandarancio/charter
+*	**Integrated plot** using [charter](https://github.com/mandarancio/charter) and experimental support to `gnuplot`
 *   **Figures, Tables and Listings with caption**
 *   **YAML header** specify title, authors, css style, keywords and more
 *   **Abstract** syntax for defining abstracts
@@ -37,6 +37,7 @@ authors: list of authors
 affiliation: affiliation
 style: css file
 keywords: list of keywords
+numbering: true/false (number the chapters, sections and subsections)
 ---
 
 Rest of your markdown file
@@ -67,6 +68,20 @@ The output will figure the `<h2>Abstract</h2>` in the top of the `div` and at th
 Lorem ipsum ....
 
 @/
+```
+
+### Table of Contents
+
+To show the table of contents simple use the `@toc` command:
+
+```markdown
+@toc
+
+# Chapter
+Lorem ipsum
+
+## Subsection
+Lorem ipsum
 ```
 
 ### Floating elements

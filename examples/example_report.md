@@ -6,5 +6,8 @@ affiliation: University of Geneva
 style: scidown_report.css
 numbering: true
 ---
+@include(abstract.md)
+
+@toc
 
 @include(example.md)

@@ -149,11 +149,8 @@ struct
 
 struct
 {
-	int id;
 	int nesting;
 	char * text;
-	void * parent;
-	void * child;
 	void * sibling;
 }typedef toc;
 
@@ -196,6 +193,7 @@ struct hoedown_renderer {
 	void (*footnotes)(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data);
 	void (*footnote_def)(hoedown_buffer *ob, const hoedown_buffer *content, unsigned int num, const hoedown_renderer_data *data);
 	void (*blockhtml)(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_renderer_data *data);
+	void (*toc)(hoedown_buffer *ob, toc* ToC, int numbering);
 
 	/* span level callbacks - NULL or return 0 prints the span verbatim */
 	int (*autolink)(hoedown_buffer *ob, const hoedown_buffer *link, hoedown_autolink_type type, const hoedown_renderer_data *data);

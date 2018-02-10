@@ -22,7 +22,8 @@ typedef enum hoedown_html_flags {
 	HOEDOWN_HTML_USE_XHTML = (1 << 3),
 	/* -- experimental flags -- */
 	HOEDOWN_HTML_MERMAID = (1 << 4),
-	HOEDOWN_HTML_CHARTER = (1 << 5)
+	HOEDOWN_HTML_CHARTER = (1 << 5),
+	HOEDOWN_HTML_GNUPLOT = (1 << 6)
 } hoedown_html_flags;
 
 typedef enum hoedown_html_tag {

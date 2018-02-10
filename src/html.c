@@ -121,7 +121,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 		}
 		return;
 	}
-	if (lang && hoedown_buffer_eqs(lang, "gnuplot"))
+	if (lang &&  (state->flags & HOEDOWN_HTML_GNUPLOT) != 0 && hoedown_buffer_eqs(lang, "gnuplot"))
 	{
 		if (text && text->size){
 			char * copy = malloc((text->size + 1)*sizeof(char));
@@ -809,6 +809,58 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 }
 
 static void
+rndr_toc_entry(hoedown_buffer *ob, toc * tree, int * chapter, int * section, int * subsection, int numbering)
+{
+	if (!tree)
+		return;
+	if (tree->nesting == 1) {
+		if ((*chapter))
+			hoedown_buffer_puts(ob, "</ul>\n");
+		(*chapter) ++;
+
+		if ((*section))
+			hoedown_buffer_puts(ob, "</ul>\n");
+
+		(*section) = 0;
+		(*subsection) = 0;
+
+		hoedown_buffer_printf(ob, "<li><a href=\"#toc_%d\">", (*chapter));
+		if (numbering)
+			hoedown_buffer_printf(ob, "%d. ", (*chapter));
+		hoedown_buffer_printf(ob, "%s</a></li>\n<ul>\n", tree->text);
+	} else if (tree->nesting == 2)
+	{
+		if ((*section))
+			hoedown_buffer_puts(ob, "</ul>\n");
+		(*section) ++;
+		(*subsection) = 0;
+		hoedown_buffer_printf(ob, "<li><a href=\"#toc_%d.%d\">", (*chapter), (*section));
+		if (numbering)
+			hoedown_buffer_printf(ob, "%d.%d. ", (*chapter), (*section));
+		hoedown_buffer_printf(ob, "%s</a></li>\n<ul>\n", tree->text);
+	} else if (tree->nesting == 3)
+	{
+		(*subsection) ++;
+		hoedown_buffer_printf(ob, "<li><a href=\"#toc_%d.%d.%d\">",
+			                      (*chapter), (*section), (*subsection));
+		if (numbering)
+			hoedown_buffer_printf(ob, "%d.%d.%d. ",
+			                      (*chapter), (*section), (*subsection));
+		hoedown_buffer_printf(ob, "%s</a></li>\n",tree->text);
+	}
+	rndr_toc_entry(ob, tree->sibling, chapter, section, subsection, numbering);
+}
+
+static void
+rndr_toc(hoedown_buffer *ob, toc * tree, int numbering)
+{
+	hoedown_buffer_puts(ob, "<div class=\"toc_container\">\n<h2 class=\"toc_header\">Table of Contents</h2>\n<ul class=\"toc_list\">\n");
+	int cpt=0, sct=0, sbs=0;
+	rndr_toc_entry(ob, tree, &cpt, &sct, &sbs, numbering);
+	hoedown_buffer_puts(ob, "</ul></div>\n");
+}
+
+static void
 toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter none, int numbering)
 {
 	hoedown_html_renderer_state *state = data->opaque;
@@ -893,6 +945,7 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		toc_header,
+		NULL,
 		NULL,
 		NULL,
 		NULL,
@@ -990,6 +1043,7 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 		rndr_footnotes,
 		rndr_footnote_def,
 		rndr_raw_block,
+		rndr_toc,
 
 		rndr_autolink,
 		rndr_codespan,

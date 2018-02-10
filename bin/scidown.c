@@ -62,8 +62,8 @@ static struct html_flag_info html_flags_info[] = {
 	{HOEDOWN_HTML_ESCAPE, "escape", "Escape all HTML."},
 	{HOEDOWN_HTML_HARD_WRAP, "hard-wrap", "Render each linebreak as <br>."},
 	{HOEDOWN_HTML_USE_XHTML, "xhtml", "Render XHTML."},
-	{HOEDOWN_HTML_CHARTER, "charter", "Render Charter plots."},
 	{HOEDOWN_HTML_MERMAID, "mermaid", "Render mermaid diagrams."},
+	{HOEDOWN_HTML_GNUPLOT, "gnuplot", "Render gnuplot plot."}
 };
 
 static const char *category_prefix = "all-";
@@ -390,7 +390,7 @@ main(int argc, char **argv)
 	data.filename = NULL;
 	data.renderer = RENDERER_HTML;
 	data.toc_level = 0;
-	data.html_flags = HOEDOWN_HTML_CHARTER | HOEDOWN_HTML_MERMAID;
+	data.html_flags = HOEDOWN_HTML_CHARTER;
 	data.extensions = HOEDOWN_EXT_BLOCK | HOEDOWN_EXT_SPAN | HOEDOWN_EXT_FLAGS;
 	data.max_nesting = DEF_MAX_NESTING;
 
