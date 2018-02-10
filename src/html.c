@@ -11,6 +11,7 @@
 #include "charter/renderer.h"
 
 #define USE_XHTML(opt) (opt->flags & HOEDOWN_HTML_USE_XHTML)
+#define MAX_FILE_SIZE 1000000
 
 hoedown_html_tag
 hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname)
@@ -118,6 +119,39 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 			free(svg);
 
 		}
+		return;
+	}
+	if (lang && hoedown_buffer_eqs(lang, "gnuplot"))
+	{
+		if (text && text->size){
+			char * copy = malloc((text->size + 1)*sizeof(char));
+			memset(copy, 0, text->size+1);
+			memcpy(copy, text->data, text->size);
+			hoedown_buffer * b = hoedown_buffer_new(1);
+			hoedown_buffer_printf(b, "gnuplot -e 'set term svg size 300,200;\n%s'", copy);
+
+			FILE *p = popen((char*)b->data, "r");
+			hoedown_buffer_free(b);
+			char buffer[MAX_FILE_SIZE];
+			size_t i;
+			for (i = 0; i < MAX_FILE_SIZE; ++i)
+			{
+			    int c = getc(p);
+
+			    if (c == EOF)
+			    {
+			        buffer[i] = 0x00;
+			        break;
+			    }
+
+			    buffer[i] = c;
+			}
+			if (i)
+			{
+				hoedown_buffer_printf(ob, buffer, i);
+			}
+		}
+
 		return;
 	}
 	if (lang && (state->flags & HOEDOWN_HTML_MERMAID) != 0 && hoedown_buffer_eqs(lang, "mermaid") != 0){
