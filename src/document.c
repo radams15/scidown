@@ -132,6 +132,7 @@ struct hoedown_document {
 	metadata * document_metadata;
 	reference * floating_references;
 	ext_definition * extensions;
+	h_counter counter;
 
 	struct link_ref *refs[REF_TABLE_SIZE];
 	struct footnote_list footnotes_found;
@@ -1902,10 +1903,26 @@ parse_paragraph(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t
 
 		header_work = newbuf(doc, BUFFER_SPAN);
 		parse_inline(header_work, doc, work.data, work.size);
+		if (level == 1)
+		{
+			doc->counter.chapter++;
+			doc->counter.section = 0;
+			doc->counter.subsection = 0;
+		} else if (level == 2) {
+			doc->counter.section++;
+			doc->counter.subsection=0;
+		} else if (level == 3) {
+			doc->counter.subsection++;
+		}
 
-		if (doc->md.header)
-			doc->md.header(ob, header_work, (int)level, &doc->data);
-
+		if (doc->md.header){
+			if (level > 3 || !doc->document_metadata->numbering) {
+				doc->md.header(ob, header_work, (int)level, &doc->data, NULL);
+			}
+			else {
+				doc->md.header(ob, header_work, (int)level, &doc->data, &doc->counter);
+			}
+		}
 		popbuf(doc, BUFFER_SPAN);
 	}
 
@@ -2168,7 +2185,19 @@ parse_atxheader(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t
 
 	while (level < size && level < 6 && data[level] == '#')
 		level++;
-
+	if (level == 1)
+	{
+		doc->counter.chapter ++ ;
+		doc->counter.section = 0;
+		doc->counter.subsection = 0;
+	} else if (level == 2)
+	{
+		doc->counter.section ++;
+		doc->counter.subsection = 0;
+	} else if (level == 3)
+	{
+		doc->counter.subsection ++;
+	}
 	for (i = level; i < size && data[i] == ' '; i++);
 
 	for (end = i; end < size && data[end] != '\n'; end++);
@@ -2186,8 +2215,15 @@ parse_atxheader(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t
 		parse_inline(work, doc, data + i, end - i);
 
 		if (doc->md.header)
-			doc->md.header(ob, work, (int)level, &doc->data);
-
+		{
+			if (level > 3 || !doc->document_metadata->numbering)
+			{
+				doc->md.header(ob, work, (int)level, &doc->data, NULL);
+			} else
+			{
+				doc->md.header(ob, work, (int)level, &doc->data, &doc->counter);
+			}
+		}
 		popbuf(doc, BUFFER_SPAN);
 	}
 
@@ -3198,6 +3234,9 @@ hoedown_document_new(
 	memcpy(&doc->md, renderer, sizeof(hoedown_renderer));
 
 	doc->extensions = user_ext;
+
+	doc->counter = (h_counter){0, 0, 0};
+
 	doc->floating_references = NULL;
 	doc->data.opaque = renderer->opaque;
 
@@ -3369,6 +3408,9 @@ int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t 
 	} else if (!strcmp(keyword, "affiliation"))
 	{
 		meta->affiliation = word;
+	} else if (!strcmp(keyword, "numbering"))
+	{
+		meta->numbering = !strcmp(word, "true");
 	} else
 	{
 		free(word);
@@ -3411,6 +3453,7 @@ parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 	meta->authors = NULL;
 	meta->style = NULL;
 	meta->title = NULL;
+	meta->numbering = 0;
 	meta->affiliation = NULL;
 	if (startsWith("---\n", (char*)data)){
 		int i = 4;

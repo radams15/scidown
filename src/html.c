@@ -243,16 +243,23 @@ rndr_linebreak(hoedown_buffer *ob, const hoedown_renderer_data *data)
 }
 
 static void
-rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data)
+rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter * counter)
 {
-	hoedown_html_renderer_state *state = data->opaque;
 
 	if (ob->size)
 		hoedown_buffer_putc(ob, '\n');
 
-	if (level <= state->toc_data.nesting_level)
-		hoedown_buffer_printf(ob, "<h%d id=\"toc_%d\">", level+1, state->toc_data.header_count++);
-	else
+	if (counter){
+		if (counter->subsection){
+			hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d.%d\">%d.%d.%d. ", level+1, counter->chapter, counter->section, counter->subsection, counter->chapter, counter->section, counter->subsection);
+		} else if (counter->section)
+		{
+			hoedown_buffer_printf(ob, "<h%d id=\"toc_%d.%d\">%d.%d. ", level+1, counter->chapter, counter->section,counter->chapter, counter->section);
+		} else if (counter->chapter)
+		{
+			hoedown_buffer_printf(ob, "<h%d id=\"toc_%d\">%d. ", level+1, counter->chapter, counter->chapter);
+		}
+	} else
 		hoedown_buffer_printf(ob, "<h%d>", level+1);
 
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
@@ -683,7 +690,7 @@ rndr_pagebreak(hoedown_buffer *ob)
 
 static void
 rndr_abstract(hoedown_buffer *ob){
-	hoedown_buffer_puts(ob, "<div class=\"abstract\">\n");
+	hoedown_buffer_puts(ob, "<div id=\"abstract\" class=\"abstract\">\n");
 	hoedown_buffer_puts(ob, "<h2>Abstract</h2>\n");
 }
 
@@ -760,7 +767,7 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 }
 
 static void
-toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data)
+toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter * none)
 {
 	hoedown_html_renderer_state *state = data->opaque;
 

@@ -85,6 +85,7 @@ typedef enum hoedown_autolink_type {
 } hoedown_autolink_type;
 
 
+
 /*********
  * TYPES *
  *********/
@@ -116,6 +117,7 @@ struct {
 	char * keywords;
 	char * style;
 	char * affiliation;
+	int    numbering;
 } typedef  metadata;
 
 struct {
@@ -137,6 +139,13 @@ struct
 	uint32_t listing;
 	uint32_t table;
 }typedef html_counter;
+
+struct
+{
+	int chapter;
+	int section;
+	int subsection;
+}typedef h_counter;
 
 /* hoedown_renderer - functions for rendering parsed data */
 struct hoedown_renderer {
@@ -163,7 +172,7 @@ struct hoedown_renderer {
 	void (*close_float)(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data);
 	void (*blockcode)(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buffer *lang, const hoedown_renderer_data *data);
 	void (*blockquote)(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data);
-	void (*header)(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data);
+	void (*header)(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter * counter);
 	void (*hrule)(hoedown_buffer *ob, const hoedown_renderer_data *data);
 	void (*list)(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_list_flags flags, const hoedown_renderer_data *data);
 	void (*listitem)(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_list_flags flags, const hoedown_renderer_data *data);
