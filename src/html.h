@@ -42,9 +42,6 @@ struct {
 }typedef html_localization;
 
 
-
-
-
 struct hoedown_html_renderer_state {
 	void *opaque;
 

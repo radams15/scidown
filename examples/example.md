@@ -98,7 +98,7 @@ y-axis:
 	label: energy
 ```
 
-@caption(This is a simple plot, with linear axis and no title.)
+@caption(This is a simple plot, with linear axis and **no** title.)
 @/
 
 Lorem ipsum

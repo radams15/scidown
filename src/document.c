@@ -1641,13 +1641,6 @@ parse_codefence(uint8_t *data, size_t size, hoedown_buffer *lang, size_t *width,
 static int
 is_atxheader(hoedown_document *doc, uint8_t *data, size_t size)
 {
-	/**
-	 *
-	 * @figure(id)
-	 * []()
-	 * @caption(This bla bla bla.)
-	 * @end
-	 * */
 	if (data[0] != '#')
 		return 0;
 
@@ -2172,15 +2165,45 @@ parse_list(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t size
 	return i;
 }
 
+uint8_t *
+get_atxheader_info(uint8_t *data, size_t size, size_t * level, size_t * skip)
+{
+	*level = 0;
+	size_t i, end;
+
+	while (*level < size && *level < 6 && data[*level] == '#'){
+		(*level)++;
+	}
+
+	for (i = *level; i < size && data[i] == ' '; i++);
+	for (end = i; end < size && data[end] != '\n'; end++);
+	if (skip)
+		*skip = end;
+
+	while (end && data[end - 1] == '#')
+		end--;
+
+	while (end && data[end - 1] == ' ')
+		end--;
+
+	if (end <= i)
+		return NULL;
+
+	uint8_t * title =  malloc(sizeof(uint8_t)*(end - i + 1));
+	title[end-i] = 0;
+	memcpy(title, data+i, end-i);
+	return title;
+}
+
 /* parse_atxheader • parsing of atx-style headers */
 static size_t
 parse_atxheader(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t size)
 {
 	size_t level = 0;
-	size_t i, end, skip;
+	size_t skip = 0;
 
-	while (level < size && level < 6 && data[level] == '#')
-		level++;
+	uint8_t * title = get_atxheader_info(data, size, &level, &skip);
+
 	if (level == 1)
 	{
 		doc->counter.chapter ++ ;
@@ -2194,21 +2217,11 @@ parse_atxheader(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t
 	{
 		doc->counter.subsection ++;
 	}
-	for (i = level; i < size && data[i] == ' '; i++);
 
-	for (end = i; end < size && data[end] != '\n'; end++);
-	skip = end;
-
-	while (end && data[end - 1] == '#')
-		end--;
-
-	while (end && data[end - 1] == ' ')
-		end--;
-
-	if (end > i) {
+	if (title) {
 		hoedown_buffer *work = newbuf(doc, BUFFER_SPAN);
 
-		parse_inline(work, doc, data + i, end - i);
+		parse_inline(work, doc, title, strlen((char*)title));
 
 		if (doc->md.header)
 		{
@@ -2680,19 +2693,19 @@ parse_abstract(
 	}
 	return skip;
 }
-static char *
-parse_caption(uint8_t *data,
+uint8_t *
+parse_caption(hoedown_document *doc,
+              uint8_t *data,
               size_t size)
 {
-	char * caption;
 	int i=0;
 	while (i < size && (data[i] !=')' && data[i] !='\n')){
 		i++;
 	}
-	caption = malloc((i+1)*sizeof(char));
-	caption[i] = 0;
-	memcpy(caption, data, i);
-	return caption;
+	hoedown_buffer * buf = hoedown_buffer_new(1);
+	parse_inline(buf, doc, data, i);
+	buf->data[buf->size]=0;
+	return buf->data;
 }
 
 static size_t
@@ -2726,7 +2739,7 @@ parse_fl(
 	{
 		if (startsWith("\n@caption(",(char*) data+skip+begin))
 		{
-			args.caption = parse_caption(data+skip+begin+10, size-begin-skip-10);
+			args.caption = (char*)parse_caption(doc, data+skip+begin+10, size-begin-skip-10);
 		}
 		skip ++;
 	}
@@ -3632,6 +3645,81 @@ find_references(hoedown_document *doc, const uint8_t *data, size_t size, html_co
 	}
 }
 
+toc *
+generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* parent)
+{
+	size_t i;
+	toc * root = parent;
+	toc * current = root;
+	for (i = 0; i < size-1; i++)
+	{
+		if (data[i] == '\n')
+		{
+			if (is_atxheader(doc, (uint8_t*)data+i+1, size-i-1))
+			{
+				size_t level = 0;
+				uint8_t * title = get_atxheader_info((uint8_t*)data+i+1, size-i-1, &level, NULL);
+				if (level <= 3 && title)
+				{
+					toc * next = malloc(sizeof(toc));
+					next->parent = NULL;
+					next->child = NULL;
+					next->sibling = NULL;
+					next->id = 1;
+					next->nesting = level;
+					next->text = (char*) title;
+					if (!current)
+					{
+						root = next;
+					}
+					else {
+						if (current->nesting == level)
+						{
+							current->sibling = next;
+							next->parent = current->parent;
+							next->id = current->id + 1;
+						}
+						if (current->nesting < level)
+						{
+							current->child = next;
+							next->parent = current;
+
+						}
+						if (current->nesting > level)
+						{
+							toc * par = current;
+							while (par->parent != NULL && par->nesting > level)
+							{
+								par = par->parent;
+							}
+							par->sibling = next;
+							next->parent = par->parent;
+							next->id = par->id + 1;
+						}
+					}
+					current = next;
+				}
+			}
+		}
+		if (data[i] == '@' && startsWith("@include(", (char*)data+i))
+		{
+			size_t text_size;
+			char * text = load_text((uint8_t*)data+i, size-i, &text_size);
+			if (text_size && text)
+			{
+
+				toc * t = generate_toc(doc,(const uint8_t*) text, text_size, current);
+				if (!root && t)
+				{
+					root = t;
+				}
+				free(text);
+			}
+		}
+	}
+	return root;
+}
+
 void
 hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
 {
@@ -3650,6 +3738,10 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	}
 	html_counter counter = {0,0,0,0};
 	find_references(doc, data, size, &counter);
+
+	/**
+	 * toc * tree = generate_toc(doc, data, size, NULL);
+	 * */
 
 	metadata * meta = parse_yaml(doc, ob, data, size);
 	if (doc->md.head)

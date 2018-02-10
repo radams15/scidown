@@ -147,6 +147,17 @@ struct
 	int subsection;
 }typedef h_counter;
 
+struct
+{
+	int id;
+	int nesting;
+	char * text;
+	void * parent;
+	void * child;
+	void * sibling;
+}typedef toc;
+
+
 /* hoedown_renderer - functions for rendering parsed data */
 struct hoedown_renderer {
 	/* state object */
