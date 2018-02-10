@@ -3663,7 +3663,7 @@ find_references(hoedown_document *doc, const uint8_t *data, size_t size, html_co
 toc *
 generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* parent)
 {
-	if (!data)
+	if (!data || !size)
 		return parent;
 	size_t i;
 	toc * root = parent;
