@@ -2737,7 +2737,7 @@ parse_fl(
 		begin++;
 
 	}
-	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
+	while (skip+begin < size && !startsWith("\n@/", (char*)data+skip+begin))
 	{
 		if (startsWith("\n@caption(",(char*) data+skip+begin))
 		{
@@ -2783,7 +2783,7 @@ parse_eq(
 		memcpy(args.id, data+1, begin-1);
 		begin++;
 	}
-	while (skip+begin < size && !startsWith("\n@/\n", (char*)data+skip+begin))
+	while (skip+begin < size && !startsWith("\n@/", (char*)data+skip+begin))
 	{
 		skip ++;
 	}
@@ -3659,8 +3659,6 @@ find_references(hoedown_document *doc, const uint8_t *data, size_t size, html_co
 toc *
 generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* parent)
 {
-	if (!data || !size)
-		return parent;
 	size_t i;
 	toc * root = parent;
 	toc * current = root;
