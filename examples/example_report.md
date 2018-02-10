@@ -7,6 +7,4 @@ style: scidown_report.css
 numbering: true
 ---
 
-@tableofcontent
-
 @include(example.md)
