@@ -25,6 +25,25 @@ A part of the extension added to the language there is only one difference in th
 
 This is due the addition of the title information in form of `YAML` head as explained in the following section.
 
+Compile and Run
+---------------
+To compile the project simply do the following:
+```bash
+mkdir build
+cd build
+meson ..
+ninja
+```
+
+To install it simply run ```sudo ninja install``` inside the build folder.
+The executable `scidown` will be now available in the build folder, to use it simply:
+
+```bash
+scidown input.md
+# print out the html or to save it
+scidown input.md > output.html
+```
+
 Special Syntax
 --------------
 
@@ -137,24 +156,7 @@ plot:
 ```
 ~~~
 
-Compile and Run
----------------
-To compile the project simply do the following:
-```bash
-mkdir build
-cd build
-meson ..
-ninja
-```
 
-To install it simply run ```sudo ninja install``` inside the build folder.
-The executable `scidown` will be now available in the build folder, to use it simply:
-
-```bash
-scidown input.md
-# print out the html or to save it
-scidown input.md > output.html
-```
 
 Example
 --------
