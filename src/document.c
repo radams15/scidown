@@ -2797,8 +2797,8 @@ parse_eq(
 		doc->md.opn_equation(ob, args.id, &doc->data);
 		hoedown_buffer * text = hoedown_buffer_new(skip);
 		hoedown_buffer_put(text, data+begin, skip);
-		if (doc->md.math)
-			doc->md.math(ob, text, 2, &doc->data);
+		if (doc->md.eq_math)
+			doc->md.eq_math(ob, text, 2, &doc->data);
 		doc->md.cls_equation(ob, &doc->data);
 	}
 	if (skip < size)

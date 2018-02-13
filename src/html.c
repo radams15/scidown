@@ -10,17 +10,17 @@
 #include "charter/parser.h"
 #include "charter/renderer.h"
 
-#define USE_XHTML(opt) (opt->flags & HOEDOWN_HTML_USE_XHTML)
+#define USE_XHTML(opt) (opt->flags & SCIDOWN_RENDER_USE_XHTML)
 #define MAX_FILE_SIZE 1000000
 
-hoedown_html_tag
+scidown_render_tag
 hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname)
 {
 	size_t i;
 	int closed = 0;
 
 	if (size < 3 || data[0] != '<')
-		return HOEDOWN_HTML_TAG_NONE;
+		return SCIDOWN_RENDER_TAG_NONE;
 
 	i = 1;
 
@@ -34,16 +34,16 @@ hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname)
 			break;
 
 		if (data[i] != *tagname)
-			return HOEDOWN_HTML_TAG_NONE;
+			return SCIDOWN_RENDER_TAG_NONE;
 	}
 
 	if (i == size)
-		return HOEDOWN_HTML_TAG_NONE;
+		return SCIDOWN_RENDER_TAG_NONE;
 
 	if (isspace(data[i]) || data[i] == '>')
-		return closed ? HOEDOWN_HTML_TAG_CLOSE : HOEDOWN_HTML_TAG_OPEN;
+		return closed ? SCIDOWN_RENDER_TAG_CLOSE : SCIDOWN_RENDER_TAG_OPEN;
 
-	return HOEDOWN_HTML_TAG_NONE;
+	return SCIDOWN_RENDER_TAG_NONE;
 }
 
 static void escape_html(hoedown_buffer *ob, const uint8_t *source, size_t length)
@@ -101,7 +101,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 {
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 	hoedown_html_renderer_state *state = data->opaque;
-	if (lang && (state->flags & HOEDOWN_HTML_CHARTER) != 0 && hoedown_buffer_eqs(lang, "charter") != 0){
+	if (lang && (state->flags & SCIDOWN_RENDER_CHARTER) != 0 && hoedown_buffer_eqs(lang, "charter") != 0){
 		if (text){
 
 			char * copy = malloc((text->size + 1)*sizeof(char));
@@ -121,7 +121,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 		}
 		return;
 	}
-	if (lang &&  (state->flags & HOEDOWN_HTML_GNUPLOT) != 0 && hoedown_buffer_eqs(lang, "gnuplot"))
+	if (lang &&  (state->flags & SCIDOWN_RENDER_GNUPLOT) != 0 && hoedown_buffer_eqs(lang, "gnuplot"))
 	{
 		if (text && text->size){
 			char * copy = malloc((text->size + 1)*sizeof(char));
@@ -154,7 +154,7 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 
 		return;
 	}
-	if (lang && (state->flags & HOEDOWN_HTML_MERMAID) != 0 && hoedown_buffer_eqs(lang, "mermaid") != 0){
+	if (lang && (state->flags & SCIDOWN_RENDER_MERMAID) != 0 && hoedown_buffer_eqs(lang, "mermaid") != 0){
 		if (text){
 	        HOEDOWN_BUFPUTSL(ob, "<div class=\"mermaid\">");
 			hoedown_buffer_put(ob, text->data, text->size);
@@ -376,7 +376,7 @@ rndr_paragraph(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_
 		return;
 
 	HOEDOWN_BUFPUTSL(ob, "<p>");
-	if (state->flags & HOEDOWN_HTML_HARD_WRAP) {
+	if (state->flags & SCIDOWN_RENDER_HARD_WRAP) {
 		size_t org;
 		while (i < content->size) {
 			org = i;
@@ -478,12 +478,12 @@ rndr_raw_html(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_rend
 
 	/* ESCAPE overrides SKIP_HTML. It doesn't look to see if
 	 * there are any valid tags, just escapes all of them. */
-	if((state->flags & HOEDOWN_HTML_ESCAPE) != 0) {
+	if((state->flags & SCIDOWN_RENDER_ESCAPE) != 0) {
 		escape_html(ob, text->data, text->size);
 		return 1;
 	}
 
-	if ((state->flags & HOEDOWN_HTML_SKIP_HTML) != 0)
+	if ((state->flags & SCIDOWN_RENDER_SKIP_HTML) != 0)
 		return 1;
 
 	hoedown_buffer_put(ob, text->data, text->size);
@@ -921,7 +921,7 @@ toc_finalize(hoedown_buffer *ob, int inline_render, const hoedown_renderer_data 
 }
 
 hoedown_renderer *
-hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
+hoedown_html_toc_renderer_new(int nesting_level, localization local)
 {
 	static const hoedown_renderer cb_default = {
 		NULL,
@@ -976,6 +976,7 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 
 		NULL,
 		rndr_normal_text,
@@ -1007,7 +1008,7 @@ hoedown_html_toc_renderer_new(int nesting_level, html_localization local)
 }
 
 hoedown_renderer *
-hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, html_localization local)
+hoedown_html_renderer_new(scidown_render_flags render_flags, int nesting_level, localization local)
 {
 	static const hoedown_renderer cb_default = {
 		NULL,
@@ -1060,6 +1061,7 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 		rndr_superscript,
 		rndr_footnote_ref,
 		rndr_math,
+		rndr_math,
 		rndr_ref,
 		rndr_raw_html,
 
@@ -1091,7 +1093,7 @@ hoedown_html_renderer_new(hoedown_html_flags render_flags, int nesting_level, ht
 	renderer = hoedown_malloc(sizeof(hoedown_renderer));
 	memcpy(renderer, &cb_default, sizeof(hoedown_renderer));
 
-	if (render_flags & HOEDOWN_HTML_SKIP_HTML || render_flags & HOEDOWN_HTML_ESCAPE)
+	if (render_flags & SCIDOWN_RENDER_SKIP_HTML || render_flags & SCIDOWN_RENDER_ESCAPE)
 		renderer->blockhtml = NULL;
 
 	renderer->opaque = state;

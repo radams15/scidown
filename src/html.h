@@ -5,42 +5,14 @@
 
 #include "document.h"
 #include "buffer.h"
+#include "utils.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/*************
- * CONSTANTS *
- *************/
-
-typedef enum hoedown_html_flags {
-	HOEDOWN_HTML_SKIP_HTML = (1 << 0),
-	HOEDOWN_HTML_ESCAPE = (1 << 1),
-	HOEDOWN_HTML_HARD_WRAP = (1 << 2),
-	HOEDOWN_HTML_USE_XHTML = (1 << 3),
-	/* -- experimental flags -- */
-	HOEDOWN_HTML_MERMAID = (1 << 4),
-	HOEDOWN_HTML_CHARTER = (1 << 5),
-	HOEDOWN_HTML_GNUPLOT = (1 << 6)
-} hoedown_html_flags;
-
-typedef enum hoedown_html_tag {
-	HOEDOWN_HTML_TAG_NONE = 0,
-	HOEDOWN_HTML_TAG_OPEN,
-	HOEDOWN_HTML_TAG_CLOSE
-} hoedown_html_tag;
-
-
-/*********
- * TYPES *
- *********/
-struct {
-	char* figure;
-	char* listing;
-	char* table;
-}typedef html_localization;
 
 
 struct hoedown_html_renderer_state {
@@ -53,9 +25,9 @@ struct hoedown_html_renderer_state {
 		int nesting_level;
 	} toc_data;
 
-	hoedown_html_flags flags;
+	scidown_render_flags flags;
 	html_counter counter;
-	html_localization localization;
+	localization localization;
 
 	/* extra callbacks */
 	void (*link_attributes)(hoedown_buffer *ob, const hoedown_buffer *url, const hoedown_renderer_data *data);
@@ -71,20 +43,20 @@ typedef struct hoedown_html_renderer_state hoedown_html_renderer_state;
 void hoedown_html_smartypants(hoedown_buffer *ob, const uint8_t *data, size_t size);
 
 /* hoedown_html_is_tag: checks if data starts with a specific tag, returns the tag type or NONE */
-hoedown_html_tag hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname);
+scidown_render_tag hoedown_html_is_tag(const uint8_t *data, size_t size, const char *tagname);
 
 
 /* hoedown_html_renderer_new: allocates a regular HTML renderer */
 hoedown_renderer *hoedown_html_renderer_new(
-	hoedown_html_flags render_flags,
+	scidown_render_flags render_flags,
 	int nesting_level,
-	html_localization local
+	localization local
 ) __attribute__ ((malloc));
 
 /* hoedown_html_toc_renderer_new: like hoedown_html_renderer_new, but the returned renderer produces the Table of Contents */
 hoedown_renderer *hoedown_html_toc_renderer_new(
 	int nesting_level,
-	html_localization local
+	localization local
 ) __attribute__ ((malloc));
 
 /* hoedown_html_renderer_free: deallocate an HTML renderer */

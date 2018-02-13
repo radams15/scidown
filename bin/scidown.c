@@ -1,7 +1,9 @@
 #include "document.h"
 #include "html.h"
+#include "latex.h"
 
 #include "common.h"
+#include "utils.h"
 #include <time.h>
 
 
@@ -9,6 +11,7 @@
 
 enum renderer_type {
 	RENDERER_HTML,
+	RENDERER_LATEX,
 	RENDERER_HTML_TOC
 };
 
@@ -58,12 +61,12 @@ static struct extension_info extensions_info[] = {
 };
 
 static struct html_flag_info html_flags_info[] = {
-	{HOEDOWN_HTML_SKIP_HTML, "skip-html", "Strip all HTML tags."},
-	{HOEDOWN_HTML_ESCAPE, "escape", "Escape all HTML."},
-	{HOEDOWN_HTML_HARD_WRAP, "hard-wrap", "Render each linebreak as <br>."},
-	{HOEDOWN_HTML_USE_XHTML, "xhtml", "Render XHTML."},
-	{HOEDOWN_HTML_MERMAID, "mermaid", "Render mermaid diagrams."},
-	{HOEDOWN_HTML_GNUPLOT, "gnuplot", "Render gnuplot plot."}
+	{SCIDOWN_RENDER_SKIP_HTML, "skip-html", "Strip all HTML tags."},
+	{SCIDOWN_RENDER_ESCAPE, "escape", "Escape all HTML."},
+	{SCIDOWN_RENDER_HARD_WRAP, "hard-wrap", "Render each linebreak as <br>."},
+	{SCIDOWN_RENDER_USE_XHTML, "xhtml", "Render XHTML."},
+	{SCIDOWN_RENDER_MERMAID, "mermaid", "Render mermaid diagrams."},
+	{SCIDOWN_RENDER_GNUPLOT, "gnuplot", "Render gnuplot plot."}
 };
 
 static const char *category_prefix = "all-";
@@ -74,9 +77,9 @@ static const char *negative_prefix = "no-";
 #define DEF_MAX_NESTING 16
 
 /* Get local info */
-html_localization get_local()
+localization get_local()
 {
-  html_localization local;
+  localization local;
   local.figure = "Figure";
   local.listing = "Listing";
   local.table = "Table";
@@ -104,7 +107,9 @@ print_help(const char *basename)
 	print_option('n', "max-nesting=N", "Maximum level of block nesting parsed. Default is " str(DEF_MAX_NESTING) ".");
 	print_option('t', "toc-level=N", "Maximum level for headers included in the TOC. Zero disables TOC (the default).");
 	print_option(  0, "html", "Render (X)HTML. The default.");
+	print_option(  0, "latex", "Render as LATEX.");
 	print_option(  0, "html-toc", "Render the Table of Contents in (X)HTML.");
+
 	print_option('T', "time", "Show time spent in rendering.");
 	print_option('i', "input-unit=N", "Reading block size. Default is " str(DEF_IUNIT) ".");
 	print_option('o', "output-unit=N", "Writing block size. Default is " str(DEF_OUNIT) ".");
@@ -159,7 +164,7 @@ struct option_data {
 	/* renderer */
 	enum renderer_type renderer;
 	int toc_level;
-	hoedown_html_flags html_flags;
+	scidown_render_flags render_flags;
 
 	/* parsing */
 	hoedown_extensions extensions;
@@ -251,7 +256,7 @@ parse_flag_option(char *opt, struct option_data *data)
 	for (i = 0; i < count_of(html_flags_info); i++) {
 		struct html_flag_info *html_flag = &html_flags_info[i];
 		if (strcmp(opt, html_flag->option_name)==0) {
-			data->html_flags |= html_flag->flag;
+			data->render_flags |= html_flag->flag;
 			return 1;
 		}
 	}
@@ -285,7 +290,7 @@ parse_negative_option(char *opt, struct option_data *data)
 	for (i = 0; i < count_of(html_flags_info); i++) {
 		struct html_flag_info *html_flag = &html_flags_info[i];
 		if (strcmp(name, html_flag->option_name)==0) {
-			data->html_flags &= ~(html_flag->flag);
+			data->render_flags &= ~(html_flag->flag);
 			return 1;
 		}
 	}
@@ -344,7 +349,10 @@ parse_long_option(char *opt, char *next, void *opaque)
 		data->renderer = RENDERER_HTML_TOC;
 		return 1;
 	}
-
+	if (strcmp(opt, "latex")==0) {
+		data->renderer = RENDERER_LATEX;
+		return 1;
+	}
 	if (parse_category_option(opt, data) || parse_flag_option(opt, data) || parse_negative_option(opt, data))
 		return 1;
 
@@ -390,7 +398,7 @@ main(int argc, char **argv)
 	data.filename = NULL;
 	data.renderer = RENDERER_HTML;
 	data.toc_level = 0;
-	data.html_flags = HOEDOWN_HTML_CHARTER;
+	data.render_flags = SCIDOWN_RENDER_CHARTER;
 	data.extensions = HOEDOWN_EXT_BLOCK | HOEDOWN_EXT_SPAN | HOEDOWN_EXT_FLAGS;
 	data.max_nesting = DEF_MAX_NESTING;
 
@@ -418,18 +426,24 @@ main(int argc, char **argv)
 	if (file != stdin) fclose(file);
 
 	/* Create the renderer */
-	renderer = hoedown_html_renderer_new(data.html_flags, data.toc_level, get_local());
+	if (data.renderer == RENDERER_HTML)
+		renderer = hoedown_html_renderer_new(data.render_flags, data.toc_level, get_local());
+	else if (data.renderer == RENDERER_HTML_TOC)
+		renderer = hoedown_html_toc_renderer_new(data.toc_level, get_local());
+	else if (data.renderer == RENDERER_LATEX)
+		renderer = scidown_latex_renderer_new(data.render_flags, data.toc_level, get_local());
 	renderer_free = hoedown_html_renderer_free;
 
 	/* Perform Markdown rendering */
 	ob = hoedown_buffer_new(data.ounit);
 
 	ext_definition ext = {NULL, NULL};
-	ext.extra_header = "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css\" crossorigin=\"anonymous\">\n"
-						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js\" crossorigin=\"anonymous\"></script>\n"
-						"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.min.js\" crossorigin=\"anonymous\"></script>\n";
-	ext.extra_closing = "<script>renderMathInElement(document.body);</script>\n";
-
+	if (data.renderer == RENDERER_HTML) {
+		ext.extra_header = "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css\" crossorigin=\"anonymous\">\n"
+							"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js\" crossorigin=\"anonymous\"></script>\n"
+							"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.min.js\" crossorigin=\"anonymous\"></script>\n";
+		ext.extra_closing = "<script>renderMathInElement(document.body);</script>\n";
+	}
 	document = hoedown_document_new(renderer, data.extensions,&ext, data.max_nesting);
 
 	t1 = clock();
