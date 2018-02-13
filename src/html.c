@@ -741,7 +741,7 @@ rndr_close(hoedown_buffer *ob){
 	hoedown_buffer_puts(ob, "\n</div>\n");
 }
 
-int rndr_ref (hoedown_buffer *ob, char * id, int count)
+static int rndr_ref (hoedown_buffer *ob, char * id, int count)
 {
 	hoedown_buffer_printf(ob, "(<a href=\"#%s\">%d</a>)", id, count);
 	return 1;

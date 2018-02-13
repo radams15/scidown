@@ -12,6 +12,7 @@ lib_sources = [
     'src/escape.c',
     'src/html_blocks.c',
     'src/html.c',
+    'src/latex.c',
     'src/html_smartypants.c',
     'src/stack.c',
     'src/version.c',
