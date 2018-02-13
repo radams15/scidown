@@ -1155,13 +1155,10 @@ char_ref(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset
 		{
 			if (data[i]==')')
 				break;
-			if (data[i]==')')
-				return 1;
 		}
 		char * ref_id = malloc((i-1)*sizeof(char));
 		ref_id[i-2] = 0;
 		memcpy(ref_id, data+2, i-2);
-
 		int count = 0;
 		if (find_ref(doc->floating_references, ref_id, &count))
 		{
@@ -3572,7 +3569,7 @@ check_for_ref(hoedown_document *doc, const uint8_t *data, size_t size, html_coun
 			if (i > 1)
 			{
 				char * id = malloc((i)*sizeof(char));
-				id[i] = 0;
+				memset(id, 0, i);
 				memcpy(id, data+1, i-1);
 				doc->floating_references = add_reference(id, c, type, doc->floating_references);
 			}

@@ -699,7 +699,7 @@ rndr_close(hoedown_buffer *ob){
 
 static int rndr_ref (hoedown_buffer *ob, char * id, int count)
 {
-	hoedown_buffer_printf(ob, "(\\ref{%s})", id+1);
+	hoedown_buffer_printf(ob, "(\\ref{%s})", id);
 	return 1;
 }
 
