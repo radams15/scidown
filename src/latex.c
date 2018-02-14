@@ -571,6 +571,7 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 		                    "\\usepackage{cite}\n"
 		                    "\\usepackage{amsmath,amssymb,amsfonts}\n"
 		                    "\\usepackage{algorithmic}\n"
+		                    "\\usepackage{float}\n"
 		                    "\\usepackage{hyperref}\n"
 		                    "\\usepackage{graphicx}\n"
 		                    "\\usepackage{textcomp}\n"
@@ -579,8 +580,9 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 		                    "\\usepackage{tikz}\n"
 		                    "\\usepackage{pgfplots}\n\n"
 		                    "\\pgfplotsset{compat=1.15}\n\n"
-		                    "\\providecommand{\\keywords}[1]{{\\bf{\\em Index terms---}} #1}\n");
-
+		                    "\\providecommand{\\keywords}[1]{{\\bf{\\em Index terms---}} #1}\n"
+							"\\\newfloat{program}{thp}{lop}\n\\floatname{program}{Listing}\n"
+						);
 
 	if (doc_meta->title){
 		hoedown_buffer_printf(ob, "\\title{%s}\n\\date{}\n", doc_meta->title);
@@ -694,7 +696,7 @@ static void rndr_open_float(hoedown_buffer *ob, float_args args, const hoedown_r
 		break;
 	case LISTING:
 		/**TODO make it better**/
-		hoedown_buffer_puts(ob,  "\\begin{figure}\n");
+		hoedown_buffer_puts(ob,  "\\begin{program}\n");
 		break;
 	case TABLE:
 
@@ -728,7 +730,7 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 		break;
 	case LISTING:
 		/**TODO make it better**/
-		hoedown_buffer_puts(ob,  "\\end{figure}\n");
+		hoedown_buffer_puts(ob,  "\\end{program}\n");
 		break;
 	case TABLE:
 
