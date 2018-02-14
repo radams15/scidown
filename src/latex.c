@@ -583,7 +583,7 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 
 
 	if (doc_meta->title){
-		hoedown_buffer_printf(ob, "\\title{%s}\n", doc_meta->title);
+		hoedown_buffer_printf(ob, "\\title{%s}\n\\date{}\n", doc_meta->title);
 	}
 	if (doc_meta->authors)
 	{

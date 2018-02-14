@@ -2,7 +2,7 @@ Scidown
 =======
 
 `Scidown` is a fork of [Hoedown](https://github.com/hoedown/hoedown),
-a c Markdown parser. `Scidown` however it parse not only Markdown but also Scidown (yep same name) that support many features useful for scientific and scholar publishing.
+a c Markdown parser and *HTML* and *LaTeX* generator. `Scidown` however it parse not only Markdown but also Scidown (yep same name) that support many features useful for scientific and scholar publishing.
 
 For more information on the syntax and example look at the **[wiki](https://github.com/Mandarancio/scidown/wiki)**.
 
