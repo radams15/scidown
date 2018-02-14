@@ -306,3 +306,16 @@ void hoedown_buffer_put_utf8(hoedown_buffer *buf, unsigned int c) {
 		HOEDOWN_BUFPUTSL(buf, "\xef\xbf\xbd");
 	}
 }
+
+void hoedown_buffer_replace_last(hoedown_buffer *buf, const char * str)
+{
+	int n = strlen(str);
+	if (n > buf->size)
+	{
+		return;
+	}
+	int i;
+	for (i = 1;i <= n;i++){
+		buf->data[buf->size-i] = str[n-i];
+	}
+}

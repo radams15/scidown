@@ -2648,7 +2648,7 @@ parse_table(
             doc->md.table_body(work, body_work, &doc->data);
 
 		if (doc->md.table)
-			doc->md.table(ob, work, &doc->data);
+			doc->md.table(ob, work, &doc->data, col_data, columns);
 	}
 
 	free(col_data);

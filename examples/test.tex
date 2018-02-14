@@ -10,14 +10,17 @@
 \usepackage{epsfig}
 \usepackage{tikz}
 \usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
 
-\providecommand{\keywords}[1]{\textbf{\textit{Index terms---}} #1}\title{Title}
+\providecommand{\keywords}[1]{{\bf{\em Index terms---}} #1}
+\title{Title}
 \author{Martino Ferrari}
+
 \begin{document}
 \maketitle
 \begin{abstract}
 
-Lorem \textbf{ipsum}
+Lorem {\bf ipsum}
 dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut
 laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
@@ -40,7 +43,23 @@ vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facil
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
 
+\begin{table}
+\begin{center}
 
+\begin{tabular}{ | l | c | r | }
+\hline
+{\bf Col. 1} & {\bf Col.2} & {\bf Col. 3}\\
+\hline
+A & B & C\\
+D & E & F\\
+G & H & I\\
+\hline
+\end{tabular}
+
+\caption{This is a table.}
+\label{tab:simple}
+\end{center}
+\end{table}
 
 accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
 Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.
@@ -56,6 +75,7 @@ dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tinc
 laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation this is a reference to the figure (\ref{fig:falcon}) representing a falcon rocket.
 
 \begin{figure}
+\begin{center}
 
 \begin{lstlisting}[language=c]
 int main(int argc, char** argv)
@@ -66,6 +86,7 @@ int main(int argc, char** argv)
 \end{lstlisting}
 
 \caption{This is a simple code.}
+\end{center}
 \end{figure}
 
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
@@ -105,6 +126,7 @@ accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit aug
 This a plot
 
 \begin{figure}
+\begin{center}
 
 \begin{lstlisting}
 width: 400
@@ -119,8 +141,9 @@ y-axis:
     label: energy
 \end{lstlisting}
 
-\caption{This is a simple plot, with linear axis and \textbf{no} title.}
+\caption{This is a simple plot, with linear axis and {\bf no} title.}
 \label{fig:plot}
+\end{center}
 \end{figure}
 
 \subsection{Second section}
@@ -131,11 +154,13 @@ laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis n
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 
 \begin{figure}
+\begin{center}
 
 \includegraphics[width=\linewidth]{Falcon_Heavy.jpg}
 
 \caption{This is an image.}
 \label{fig:falcon}
+\end{center}
 \end{figure}
 
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
@@ -145,7 +170,6 @@ Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming 
 
 \begin{thebibliography}{00}
 \bibitem{fnref:1}This is a reference.
-
-
+\bibitem{fnref:2}Another reference.
 \end{thebibliography}
 \end{document}

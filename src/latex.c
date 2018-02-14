@@ -169,7 +169,7 @@ rndr_double_emphasis(hoedown_buffer *ob, const hoedown_buffer *content, const ho
 	if (!content || !content->size)
 		return 0;
 
-	HOEDOWN_BUFPUTSL(ob, "\\textbf{");
+	HOEDOWN_BUFPUTSL(ob, "{\\bf ");
 	hoedown_buffer_put(ob, content->data, content->size);
 	HOEDOWN_BUFPUTSL(ob, "}");
 
@@ -180,7 +180,7 @@ static int
 rndr_emphasis(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
 	if (!content || !content->size) return 0;
-	HOEDOWN_BUFPUTSL(ob, "\\textit{");
+	HOEDOWN_BUFPUTSL(ob, "{\\em ");
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
 	HOEDOWN_BUFPUTSL(ob, "}");
 	return 1;
@@ -380,7 +380,7 @@ static int
 rndr_triple_emphasis(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
 	if (!content || !content->size) return 0;
-	HOEDOWN_BUFPUTSL(ob, "\\textbf{\\textit{");
+	HOEDOWN_BUFPUTSL(ob, "{\\bf{\\em ");
 	hoedown_buffer_put(ob, content->data, content->size);
 	HOEDOWN_BUFPUTSL(ob, "}}");
 	return 1;
@@ -428,83 +428,73 @@ rndr_raw_html(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_rend
 }
 
 static void
-rndr_table(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+rndr_table(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data,  hoedown_table_flags *flags, int cols)
 {
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
-	HOEDOWN_BUFPUTSL(ob, "\\begin{tabular}\n");
+	HOEDOWN_BUFPUTSL(ob, "\\begin{tabular}{");
+	int i;
+	for (i = 0;i < cols;i++)
+	{
+		hoedown_buffer_puts(ob, " | ");
+		switch(flags[i]  & HOEDOWN_TABLE_ALIGNMASK)
+		{
+		case HOEDOWN_TABLE_ALIGN_RIGHT:
+			hoedown_buffer_putc(ob, 'r');
+			break;
+		case HOEDOWN_TABLE_ALIGN_CENTER:
+			hoedown_buffer_putc(ob, 'c');
+			break;
+		default:
+			hoedown_buffer_putc(ob, 'l');
+		}
+	}
+
+	hoedown_buffer_puts(ob, " | }\n\\hline\n");
     hoedown_buffer_put(ob, content->data, content->size);
-    HOEDOWN_BUFPUTSL(ob, "\\end{tabular}\n");
+    HOEDOWN_BUFPUTSL(ob, "\\hline\n\\end{tabular}\n");
 
 }
 
 static void
 rndr_table_header(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/* TODO implement
+	/* TODO implement */
     if (ob->size) hoedown_buffer_putc(ob, '\n');
-    HOEDOWN_BUFPUTSL(ob, "<thead>\n");
     hoedown_buffer_put(ob, content->data, content->size);
-    HOEDOWN_BUFPUTSL(ob, "</thead>\n");
-    */
+    HOEDOWN_BUFPUTSL(ob, "\\hline\n");
 }
 
 static void
 rndr_table_body(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/* TODO implement
-    if (ob->size) hoedown_buffer_putc(ob, '\n');
-    HOEDOWN_BUFPUTSL(ob, "<tbody>\n");
+	/* TODO implement */
     hoedown_buffer_put(ob, content->data, content->size);
-    HOEDOWN_BUFPUTSL(ob, "</tbody>\n");
-    */
 }
 
 static void
 rndr_tablerow(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/* TODO implement
-	HOEDOWN_BUFPUTSL(ob, "<tr>\n");
+	/* TODO implement */
+
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
-	HOEDOWN_BUFPUTSL(ob, "</tr>\n");
-	*/
+	hoedown_buffer_replace_last(ob, "\\\\\n");
 }
 
 static void
 rndr_tablecell(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_table_flags flags, const hoedown_renderer_data *data)
 {
-	/* TODO implement
+	/* TODO implement */
 	if (flags & HOEDOWN_TABLE_HEADER) {
-		HOEDOWN_BUFPUTSL(ob, "<th");
-	} else {
-		HOEDOWN_BUFPUTSL(ob, "<td");
-	}
-
-	switch (flags & HOEDOWN_TABLE_ALIGNMASK) {
-	case HOEDOWN_TABLE_ALIGN_CENTER:
-		HOEDOWN_BUFPUTSL(ob, " style=\"text-align: center\">");
-		break;
-
-	case HOEDOWN_TABLE_ALIGN_LEFT:
-		HOEDOWN_BUFPUTSL(ob, " style=\"text-align: left\">");
-		break;
-
-	case HOEDOWN_TABLE_ALIGN_RIGHT:
-		HOEDOWN_BUFPUTSL(ob, " style=\"text-align: right\">");
-		break;
-
-	default:
-		HOEDOWN_BUFPUTSL(ob, ">");
+		HOEDOWN_BUFPUTSL(ob, "{\\bf ");
 	}
 
 	if (content)
 		hoedown_buffer_put(ob, content->data, content->size);
-
 	if (flags & HOEDOWN_TABLE_HEADER) {
-		HOEDOWN_BUFPUTSL(ob, "</th>\n");
-	} else {
-		HOEDOWN_BUFPUTSL(ob, "</td>\n");
+		hoedown_buffer_putc(ob, '}');
 	}
-	*/
+
+	HOEDOWN_BUFPUTSL(ob, " & ");
 }
 
 static int
@@ -588,7 +578,8 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 		                    "\\usepackage{epsfig}\n"
 		                    "\\usepackage{tikz}\n"
 		                    "\\usepackage{pgfplots}\n\n"
-		                    "\\providecommand{\\keywords}[1]{\\textbf{\\textit{Index terms---}} #1}");
+		                    "\\pgfplotsset{compat=1.15}\n\n"
+		                    "\\providecommand{\\keywords}[1]{{\\bf{\\em Index terms---}} #1}\n");
 
 
 	if (doc_meta->title){
@@ -604,7 +595,7 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 		hoedown_buffer_puts(ob, extension->extra_header);
 	}
 
-	hoedown_buffer_puts(ob,"\\begin{document}\n");
+	hoedown_buffer_puts(ob,"\n\\begin{document}\n");
 }
 
 static void
@@ -712,6 +703,7 @@ static void rndr_open_float(hoedown_buffer *ob, float_args args, const hoedown_r
 	default:
 		break;
 	}
+	hoedown_buffer_puts(ob, "\\begin{center}\n");
 }
 
 static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_renderer_data *data)
@@ -727,6 +719,8 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 		hoedown_buffer_puts(ob, args.id);
 		hoedown_buffer_puts(ob, "}\n");
 	}
+
+	hoedown_buffer_puts(ob,  "\\end{center}\n");
 	switch (args.type)
 	{
 	case FIGURE:
