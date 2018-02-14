@@ -2789,7 +2789,7 @@ parse_eq(
 		skip ++;
 	}
 
-	if (doc->md.opn_equation)
+	if (doc->md.opn_equation && skip)
 	{
 		doc->md.opn_equation(ob, args.id, &doc->data);
 		hoedown_buffer * text = hoedown_buffer_new(skip);

@@ -119,6 +119,8 @@ hoedown_buffer_grow(hoedown_buffer *buf, size_t neosz)
 void
 hoedown_buffer_put(hoedown_buffer *buf, const uint8_t *data, size_t size)
 {
+	if (!size)
+		return;
 	assert(buf && buf->unit);
 
 	if (buf->size + size > buf->asize)
