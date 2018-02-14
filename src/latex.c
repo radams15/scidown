@@ -430,18 +430,17 @@ rndr_raw_html(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_rend
 static void
 rndr_table(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/*
-    if (ob->size) hoedown_buffer_putc(ob, '\n');
-	HOEDOWN_BUFPUTSL(ob, "<table>\n");
+	if (ob->size) hoedown_buffer_putc(ob, '\n');
+	HOEDOWN_BUFPUTSL(ob, "\\begin{tabular}\n");
     hoedown_buffer_put(ob, content->data, content->size);
-    HOEDOWN_BUFPUTSL(ob, "</table>\n");
-    */
+    HOEDOWN_BUFPUTSL(ob, "\\end{tabular}\n");
+
 }
 
 static void
 rndr_table_header(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/*
+	/* TODO implement
     if (ob->size) hoedown_buffer_putc(ob, '\n');
     HOEDOWN_BUFPUTSL(ob, "<thead>\n");
     hoedown_buffer_put(ob, content->data, content->size);
@@ -452,7 +451,7 @@ rndr_table_header(hoedown_buffer *ob, const hoedown_buffer *content, const hoedo
 static void
 rndr_table_body(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/*
+	/* TODO implement
     if (ob->size) hoedown_buffer_putc(ob, '\n');
     HOEDOWN_BUFPUTSL(ob, "<tbody>\n");
     hoedown_buffer_put(ob, content->data, content->size);
@@ -463,7 +462,7 @@ rndr_table_body(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown
 static void
 rndr_tablerow(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
-	/*
+	/* TODO implement
 	HOEDOWN_BUFPUTSL(ob, "<tr>\n");
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
 	HOEDOWN_BUFPUTSL(ob, "</tr>\n");
@@ -473,7 +472,7 @@ rndr_tablerow(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_r
 static void
 rndr_tablecell(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_table_flags flags, const hoedown_renderer_data *data)
 {
-	/*
+	/* TODO implement
 	if (flags & HOEDOWN_TABLE_HEADER) {
 		HOEDOWN_BUFPUTSL(ob, "<th");
 	} else {
@@ -528,56 +527,32 @@ rndr_normal_text(hoedown_buffer *ob, const hoedown_buffer *content, const hoedow
 static void
 rndr_footnotes(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
 {
+	/*TOOD fix that*/
 	/*scidown_latex_renderer_state *state = data->opaque;*/
-	/*
-	if (ob->size) hoedown_buffer_putc(ob, '\n');
-	HOEDOWN_BUFPUTSL(ob, "<div class=\"footnotes\">\n");
-	hoedown_buffer_puts(ob, "<hr>\n");
-	HOEDOWN_BUFPUTSL(ob, "<ol>\n");
-
+	hoedown_buffer_puts(ob, "\\begin{thebibliography}{00}\n");
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
-
-	HOEDOWN_BUFPUTSL(ob, "\n</ol>\n</div>\n");
-	*/
+	hoedown_buffer_puts(ob, "\\end{thebibliography}\n");
 }
 
 static void
 rndr_footnote_def(hoedown_buffer *ob, const hoedown_buffer *content, unsigned int num, const hoedown_renderer_data *data)
 {
-	/*
-	size_t i = 0;
-	int pfound = 0;
+	/*TODO fix that*/
+	if (!content)
+		return;
 
-	if (content) {
-		while ((i+3) < content->size) {
-			if (content->data[i++] != '<') continue;
-			if (content->data[i++] != '/') continue;
-			if (content->data[i++] != 'p' && content->data[i] != 'P') continue;
-			if (content->data[i] != '>') continue;
-			i -= 3;
-			pfound = 1;
-			break;
-		}
-	}
-
-	hoedown_buffer_printf(ob, "\n<li id=\"fn%d\">\n", num);
-	if (pfound) {
-		hoedown_buffer_put(ob, content->data, i);
-		hoedown_buffer_printf(ob, "&nbsp;<a href=\"#fnref%d\" rev=\"footnote\">&#8617;</a>", num);
-		hoedown_buffer_put(ob, content->data + i, content->size - i);
-	} else if (content) {
-		hoedown_buffer_put(ob, content->data, content->size);
-	}
-	HOEDOWN_BUFPUTSL(ob, "</li>\n");
-	*/
+	char * tmp = malloc(content->size+1);
+	tmp[content->size] = 0;
+	memcpy(tmp, content->data, content->size);
+	hoedown_buffer_printf(ob, "\\bibitem{fnref:%d}%s\n", num, tmp);
+	free(tmp);
 }
 
 static int
 rndr_footnote_ref(hoedown_buffer *ob, unsigned int num, const hoedown_renderer_data *data)
 {
-	/*
-	hoedown_buffer_printf(ob, "<sup id=\"fnref%d\"><a href=\"#fn%d\" rel=\"footnote\">%d</a></sup>", num, num, num);
-	*/
+	hoedown_buffer_printf(ob, "\\cite{fnref:%d}", num);
+
 	return 1;
 }
 
