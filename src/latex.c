@@ -581,7 +581,7 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 		                    "\\usepackage{pgfplots}\n\n"
 		                    "\\pgfplotsset{compat=1.15}\n\n"
 		                    "\\providecommand{\\keywords}[1]{{\\bf{\\em Index terms---}} #1}\n"
-							"\\\newfloat{program}{thp}{lop}\n\\floatname{program}{Listing}\n"
+							"\\newfloat{program}{thp}{lop}\n\\floatname{program}{Listing}\n"
 						);
 
 	if (doc_meta->title){
