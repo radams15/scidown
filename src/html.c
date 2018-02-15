@@ -649,7 +649,17 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 	}
 	if (doc_meta->authors)
 	{
-		hoedown_buffer_printf(ob, "<meta name=\"author\" content=\"%s\">\n", doc_meta->authors);
+		hoedown_buffer_puts(ob, "<meta name=\"author\" content=\"");
+		Strings * it;
+		for (it = doc_meta->authors; it != NULL; it = it->next)
+		{
+			if (it->size == 1) {
+				hoedown_buffer_puts(ob, it->str);
+			} else {
+				hoedown_buffer_printf(ob, "%s, ", it->str);
+			}
+		}
+		hoedown_buffer_puts(ob, "\">\n");
 	}
 	if (doc_meta->keywords)
 	{
@@ -676,10 +686,15 @@ rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_rend
 }
 
 static void
-rndr_authors(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+rndr_authors(hoedown_buffer *ob, Strings *authors)
 {
 	hoedown_buffer_puts(ob, "<div class=\"authors\">");
-	escape_html(ob, content->data, content->size);
+	Strings *it;
+	for (it = authors; it != NULL; it = it->next){
+		if (it->str){
+			hoedown_buffer_printf(ob,"<span class=\"author\">%s</span> ", it->str);
+		}
+	}
 	hoedown_buffer_puts(ob, "</div>\n");
 }
 

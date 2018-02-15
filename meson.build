@@ -6,6 +6,7 @@ project('Scidown', 'c',
 PROJECT_NAME = 'scidown'
 
 lib_sources = [
+    'src/utils.c',
     'src/autolink.c',
     'src/buffer.c',
     'src/document.c',
@@ -30,10 +31,14 @@ bin_sources = [
   'bin/scidown.c'
 ]
 
+deps = [
+]
+
 shared_library(
     PROJECT_NAME,
     sources: lib_sources,
     link_args: '-lm',
+    dependencies : deps,
     install: true
 )
 
@@ -42,5 +47,6 @@ executable(
     sources: [lib_sources, bin_sources],
     link_args: '-lm',
     c_args: ['-I../src/'],
+    dependencies : deps,
     install: true
 )

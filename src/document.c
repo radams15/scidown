@@ -3393,8 +3393,6 @@ sub_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 
 		parse_block(ob, doc, text->data+skip, text->size-skip);
 	}
-
-
 	hoedown_buffer_free(text);
 }
 
@@ -3412,28 +3410,23 @@ int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t 
 	char * word = malloc(sizeof(char) * (j-skip+3));
 	memset(word, 0, (j-skip+3));
 	memcpy(word, data+skip, (j-skip+1));
-	if (!strcmp(keyword, "title"))
-	{
+
+	if (!strcmp(keyword, "title")) {
 		meta->title = word;
-	} else if (!strcmp(keyword, "authors"))
-    {
-		meta->authors = word;
-	} else if (!strcmp(keyword, "keywords"))
-	{
+	} else if (!strcmp(keyword, "author")) {
+		meta->authors = add_string(meta->authors, word);
+	} else if (!strcmp(keyword, "keywords")) {
 		meta->keywords = word;
-	} else if (!strcmp(keyword, "style"))
-	{
+	} else if (!strcmp(keyword, "style")) {
 		meta->style = word;
-	} else if (!strcmp(keyword, "affiliation"))
-	{
+	} else if (!strcmp(keyword, "affiliation")) {
 		meta->affiliation = word;
-	} else if (!strcmp(keyword, "numbering"))
-	{
+	} else if (!strcmp(keyword, "numbering")) {
 		meta->numbering = !strcmp(word, "true");
-	} else
-	{
+	} else {
 		free(word);
 	}
+
 	return j+1;
 }
 
@@ -3508,8 +3501,8 @@ render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 	if (meta->authors != NULL && doc->md.authors)
 	{
 		hoedown_buffer * b = hoedown_buffer_new(1);
-		hoedown_buffer_puts(b, meta->authors);
-		doc->md.authors(ob,b,NULL);
+
+		doc->md.authors(ob,meta->authors);
 		hoedown_buffer_free(b);
 	}
 	if (meta->affiliation != NULL && doc->md.affiliation)

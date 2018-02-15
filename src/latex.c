@@ -587,9 +587,19 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 	if (doc_meta->title){
 		hoedown_buffer_printf(ob, "\\title{%s}\n\\date{}\n", doc_meta->title);
 	}
+
 	if (doc_meta->authors)
 	{
-		hoedown_buffer_printf(ob, "\\author{%s}\n", doc_meta->authors);
+		hoedown_buffer_puts(ob, "\\author{");
+		Strings* it;
+		for (it = doc_meta->authors; it != NULL; it = it->next){
+			if (it->size == 1) {
+				hoedown_buffer_puts(ob, it->str);
+			} else {
+				hoedown_buffer_printf(ob, "%s \\and ", it->str);
+			}
+		}
+		hoedown_buffer_puts(ob, "}\n");
 	}
 
 	if (extension && extension->extra_header)
@@ -607,7 +617,7 @@ rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_rend
 }
 
 static void
-rndr_authors(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+rndr_authors(hoedown_buffer *ob, Strings *authors)
 {
 }
 

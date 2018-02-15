@@ -3,9 +3,6 @@
 #ifndef SCIDOWN_UTILS_H
 #define SCIDOWN_UTILS_H
 
-#include "document.h"
-#include "buffer.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,11 +33,20 @@ typedef enum scidown_render_tag {
 /*********
  * TYPES *
  *********/
-struct {
+typedef struct {
 	char* figure;
 	char* listing;
 	char* table;
-}typedef localization;
+} localization;
+
+
+struct {
+	char *str;
+	int   size;
+	void *next;
+} typedef Strings;
+
+Strings* add_string(Strings* head, char* str);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,6 @@
 ---
 title: Title
-authors: Martino Ferrari
+author: Martino Ferrari
 keywords: Semantic, Web, Markdown
 affiliation: University of Geneva
 style: scidown_article.css

@@ -5,6 +5,7 @@
 
 #include "buffer.h"
 #include "autolink.h"
+#include "utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,6 +99,7 @@ struct hoedown_renderer_data {
 };
 typedef struct hoedown_renderer_data hoedown_renderer_data;
 
+
 enum {
 	FIGURE,
 	TABLE,
@@ -112,12 +114,12 @@ struct {
 } typedef float_args;
 
 struct {
-	char * title;
-	char * authors;
-	char * keywords;
-	char * style;
-	char * affiliation;
-	int    numbering;
+	char    *title;
+	Strings *authors;
+	char    *keywords;
+	char    *style;
+	char    *affiliation;
+	int      numbering;
 } typedef  metadata;
 
 struct {
@@ -163,7 +165,7 @@ struct hoedown_renderer {
 	/* document level callbacks */
 	void (*head)(hoedown_buffer *ob, metadata * doc_metadata, ext_definition * extensions);
 	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
-	void (*authors)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*authors)(hoedown_buffer *ob, Strings *authors);
 	void (*affiliation)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*keywords)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*begin)(hoedown_buffer *ob);

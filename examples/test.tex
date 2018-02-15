@@ -3,6 +3,7 @@
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
+\usepackage{float}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{textcomp}
@@ -10,11 +11,15 @@
 \usepackage{epsfig}
 \usepackage{tikz}
 \usepackage{pgfplots}
+
 \pgfplotsset{compat=1.15}
 
 \providecommand{\keywords}[1]{{\bf{\em Index terms---}} #1}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Listing}
 \title{Title}
-\author{Martino Ferrari}
+\date{}
+\author{Martino Ferrari \and Giordano Ferrari}
 
 \begin{document}
 \maketitle
@@ -74,7 +79,7 @@ Lorem ipsum
 dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut
 laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation this is a reference to the figure (\ref{fig:falcon}) representing a falcon rocket.
 
-\begin{figure}
+\begin{program}
 \begin{center}
 
 \begin{lstlisting}[language=c]
@@ -87,7 +92,7 @@ int main(int argc, char** argv)
 
 \caption{This is a simple code.}
 \end{center}
-\end{figure}
+\end{program}
 
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in
 vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
@@ -128,7 +133,7 @@ This a plot
 \begin{figure}
 \begin{center}
 
-\begin{lstlisting}
+\begin{lstlisting}[language=charter]
 width: 400
 height: 300
 plot:
@@ -170,6 +175,7 @@ Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming 
 
 \begin{thebibliography}{00}
 \bibitem{fnref:1}This is a reference.
-\bibitem{fnref:2}Another reference.
+
+
 \end{thebibliography}
 \end{document}
