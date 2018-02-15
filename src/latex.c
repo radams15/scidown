@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "charter/parser.h"
-#include "charter/renderer.h"
+#include "charter/src/parser.h"
+#include "charter/src/renderer.h"
 
 #include "escape.h"
 

@@ -5,6 +5,16 @@ project('Scidown', 'c',
 
 PROJECT_NAME = 'scidown'
 
+charter_sources = [
+	'src/charter/src/clist.c',
+    'src/charter/src/parser.c',
+    'src/charter/src/charter.c',
+    'src/charter/src/renderer.c',
+    'src/charter/src/svg_utils.c',
+    'src/charter/src/tinyexpr/tinyexpr.c',
+    'src/charter/src/csv_parser/csvparser.c'
+]
+
 lib_sources = [
     'src/utils.c',
     'src/autolink.c',
@@ -16,14 +26,7 @@ lib_sources = [
     'src/latex.c',
     'src/html_smartypants.c',
     'src/stack.c',
-    'src/version.c',
-    'src/charter/clist.c',
-    'src/charter/parser.c',
-    'src/charter/charter.c',
-    'src/charter/renderer.c',
-    'src/charter/svg_utils.c',
-    'src/charter/tinyexpr/tinyexpr.c',
-    'src/charter/csv_parser/csvparser.c'
+    'src/version.c'
 ]
 
 
@@ -35,7 +38,7 @@ deps = []
 
 shared_library(
     PROJECT_NAME,
-    sources: lib_sources,
+    sources: [charter_sources, lib_sources],
     link_args: '-lm',
     dependencies : deps,
     install: true
@@ -43,7 +46,7 @@ shared_library(
 
 executable(
     PROJECT_NAME,
-    sources: [lib_sources, bin_sources],
+    sources: [charter_sources, lib_sources, bin_sources],
     link_args: '-lm',
     c_args: ['-I../src/'],
     dependencies : deps,
