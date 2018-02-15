@@ -444,7 +444,7 @@ main(int argc, char **argv)
 							"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.min.js\" crossorigin=\"anonymous\"></script>\n";
 		ext.extra_closing = "<script>renderMathInElement(document.body);</script>\n";
 	}
-	document = hoedown_document_new(renderer, data.extensions,&ext, data.max_nesting);
+	document = hoedown_document_new(renderer, data.extensions,&ext, NULL, data.max_nesting);
 
 	t1 = clock();
 	hoedown_document_render(document, ob, ib->data, ib->size);

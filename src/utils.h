@@ -46,7 +46,13 @@ struct {
 	void *next;
 } typedef Strings;
 
-Strings* add_string(Strings* head, char* str);
+
+void     free_strings (Strings *head);
+Strings* add_string   (Strings *head,
+                       char    *str);
+
+void     remove_char  (char    *source,
+                       char     target);
 
 #ifdef __cplusplus
 }
