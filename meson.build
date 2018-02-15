@@ -31,8 +31,7 @@ bin_sources = [
   'bin/scidown.c'
 ]
 
-deps = [
-]
+deps = []
 
 shared_library(
     PROJECT_NAME,
