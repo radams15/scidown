@@ -54,7 +54,8 @@ Is possible to add information and configuration in form of a `YAML` header:
 ```markdown
 ---
 title: your title
-authors: list of authors
+author: author 1
+author: author 2
 affiliation: affiliation
 style: css file
 keywords: list of keywords
@@ -64,7 +65,7 @@ numbering: true/false (number the chapters, sections and subsections)
 Rest of your markdown file
 ```
 
-the `title`, `authors` and `keywords` will be used both as metadata of the html and displayed in the output.
+the `title`, `author` and `keywords` will be used both as metadata of the html and displayed in the output.
 
 ### External Files
 
