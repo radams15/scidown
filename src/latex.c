@@ -289,15 +289,15 @@ static void
 rndr_list(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_list_flags flags, const hoedown_renderer_data *data)
 {
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
-	hoedown_buffer_puts(ob, (flags & HOEDOWN_LIST_ORDERED ? "\\begin{enumerate}\n" : "\\begin{itemize}>\n"));
+	hoedown_buffer_puts(ob, (flags & HOEDOWN_LIST_ORDERED ? "\\begin{enumerate}" : "\\begin{itemize}"));
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
-	hoedown_buffer_puts(ob, (flags & HOEDOWN_LIST_ORDERED ? "\\end{enumerate\n" : "\\end{itemize}\n"));
+	hoedown_buffer_puts(ob, (flags & HOEDOWN_LIST_ORDERED ? "\\end{enumerate}\n" : "\\end{itemize}\n"));
 }
 
 static void
 rndr_listitem(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_list_flags flags, const hoedown_renderer_data *data)
 {
-	HOEDOWN_BUFPUTSL(ob, "\\item");
+	HOEDOWN_BUFPUTSL(ob, "\n\\item ");
 	if (content) {
 		size_t size = content->size;
 		while (size && content->data[size - 1] == '\n')
