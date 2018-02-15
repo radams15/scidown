@@ -96,8 +96,8 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 {
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 
-    /*
-     * scidown_latex_renderer_state *state = data->opaque;
+
+    scidown_latex_renderer_state *state = data->opaque;
 	if (lang && (state->flags & SCIDOWN_RENDER_CHARTER) != 0 && hoedown_buffer_eqs(lang, "charter") != 0){
 		if (text){
 
@@ -106,18 +106,17 @@ rndr_blockcode(hoedown_buffer *ob, const hoedown_buffer *text, const hoedown_buf
 			memcpy(copy, text->data, text->size);
 
 			chart * c =  parse_chart(copy);
-			char * svg = chart_to_svg(c);
+			char * tex = chart_to_latex(c);
 
-			int n = strlen(svg);
-			hoedown_buffer_printf(ob, svg, n);
+			int n = strlen(tex);
+			hoedown_buffer_printf(ob, tex, n);
 
 			free(copy);
 			chart_free(c);
-			free(svg);
-
+			free(tex);
 		}
 		return;
-	}*/
+	}
 
 	if (lang) {
 		HOEDOWN_BUFPUTSL(ob, "\\begin{lstlisting}[language=");
