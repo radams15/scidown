@@ -1165,6 +1165,10 @@ char_ref(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offset
 			if (doc->md.ref)
 				doc->md.ref(ob, ref_id, count);
 			return i+1;
+		} else {
+			if (doc->md.ref)
+				doc->md.ref(ob, ref_id, -1);
+			return i+1;
 		}
 	}
 	return 0;
