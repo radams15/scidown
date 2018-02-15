@@ -1,7 +1,9 @@
 #include "utils.h"
 #include <stdlib.h>
 
-Strings* add_string(Strings* head, char* str)
+Strings*
+add_string(Strings  *head,
+           char     *str)
 {
   if (head == 0) {
     head = malloc(sizeof(Strings));
@@ -21,4 +23,32 @@ Strings* add_string(Strings* head, char* str)
     head->next = next;
   }
   return head;
+}
+
+void
+free_strings (Strings* head)
+{
+  if (head)
+  {
+    if (head->str)
+      free(head->str);
+    free(head->next);
+    free(head);
+  }
+}
+
+void
+remove_char(char *source,
+            char  target)
+{
+
+  char* i = source;
+  char* j = source;
+  while(*j != 0)
+  {
+    *i = *j++;
+    if(*i != target)
+      i++;
+  }
+  *i = 0;
 }

@@ -133,6 +133,8 @@ hoedown_buffer_put(hoedown_buffer *buf, const uint8_t *data, size_t size)
 void
 hoedown_buffer_puts(hoedown_buffer *buf, const char *str)
 {
+	if (!str)
+		return;
 	hoedown_buffer_put(buf, (const uint8_t *)str, strlen(str));
 }
 
