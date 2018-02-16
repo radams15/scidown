@@ -3470,7 +3470,13 @@ int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t 
 		meta->affiliation = word;
 	} else if (!strcmp(keyword, "numbering")) {
 		meta->numbering = !strcmp(word, "true");
-	} else {
+	} else if (!strcmp(keyword, "paper")) {
+		meta->paper_size = string_to_paper(word);
+	} else if (!strcmp(keyword, "class")) {
+		meta->doc_class = string_to_class(word);
+	} else if (!strcmp(keyword, "font-size")) {
+		meta->font_size = atoi(word);
+	}else {
 		free(word);
 	}
 
@@ -3508,12 +3514,19 @@ metadata *
 parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
 {
 	metadata * meta = malloc(sizeof(metadata));
+
 	meta->keywords = NULL;
 	meta->authors = NULL;
 	meta->style = NULL;
 	meta->title = NULL;
+
+	meta->paper_size = A4PAPER;
+	meta->doc_class = CLASS_ARTICLE;
+	meta->font_size = 10;
+
 	meta->numbering = 0;
 	meta->affiliation = NULL;
+
 	if (startsWith("---", (char*)data) && is_separator(data[3])){
 		int i = 4;
 		while (i < size){

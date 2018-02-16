@@ -565,8 +565,11 @@ rndr_eq_math(hoedown_buffer *ob, const hoedown_buffer *text, int displaymode, co
 static void
 rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 {
-	hoedown_buffer_puts(ob, "\\documentclass[a4paper,10pt]{article}\n"
-							"\\usepackage[utf8]{inputenc}\n"
+	hoedown_buffer_printf(ob, "\\documentclass[%s, %dpt]{%s}\n",
+	                      paper_to_string(doc_meta->paper_size),
+	                      doc_meta->font_size,
+	                      class_to_string(doc_meta->doc_class));
+	hoedown_buffer_puts(ob, "\\usepackage[utf8]{inputenc}\n"
 		                    "\\usepackage{cite}\n"
 		                    "\\usepackage{amsmath,amssymb,amsfonts}\n"
 		                    "\\usepackage{algorithmic}\n"

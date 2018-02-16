@@ -6,6 +6,7 @@
 #include "buffer.h"
 #include "autolink.h"
 #include "utils.h"
+#include "constants.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,12 +115,15 @@ struct {
 } typedef float_args;
 
 struct {
-	char    *title;
-	Strings *authors;
-	char    *keywords;
-	char    *style;
-	char    *affiliation;
-	int      numbering;
+	char              *title;
+	Strings           *authors;
+	char              *keywords;
+	char              *style;
+	char              *affiliation;
+	scidow_paper_size  paper_size;
+	scidown_doc_class  doc_class;
+	int                font_size;
+	int                numbering;
 } typedef  metadata;
 
 struct {

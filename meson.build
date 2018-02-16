@@ -19,6 +19,7 @@ charter_sources = [
 
 lib_sources = [
     'src/utils.c',
+    'src/constants.c',
     'src/autolink.c',
     'src/buffer.c',
     'src/document.c',
