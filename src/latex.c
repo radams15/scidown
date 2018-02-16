@@ -701,7 +701,7 @@ static void rndr_open_float(hoedown_buffer *ob, float_args args, const hoedown_r
 	switch (args.type)
 	{
 	case FIGURE:
-		hoedown_buffer_puts(ob,  "\\begin{figure}\n");
+		hoedown_buffer_puts(ob,  "\\begin{figure}[ht!]\n");
 		break;
 	case LISTING:
 		/**TODO make it better**/
