@@ -9,7 +9,9 @@ charter_sources = [
 	'src/charter/src/clist.c',
     'src/charter/src/parser.c',
     'src/charter/src/charter.c',
-    'src/charter/src/renderer.c',
+    'src/charter/src/svg.c',
+    'src/charter/src/latex.c',
+    'src/charter/src/charter_string.c',
     'src/charter/src/svg_utils.c',
     'src/charter/src/tinyexpr/tinyexpr.c',
     'src/charter/src/csv_parser/csvparser.c'
