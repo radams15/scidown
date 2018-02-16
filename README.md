@@ -161,7 +161,11 @@ plot:
 
 Example
 --------
-An example of `scidwon` syntax is available in the ```examples/``` folder, this is a screenshot of the parsing of a simple example using the `scidown_article.css` style:
+An example of `scidwon` syntax is available in the ```examples/``` folder.
+
+Some `LaTeX` and `PDF` generated from `scidown` are available in the same as well: [article](https://github.com/Mandarancio/scidown/raw/master/examples/example_article.pdf), [report](https://github.com/Mandarancio/scidown/raw/master/examples/example_report.pdf)
+
+This is a screenshot of the parsing of a simple example using the `scidown_article.css` style:
 
 ![screenshot](html_article.png)
 
