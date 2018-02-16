@@ -2,6 +2,7 @@ build/
 *.o
 *.obj
 *.exe
+*.aux
 scidown
 scidown.dll
 scidown.exp
@@ -9,4 +10,8 @@ scidown.lib
 smartypants
 libscidown.so*
 libscidown.a
+*.out
+*.gz
+*.toc
+*.log
 *~

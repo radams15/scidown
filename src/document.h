@@ -95,8 +95,21 @@ typedef enum hoedown_autolink_type {
 struct hoedown_document;
 typedef struct hoedown_document hoedown_document;
 
+typedef struct metadata {
+	char              *title;
+	Strings           *authors;
+	char              *keywords;
+	char              *style;
+	char              *affiliation;
+	scidow_paper_size  paper_size;
+	scidown_doc_class  doc_class;
+	int                font_size;
+	int                numbering;
+} metadata;
+
 struct hoedown_renderer_data {
 	void *opaque;
+	metadata *meta;
 };
 typedef struct hoedown_renderer_data hoedown_renderer_data;
 
@@ -113,18 +126,6 @@ struct {
 	char * caption;
 	float_type type;
 } typedef float_args;
-
-struct {
-	char              *title;
-	Strings           *authors;
-	char              *keywords;
-	char              *style;
-	char              *affiliation;
-	scidow_paper_size  paper_size;
-	scidown_doc_class  doc_class;
-	int                font_size;
-	int                numbering;
-} typedef  metadata;
 
 struct {
 	char * extra_header;

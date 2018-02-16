@@ -234,6 +234,9 @@ rndr_linebreak(hoedown_buffer *ob, const hoedown_renderer_data *data)
 static void
 rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter counter, int numbering)
 {
+	if (data->meta->doc_class == CLASS_BOOK || data->meta->doc_class == CLASS_REPORT) {
+		level --;
+	}
 
 	if (ob->size)
 		hoedown_buffer_putc(ob, '\n');
@@ -241,7 +244,9 @@ rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const 
 	if (!content)
 	  return;
 
-  	if (level == 1) {
+  	if (level == 0) {
+	  hoedown_buffer_puts(ob, "\\chapter{");
+	} else if (level == 1) {
   	  hoedown_buffer_puts(ob, "\\section{");
 	} else if (level == 2) {
 	  hoedown_buffer_puts(ob, "\\subsection{");
@@ -252,6 +257,7 @@ rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const 
 	} else if (level == 5) {
 	  hoedown_buffer_puts(ob, "\\subparagraph{");
 	}
+
 	hoedown_buffer_put(ob, content->data, content->size);
     hoedown_buffer_puts(ob, "}\n");
 }

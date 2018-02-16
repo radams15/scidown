@@ -167,7 +167,7 @@ struct hoedown_document {
  		char *cwd;
 
  		if (base_folder != NULL) {
- 			int n1 = strlen(base_folder);
+			int n1 = strlen(base_folder);
  			int n2 = strlen(path);
  			int n =  n1 + n2 + 2;
  			cwd = malloc(n*sizeof(char));
@@ -176,12 +176,12 @@ struct hoedown_document {
  			cwd[n1] = '/';
  			memcpy(cwd+n1+1, path, n2);
  		} else {
- 			cwd = malloc(128*sizeof(char));
- 			memset(cwd, 0, 128);
- 			getcwd(cwd, sizeof(cwd));
+ 			cwd = malloc(256*sizeof(char));
+ 			memset(cwd, 0, 256);
+ 			getcwd(cwd, 256);
  			strcat(cwd, "/");
  			strcat(cwd, path);
- 		}
+	 	}
  		struct stat path_stat;
 	    stat(cwd, &path_stat);
 	    free(cwd);
@@ -851,7 +851,7 @@ load_file(const char* path, char* base_folder, size_t * size)
 		} else {
 			cwd = malloc(128*sizeof(char));
 			memset(cwd, 0, 128);
-			getcwd(cwd, sizeof(cwd));
+			getcwd(cwd, 128);
 			strcat(cwd, "/");
 			strcat(cwd, path);
 		}
@@ -3299,6 +3299,7 @@ hoedown_document_new(
 	doc->document_metadata = NULL;
 	doc->table_of_contents = NULL;
 	doc->data.opaque = renderer->opaque;
+	doc->data.meta = NULL;
 
 	hoedown_stack_init(&doc->work_bufs[BUFFER_BLOCK], 4);
 	hoedown_stack_init(&doc->work_bufs[BUFFER_SPAN], 8);
@@ -3784,7 +3785,6 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 
 	doc->table_of_contents = generate_toc(doc, data, size, NULL);
 
-
 	metadata * meta = parse_yaml(doc, ob, data, size);
 	if (doc->md.head)
 		doc->md.head(ob, meta, doc->extensions);
@@ -3792,6 +3792,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 		doc->md.begin(ob);
 	render_metadata(doc, ob, meta);
 	doc->document_metadata = meta;
+	doc->data.meta = meta;
 
 	if (doc->md.inner)
 		doc->md.inner(ob);
