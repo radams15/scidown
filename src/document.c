@@ -154,6 +154,8 @@ struct hoedown_document {
  static int
  startsWith(char *pre, char *str)
  {
+ 	if (!pre || !str)
+ 		return 0;
     size_t lenpre = strlen(pre),
            lenstr = strlen(str);
     return lenstr < lenpre ? 0 : strncmp(pre, str, lenpre) == 0;
