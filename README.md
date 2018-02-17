@@ -29,6 +29,7 @@ Compile and Run
 ---------------
 To compile the project simply do the following:
 ```bash
+git submodule update --init --recursive
 mkdir build
 cd build
 meson ..
