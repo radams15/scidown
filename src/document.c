@@ -2748,7 +2748,6 @@ parse_caption(hoedown_document *doc,
 	if (i) {
 		hoedown_buffer * buf = hoedown_buffer_new(1);
 		parse_inline(buf, doc, data, i);
-		buf->data[buf->size]=0;
 		uint8_t * tmp = malloc(sizeof(uint8_t) * (buf->size+1));
 		tmp[buf->size] = 0;
 		memcpy(tmp, buf->data, buf->size);
