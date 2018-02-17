@@ -2739,9 +2739,9 @@ parse_caption(hoedown_document *doc,
               uint8_t *data,
               size_t size)
 {
-	if (!data || size==0)
+	if (!data || size <= 0)
 		return NULL;
-	int i=0;
+	uint32_t i=0;
 	while (i < size && (data[i] !=')' && data[i] !='\n')){
 		i++;
 	}
@@ -2749,8 +2749,11 @@ parse_caption(hoedown_document *doc,
 		hoedown_buffer * buf = hoedown_buffer_new(1);
 		parse_inline(buf, doc, data, i);
 		buf->data[buf->size]=0;
-
-		return buf->data;
+		uint8_t * tmp = malloc(sizeof(uint8_t) * (buf->size+1));
+		tmp[buf->size] = 0;
+		memcpy(tmp, buf->data, buf->size);
+		hoedown_buffer_free(buf);
+		return tmp;
 	}
 	return NULL;
 }
