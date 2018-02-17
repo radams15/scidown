@@ -2767,7 +2767,8 @@ parse_fl(
 	size_t skip = 0;
 	float_args args = {};
 	args.type = type;
-
+	args.caption = NULL;
+	
 	if (data[0] == '(')
 	{
 		begin ++;
@@ -2783,7 +2784,7 @@ parse_fl(
 
 	}
 	while (skip+begin < size && !startsWith("\n@/", (char*)data+skip+begin))
-	{
+	{	
 		if (startsWith("\n@caption(",(char*) data+skip+begin))
 		{
 			args.caption = (char*)parse_caption(doc, data+skip+begin+10, size-begin-skip-10);
