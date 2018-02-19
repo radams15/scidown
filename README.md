@@ -6,6 +6,8 @@ a c Markdown parser and *HTML* and *LaTeX* generator. `Scidown` however it parse
 
 For more information on the syntax and example look at the **[wiki](https://github.com/Mandarancio/scidown/wiki)**.
 
+More about the motivation and the planning of the project in the **[manifesto](MANIFESTO.md)**.
+
 Features
 --------
 
@@ -29,6 +31,7 @@ Compile and Run
 ---------------
 To compile the project simply do the following:
 ```bash
+git submodule update --init --recursive
 mkdir build
 cd build
 meson ..
