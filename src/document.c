@@ -162,6 +162,12 @@ struct hoedown_document {
  }
 
 
+int
+is_separator(uint8_t chr)
+{
+	return chr == ' ' || chr == '(' || chr == '\t' || chr == '\n';
+}
+
  static int
  is_regular_file(const char *path, char * base_folder)
  {
@@ -1220,6 +1226,13 @@ char_autolink_email(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, si
     {
     	return parse_include(ob, doc, data, offset, size);
     }
+    if (startsWith("@\\", (char*)data) && is_separator(data[2])){
+	    if (doc->md.linebreak)
+	    {
+	    	doc->md.linebreak(ob, &doc->data);
+	    }
+	    return 3;
+    }
     if (startsWith("@pagebreak", (char*)data))
    	{
 	   	if (doc->md.pagebreak)
@@ -1341,6 +1354,8 @@ char_link(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t offse
 			/* render */
 			if (doc->md.footnote_ref)
 				ret = doc->md.footnote_ref(ob, fr->num, &doc->data);
+		} else if (doc->md.footnote_ref) {
+			ret = doc->md.footnote_ref(ob, -1, &doc->data);
 		}
 
 		goto cleanup;
@@ -2770,7 +2785,7 @@ parse_fl(
 	float_args args = {};
 	args.type = type;
 	args.caption = NULL;
-	
+
 	if (data[0] == '(')
 	{
 		begin ++;
@@ -2786,7 +2801,7 @@ parse_fl(
 
 	}
 	while (skip+begin < size && !startsWith("\n@/", (char*)data+skip+begin))
-	{	
+	{
 		if (startsWith("\n@caption(",(char*) data+skip+begin))
 		{
 			args.caption = (char*)parse_caption(doc, data+skip+begin+10, size-begin-skip-10);
@@ -2852,11 +2867,6 @@ parse_eq(
 	return skip + begin;
 }
 
-int
-is_separator(uint8_t chr)
-{
-	return chr == ' ' || chr == '(' || chr == '\t' || chr == '\n';
-}
 
 static size_t
 parse_float(
@@ -3444,7 +3454,7 @@ sub_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 	hoedown_buffer_free(text);
 }
 
-int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t size)
+int parse_keyword(char * keyword, hoedown_document * doc, metadata * meta,  const uint8_t *data, size_t size)
 {
 	/** clean keyword **/
 	remove_char(keyword, ' ');
@@ -3460,9 +3470,14 @@ int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t 
 		else if (!text && data[j] != ' ')
 			text = 1;
 	}
+	if (j == 0)
+	{
+		return 1;
+	}
 	char * word = malloc(sizeof(char) * (j-skip+3));
 	memset(word, 0, (j-skip+3));
 	memcpy(word, data+skip, (j-skip+1));
+
 
 	if (!strcmp(keyword, "title")) {
 		meta->title = word;
@@ -3544,7 +3559,7 @@ parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 				char type[j+3];
 				memset(type, 0, j+3);
 				memcpy(type, data+i, j+1);
-				j += parse_keyword(type, meta, data+i+j+2, size - i - j - 2);
+				j += parse_keyword(type, doc, meta, data+i+j+2, size - i - j - 2);
 	       }
 
             i+=j+3;
