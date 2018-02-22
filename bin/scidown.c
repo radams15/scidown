@@ -9,7 +9,7 @@ int main(int    argc,
 
 	/**Initial string**/
 	dynstr* str = dynstr_from("Hi, how are you?\nFine thanks, and you?\nI'm good!");
-	printf("Original size %lu\n", str->size);
+	printf("Original size %lu (%lu)\n", str->size, str->r_size);
 
 	/**Look for a string**/
 	dyniter* pos = dynstr_match_all(str, "\n", &n);
@@ -27,5 +27,6 @@ int main(int    argc,
 	/**Strip \n **/
 	dynstr_strip(str, '\n');
 	printf("%s (%lu)\n", str->data, str->size);
+
 	return 0;
 }
