@@ -17,19 +17,11 @@ charter_sources = [
     'src/charter/src/csv_parser/csvparser.c'
 ]
 
+dynstr_sources = [
+    'src/DynString/dynstring.c'
+]
+
 lib_sources = [
-    'src/utils.c',
-    'src/constants.c',
-    'src/autolink.c',
-    'src/buffer.c',
-    'src/document.c',
-    'src/escape.c',
-    'src/html_blocks.c',
-    'src/html.c',
-    'src/latex.c',
-    'src/html_smartypants.c',
-    'src/stack.c',
-    'src/version.c'
 ]
 
 
@@ -41,7 +33,7 @@ deps = []
 
 shared_library(
     PROJECT_NAME,
-    sources: [charter_sources, lib_sources],
+    sources: [dynstr_sources, charter_sources, lib_sources],
     link_args: '-lm',
     dependencies : deps,
     install: true
@@ -49,7 +41,7 @@ shared_library(
 
 executable(
     PROJECT_NAME,
-    sources: [charter_sources, lib_sources, bin_sources],
+    sources: [dynstr_sources, charter_sources, lib_sources, bin_sources],
     link_args: '-lm',
     c_args: ['-I../src/'],
     dependencies : deps,

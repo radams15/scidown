@@ -1,3 +1,6 @@
 [submodule "src/charter"]
 	path = src/charter
 	url = https://github.com/Mandarancio/charter.git
+[submodule "src/DynString"]
+	path = src/DynString
+	url = https://github.com/Mandarancio/DynString.git
