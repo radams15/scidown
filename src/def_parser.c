@@ -10,14 +10,26 @@ is_spacer (char c)
 }
 
 static element*
-gen_element(dyniter      start,
-            dyniter      end,
+gen_element(dynrange     outer,
+            dynrange     inner,
             const char * name,
             ETYPE        type,
             eid          id)
 {
-  return element_new((edef){name, type, id}, (dynrange){start, end});
+  return element_new((edef){name, type, id}, outer, inner);
 }
+
+static element*
+gen_sin_element(dyniter      start,
+                dyniter      end,
+                const char * name,
+                ETYPE        type,
+                eid          id)
+{
+  dynrange r = {start, end};
+  return element_new((edef){name, type, id}, r, r);
+}
+
 
 static ds_bool
 is_section(dyniter *iter,
@@ -54,7 +66,6 @@ is_subsection(dyniter *iter,
       if (dyniter_at(next) != '#' || !dyniter_next(&next))
         return FALSE;
     }
-
     if (is_spacer(dyniter_at(next))) {
       do {
         if (!dyniter_next(&next))
@@ -96,15 +107,52 @@ is_italic(dyniter *it,
   return FALSE;
 }
 
+static void
+skip_char (dyniter *iter,
+           char     c)
+{
+    while (dyniter_next(iter)) {
+      if (dyniter_at(*iter) != c)
+        break;
+    }
+}
+
+static element*
+gen_h_title (dyniter *iter)
+{
+  skip_char(iter, '#');
+  skip_char(iter, ' ');
+  dyniter start = *iter;
+  dyniter_end_line(iter);
+  dyniter end = *iter;
+  dyniter_prev(&end);
+  return gen_sin_element(start,
+                         end,
+                         "H-Title",
+                         INLINE,
+                         HTITLE);
+}
+
 static element*
 gen_section (dyniter *iter)
 {
   assert(iter);
   dyniter start = *iter;
-  dyniter_end_line(iter);
+  element * title = gen_h_title(iter);
+  dyniter_next(iter);
+  dyniter inner = *iter;
   dyniter end = *iter;
-
-  return gen_element(start, end, "Section", INLINE, SECTION);
+  while (dyniter_next(&end)) {
+    if (!is_section(&end, NULL)){
+      dyniter_prev(&end);
+      break;
+    }
+  }
+  element * e= gen_element((dynrange) {start, end},
+                           (dynrange) {inner, end},
+                           "Section", BLOCK, SECTION);
+  element_append(e, title);
+  return e;
 }
 
 static element*
@@ -112,10 +160,21 @@ gen_subsection (dyniter *iter)
 {
   assert(iter);
   dyniter start = *iter;
-  dyniter_end_line(iter);
+  element * title = gen_h_title(iter);
+  dyniter_next(iter);
+  dyniter inner = *iter;
   dyniter end = *iter;
-
-  return gen_element(start, end, "Sub-section", INLINE, SUBSECTION);
+  while (dyniter_next(&end)) {
+    if (!(is_section(&end, NULL) || is_subsection(&end, NULL))){
+      dyniter_prev(&end);
+      break;
+    }
+  }
+  element * e = gen_element((dynrange) {start, end},
+                            (dynrange) {inner, end},
+                            "Sub-section", BLOCK, SUBSECTION);
+  element_append(e, title);
+  return e;
 }
 
 static element*
@@ -125,7 +184,13 @@ gen_italic (dyniter *iter) {
   dyniter end = start;
   while(dyniter_next(&end)) {
     if (dyniter_at(end) == '*') {
-      return gen_element(start, end, "Italic", INLINE, ITALIC);
+      dyniter s = start;
+      dyniter_next (&s);
+      dyniter e = end;
+      dyniter_prev (&e);
+      return gen_element((dynrange) {start, end},
+                         (dynrange) {s, e},
+                         "Italic", INLINE, ITALIC);
     }
   }
   return NULL;
@@ -140,6 +205,7 @@ default_parser ()
 
   funcs[0] = pfunc_new (SECTION, 0, is_section, gen_section);
   funcs[1] = pfunc_new (SUBSECTION, 0, is_subsection, gen_subsection);
+
   funcs[2] = pfunc_new (ITALIC, 0, is_italic, gen_italic);
 
   return (parser){funcs, n};

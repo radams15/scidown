@@ -5,13 +5,15 @@
 
 element *
 element_new    (edef     definition,
-                dynrange range)
+                dynrange range,
+                dynrange inner)
 {
   element * el = malloc(sizeof *el);
   el->child = NULL;
   el->next = NULL;
   el->definition = definition;
   el->range = range;
+  el->inner = inner;
   return el;
 }
 
@@ -51,11 +53,12 @@ ast_print      (element    *el,
 {
   dynstr * s = dynstr_substr_r(el->range);
   if (s){
-    printf("%s [%s]  %s \n", del, el->definition.name, dynstr_print(s));
+    printf("%s [%s]  %s", del, el->definition.name, dynstr_print(s));
     dynstr_free(s);
   }else
-    printf("%s [%s]\n", del, el->definition.name);
+    printf("%s [%s]", del, el->definition.name);
 
+  printf(" (%lu - %lu)\n", el->range.start.i, el->range.end.i);
   if (el->child)
   {
     char neu [128];

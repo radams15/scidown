@@ -28,6 +28,8 @@ enum BASIC {
   PARAGRAPHER,
   SUBPARAGRPAHER,
 
+  HTITLE,
+
   /** block elements **/
   TEXT,
   CODE,
@@ -72,12 +74,14 @@ enum SCIDOWN {
 struct element {
   edef     definition;
   dynrange range;
+  dynrange inner;
   void     *child;
   void     *next;
 } typedef element;
 
 element * element_new    (edef        definition,
-                          dynrange    range);
+                          dynrange    range,
+                          dynrange    inner);
 
 element * element_add    (element    *root,
                           element    *elmnt);

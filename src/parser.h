@@ -34,6 +34,10 @@ element*  text_block     (dyniter    from,
 
 parser    default_parser ();
 
+void      parse_block    (dynstr    *doc,
+                          element   *root,
+                          parser     prsr);
+
 document* parse          (dynstr    *doc,
                           parser     aparser);
 
