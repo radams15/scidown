@@ -22,6 +22,9 @@ dynstr_sources = [
 ]
 
 lib_sources = [
+    'src/ast.c',
+    'src/parser.c',
+    'src/def_parser.c',
 ]
 
 

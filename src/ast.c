@@ -1,22 +1,23 @@
 #include "ast.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
-Element *
-element_new    (EDef    *definition,
-                dyniter *iter)
+element *
+element_new    (edef     definition,
+                dynrange range)
 {
-  Element * el = malloc(sizeof *el);
+  element * el = malloc(sizeof *el);
   el->child = NULL;
   el->next = NULL;
   el->definition = definition;
-  el->source_iter = iter;
+  el->range = range;
   return el;
 }
 
-Element *
-element_add    (Element *root,
-                Element *elmnt)
+element *
+element_add    (element *root,
+                element *elmnt)
 {
   if (root == NULL) {
     return elmnt;
@@ -29,9 +30,9 @@ element_add    (Element *root,
   }
 }
 
-Element *
-element_append (Element *root,
-                Element *elmnt)
+element *
+element_append (element *root,
+                element *elmnt)
 {
   if (root == NULL) {
     return elmnt;
@@ -41,5 +42,28 @@ element_append (Element *root,
     else
       root->child = elmnt;
     return root;
+  }
+}
+
+void
+ast_print      (element    *el,
+                const char *del)
+{
+  dynstr * s = dynstr_substr_r(el->range);
+  if (s){
+    printf("%s [%s]  %s \n", del, el->definition.name, dynstr_print(s));
+    dynstr_free(s);
+  }else
+    printf("%s [%s]\n", del, el->definition.name);
+
+  if (el->child)
+  {
+    char neu [128];
+    sprintf(neu, "%s\t", del);
+    ast_print(el->child, neu);
+  }
+  if (el->next)
+  {
+    ast_print(el->next, del);
   }
 }

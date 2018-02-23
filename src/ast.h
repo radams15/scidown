@@ -4,33 +4,38 @@
 #include "DynString/dynstring.h"
 
 typedef int eid;
-typedef int Priority;
+typedef int priority;
 
-enum EType {
+enum ETYPE {
   INLINE,
   BLOCK,
   FLOAT
-} typedef EType;
+} typedef ETYPE;
 
-struct EDef {
+struct edef {
   const char *name;
-  EType       type;
+  ETYPE       type;
   eid         id;
-  Priority    prioirty;
-} typedef EDef;
+} typedef edef;
 
 enum BASIC {
-  /** block elements **/
+  ROOT,
+
+  /** sections elements **/
   SECTION,
   SUBSECTION,
   SUBSUBSECTION,
   PARAGRAPHER,
   SUBPARAGRPAHER,
+
+  /** block elements **/
+  TEXT,
   CODE,
   QOUTEBLOCK,
   MATHBLOCK,
   TABLE,
   CITEDEF,
+
 
   /** inline elements **/
   BOLD,
@@ -64,19 +69,21 @@ enum SCIDOWN {
 } typedef SCIDOWN;
 
 
-struct Element {
-  EDef    *definition;
-  dyniter *source_iter;
-  Element *child;
-  Element *next;
-} typedef Element;
+struct element {
+  edef     definition;
+  dynrange range;
+  void     *child;
+  void     *next;
+} typedef element;
 
-Element * element_new    (EDef    *definition,
-                          dyniter *iter);
+element * element_new    (edef        definition,
+                          dynrange    range);
 
-Element * element_add    (Element *root,
-                          Element *elmnt);
+element * element_add    (element    *root,
+                          element    *elmnt);
 
-Element * element_append (Element *root,
-                          Element *elmnt);
+element * element_append (element    *root,
+                          element    *elmnt);
+void      ast_print      (element    *el,
+                          const char *del);
 #endif

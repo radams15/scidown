@@ -1,32 +1,20 @@
 #include <stdio.h>
-#include "DynString/dynstring.h"
+#include "parser.h"
+
 
 int main(int    argc,
          char **argv)
 {
-	size_t n;
-	size_t i;
-
 	/**Initial string**/
-	dynstr* str = dynstr_from("Hi, how are you?\nFine thanks, and you?\nI'm good!");
-	printf("Original size %lu (%lu)\n", str->size, str->r_size);
-
-	/**Look for a string**/
-	dyniter* pos = dynstr_match_all(str, "\n", &n);
-	for (i = 0; i < n; i++)
-	{
-		printf("- %s\n", dyniter_print(pos[i]));
-	}
-	                                  /**Split in lines**/
-	dynstr** lines = dynstr_splitc(str, '\n', &n);
-	printf("%lu lines\n", n);
-	for (i = 0; i < n; i++)
-	{
-		printf("> %s\n", lines[i]->data);
-	}
-	/**Strip \n **/
-	dynstr_strip(str, '\n');
-	printf("%s (%lu)\n", str->data, str->size);
-
+	dynstr* doc = dynstr_from("# TITLE\n"
+	                          "Lorem ipsum *dolor* sit amet, consectetur adipiscing elit.\n"
+	                          "Curabitur eleifend dui eu tellus elementum auctor.\n"
+	                          "## SECTION\n"
+	                          "Donec egestas vitae neque ut molestie.\n"
+	                          "Donec fermentum placerat lectus.");
+	printf("%s\n\n===============\n\n", dynstr_print(doc));
+	parser standard = default_parser();
+	document* res = parse(doc, standard);
+	ast_print(res, "");
 	return 0;
 }
