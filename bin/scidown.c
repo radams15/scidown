@@ -10,11 +10,11 @@ int main(int    argc,
 	                          "Lorem ipsum *dolor* sit amet, consectetur adipiscing elit.\n"
 	                          "Curabitur eleifend dui eu tellus elementum auctor.\n"
 	                          "## SECTION I\n"
-	                          "Donec egestas vitae neque ut molestie.\n"
+	                          "Donec egestas vitae **neque** ut molestie.\n"
 	                          "Donec fermentum placerat lectus.\n"
 	                          "## SECTION II\n"
 	                          "Maecenas ut dui nisi."
-	                          "Nullam tincidunt aliquet augue, a consectetur justo varius ut.\n");
+	                          "Nullam tincidunt aliquet augue, a consectetur ***justo*** varius ut.\n");
 	printf("%s\n\n===============\n\n", doc->data);
 	parser standard = default_parser();
 	document* res = parse(doc, standard);

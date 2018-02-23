@@ -107,6 +107,37 @@ is_italic(dyniter *it,
   return FALSE;
 }
 
+static ds_bool
+is_bold(dyniter *it,
+          element *cont)
+{
+  dyniter nt = *it;
+  if (!dyniter_next(&nt))
+    return FALSE;
+  if (dyniter_at(*it) == '*' && dyniter_at(nt) == '*')
+  {
+    dyniter prev = nt;
+    dyniter next = nt;
+    dyniter_next(&next);
+    if (dyniter_at(next) != '\n' &&
+        !is_spacer(dyniter_at(next))) {
+      dyniter_next(&next);
+      prev = next;
+      while (dyniter_next(&next)) {
+        if (dyniter_at(next) == '*' &&
+            dyniter_at(prev) == '*') {
+          return TRUE;
+        }
+        if (dyniter_at(next) == '\n')
+          return FALSE;
+        prev = next;
+      }
+    }
+  }
+  return FALSE;
+}
+
+
 static void
 skip_char (dyniter *iter,
            char     c)
@@ -143,7 +174,7 @@ gen_section (dyniter *iter)
   dyniter inner = *iter;
   dyniter end = *iter;
   while (dyniter_next(&end)) {
-    if (!is_section(&end, NULL)){
+    if (is_section(&end, NULL)){
       dyniter_prev(&end);
       break;
     }
@@ -165,7 +196,7 @@ gen_subsection (dyniter *iter)
   dyniter inner = *iter;
   dyniter end = *iter;
   while (dyniter_next(&end)) {
-    if (!(is_section(&end, NULL) || is_subsection(&end, NULL))){
+    if (is_section(&end, NULL) || is_subsection(&end, NULL)){
       dyniter_prev(&end);
       break;
     }
@@ -184,29 +215,61 @@ gen_italic (dyniter *iter) {
   dyniter end = start;
   while(dyniter_next(&end)) {
     if (dyniter_at(end) == '*') {
-      dyniter s = start;
-      dyniter_next (&s);
-      dyniter e = end;
-      dyniter_prev (&e);
-      return gen_element((dynrange) {start, end},
-                         (dynrange) {s, e},
-                         "Italic", INLINE, ITALIC);
+      dyniter next =end;
+      dyniter_next(&next);
+      char n = dyniter_at(next);
+      if (n == '\n' || n == '*' || is_spacer(n)) {
+        dyniter s = start;
+        dyniter_next (&s);
+        dyniter e = end;
+        dyniter_prev (&e);
+        return gen_element((dynrange) {start, end},
+                           (dynrange) {s, e},
+                           "Italic", INLINE, ITALIC);
+      }
     }
   }
   return NULL;
 }
 
 
+static element*
+gen_bold (dyniter *iter) {
+  assert(iter);
+  dyniter start = *iter;
+  dyniter end = start;
+  dyniter_skip(&end, 2);
+  dyniter prev = end;
+  dyniter next;
+  while(dyniter_next(&end)) {
+    next = end;
+    if (!dyniter_next(&next) || (dyniter_at(end) == '*' && dyniter_at(prev)=='*'
+                                 && is_spacer(dyniter_at(next)))) {
+      dyniter s = start;
+      dyniter_next (&s);
+      dyniter_next (&s);
+      dyniter e = end;
+      dyniter_prev (&e);
+      dyniter_prev (&e);
+      return gen_element((dynrange) {start, end},
+                         (dynrange) {s, e},
+                         "Bold", INLINE, BOLD);
+    }
+    prev = end;
+  }
+  return NULL;
+}
+
 parser
 default_parser ()
 {
-  size_t n = 3;
+  size_t n = 4;
   pfunc * funcs = malloc(n * sizeof *funcs);
 
   funcs[0] = pfunc_new (SECTION, 0, is_section, gen_section);
   funcs[1] = pfunc_new (SUBSECTION, 0, is_subsection, gen_subsection);
 
   funcs[2] = pfunc_new (ITALIC, 0, is_italic, gen_italic);
-
+  funcs[3] = pfunc_new (BOLD, 0, is_bold, gen_bold);
   return (parser){funcs, n};
 }

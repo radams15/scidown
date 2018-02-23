@@ -80,9 +80,9 @@ parse_block    (dynstr    *doc,
         }
       }
     }
-  } while (it.i < end && dyniter_next(&it));
-  if (last.i != it.i) {
-     element * t = text_block(last, it);
+  } while (it.i < end - 1 && dyniter_next(&it));
+  if (last.i < end) {
+     element * t = text_block(last, root->inner.end);
      element_append(root, t);
   }
 }
