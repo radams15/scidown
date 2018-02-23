@@ -59,6 +59,8 @@ parse_block    (dynstr    *doc,
   size_t  end  = root->inner.end.i;
   size_t  i;
   dyniter it = root->inner.start;
+  if (it.i == end)
+    return;
   dyniter last = it;
   do {
     for (i = 0; i < p.n; i++) {
