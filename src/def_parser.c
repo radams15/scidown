@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+static size_t cite_r_n = 0;
+static regex * cite_rule = NULL;
+
 static ds_bool
 is_spacer (char c)
 {
@@ -31,6 +34,17 @@ gen_sin_element(dyniter      start,
   return element_new((edef){name, type, id}, r, r);
 }
 
+static ds_bool
+is_cite_def (dyniter *it,
+             element *parent)
+{
+  if (it->column == 0) {
+    if (!cite_rule)
+      cite_rule = parse_regex("[^(#!])]: ", &cite_r_n);
+    return dynstr_regex(*it, cite_rule, cite_r_n, NULL);
+  }
+  return FALSE;
+}
 
 static ds_bool
 is_header(dyniter i,
@@ -259,10 +273,12 @@ static dynrange
 head_range (dyniter s, size_t d)
 {
   dyniter i = s;
-
   dyniter_end_line(&i);
   dyniter p = i;
   while (dyniter_next(&i)) {
+    if (is_cite_def(&i, NULL)) {
+      return (dynrange){s, p};
+    }
     if (dyniter_at(i) == '#') {
       size_t c = 1;
       while (dyniter_next(&i)) {
@@ -713,32 +729,6 @@ static ds_bool
 is_image (dyniter *it,
           element *parent)
 {
-  /*
-  if (dyniter_at(*it) == '!') {
-    dyniter i = *it;
-    dyniter_next(&i);
-    if (dyniter_at(i) == '[') {
-      while(dyniter_next(&i)) {
-        char c = dyniter_at(i);
-        if (c == '\n' || c == '[')
-          return FALSE;
-        if (c == ']')
-          break;
-      }
-      dyniter_next(&i);
-      if (dyniter_at(i) == '(') {
-        while (dyniter_next(&i)) {
-          char c = dyniter_at(i);
-          if (c == '\n' || c == '(')
-            return FALSE;
-          if (c == ')')
-            return TRUE;
-        }
-      }
-    }
-  }
-  return FALSE;
-  */
   if (!r_image)
     r_image = parse_regex("![(#!])]\\((#!\\)))", &r_image_n);
   return dynstr_regex(*it, r_image, r_image_n, NULL);
@@ -863,20 +853,6 @@ gen_link (dyniter *it)
   return link;
 }
 
-static size_t cite_r_n = 0;
-static regex * cite_rule = NULL;
-
-static ds_bool
-is_cite_def (dyniter *it,
-             element *parent)
-{
-  if (it->column == 0) {
-    if (!cite_rule)
-      cite_rule = parse_regex("[^(#!])]: ", &cite_r_n);
-    return dynstr_regex(*it, cite_rule, cite_r_n, NULL);
-  }
-  return FALSE;
-}
 
 static element*
 gen_cite_def (dyniter *it)
