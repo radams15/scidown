@@ -382,9 +382,10 @@ static element*
 gen_italic (dyniter *iter) {
   assert(iter);
   dyniter start = *iter;
+  char c = dyniter_at(start);
   dyniter end = start;
   while(dyniter_next(&end)) {
-    if (dyniter_at(end) == '*') {
+    if (dyniter_at(end) == c) {
       dyniter next =end;
       dyniter_next(&next);
       char n = dyniter_at(next);
@@ -406,6 +407,7 @@ static element*
 gen_bold (dyniter *iter) {
   assert(iter);
   dyniter start = *iter;
+  char c = dyniter_at(start);
   dyniter end = start;
   dyniter_skip(&end, 2);
   dyniter pp = end;
@@ -413,8 +415,8 @@ gen_bold (dyniter *iter) {
   dyniter next;
   while(dyniter_next(&end)) {
     next = end;
-    if (!dyniter_next(&next) || (dyniter_at(end) == '*' && dyniter_at(prev)=='*'
-                                 && dyniter_at(next)!='*') && !is_spacer(dyniter_at(pp))) {
+    if (!dyniter_next(&next) || (dyniter_at(end) == c && dyniter_at(prev) == c
+                                 && dyniter_at(next) != c && !is_spacer(dyniter_at(pp)))) {
       dyniter s = start;
       dyniter_next (&s);
       dyniter_next (&s);
