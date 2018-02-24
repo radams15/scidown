@@ -34,6 +34,7 @@ enum BASIC {
   ITITLE,         /*x*/
   ALT,            /*x*/
   URL,            /*x*/
+  REFID,
 
   /** block elements **/
   TEXT,           /*x*/

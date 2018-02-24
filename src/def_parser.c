@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static ds_bool
 is_spacer (char c)
@@ -384,11 +385,13 @@ gen_italic (dyniter *iter) {
   dyniter start = *iter;
   char c = dyniter_at(start);
   dyniter end = start;
+  char p = c;
+  char n;
   while(dyniter_next(&end)) {
-    if (dyniter_at(end) == c) {
+    n = dyniter_at(end);
+    if (n == c && !is_spacer(p)) {
       dyniter next =end;
       dyniter_next(&next);
-      char n = dyniter_at(next);
       dyniter s = start;
       dyniter_next (&s);
       dyniter e = end;
@@ -396,8 +399,8 @@ gen_italic (dyniter *iter) {
       return gen_element((dynrange) {start, end},
                          (dynrange) {s, e},
                          "Italic", INLINE, ITALIC);
-
     }
+    p = n;
   }
   return NULL;
 }
@@ -703,10 +706,14 @@ gen_mono (dyniter *it)
   return gen_element((dynrange) {s, e}, (dynrange) {ts, te}, "Mono", INLINE, MONO);
 }
 
+static size_t r_image_n = 0;
+static regex * r_image = NULL;
+
 static ds_bool
 is_image (dyniter *it,
           element *parent)
 {
+  /*
   if (dyniter_at(*it) == '!') {
     dyniter i = *it;
     dyniter_next(&i);
@@ -731,6 +738,10 @@ is_image (dyniter *it,
     }
   }
   return FALSE;
+  */
+  if (!r_image)
+    r_image = parse_regex("![(#!])]\\((#!\\)))", &r_image_n);
+  return dynstr_regex(*it, r_image, r_image_n, NULL);
 }
 
 static element*
@@ -738,61 +749,47 @@ gen_image (dyniter *it)
 {
   dyniter s = *it;
   dyniter i = s;
-  dyniter_skip(&i,2);
-  dynrange alt_r = {i, i};
   element * alt = NULL;
-  element * url = NULL;
-  element * title = NULL;
-  while(dyniter_next(&i)) {
-    char c = dyniter_at(i);
-    if (c == ']') {
-      if (i.i > (alt_r.start.i + 1)) {
-        alt_r.end = i;
-        dyniter_prev(&alt_r.end);
-        alt = gen_sin_element(alt_r.start, alt_r.end, "Alt", INLINE, ALT);
-      }
-      break;
+  if (dynstr_exp(s, "![(#!])]", &i)) {
+    if (i.i > s.i + 3) {
+      dyniter ts = s;
+      dyniter_skip(&ts, 2);
+      dyniter te = i;
+      dyniter_prev(&te);
+      alt = gen_sin_element(ts, te, "Alt", INLINE, ALT);
     }
+  } else {
+    return NULL;
   }
-  dyniter_skip(&i, 2);
-  dynrange url_r = {i, i};
-  dynrange tit_r = {i, i};
-  ds_bool has_title = FALSE;
-  while (dyniter_next(&i)) {
-    char c = dyniter_at(i);
-    if (c == ' ') {
-      if (i.i > (url_r.start.i + 1)) {
-        url_r.end = i;
-        dyniter_prev(&url_r.end);
-        url = gen_sin_element(url_r.start, url_r.end, "Url", INLINE, URL);
-        has_title = TRUE;
-        tit_r.start = i;
-        dyniter_next(&tit_r.start);
+  dyniter url_s = i;
+  if (dynstr_exp(url_s, "\\((#!\\)))", &i)) {
+    element * url = NULL;
+    element * title = NULL;
+    if (i.i > url_s.i + 2) {
+      dyniter_next(&url_s);
+      dyniter te = i;
+      dyniter_prev(&te);
+      dyniter *ts = dynstr_match_in(url_s.__src__, " ", (dynrange){url_s, te});
+      if (ts && ts->i < te.i) {
+        dyniter title_e = te;
+        te = *ts;
+        dyniter_prev(&te);
+        dyniter_next(ts);
+        title = gen_sin_element(*ts, title_e, "ImgTitle", INLINE, ITITLE);
+        free(ts);
       }
+      url = gen_sin_element(url_s, te, "Url", INLINE, URL);
     }
-    if (c == ')') {
-      if (!has_title) {
-        if (i.i > (url_r.start.i + 1)) {
-          url_r.end = i;
-          dyniter_prev(&url_r.end);
-          url = gen_sin_element(url_r.start, url_r.end, "Url", INLINE, URL);
-        }
-      } else if (i.i > (tit_r.start.i + 1)) {
-        tit_r.end = i;
-        dyniter_prev(&tit_r.end);
-        title = gen_sin_element(tit_r.start, tit_r.end, "ImgTitle", INLINE, ITITLE);
-      }
-      break;
-    }
+    element * img = gen_element((dynrange) {s, i}, (dynrange) {s, s}, "Image", INLINE, IMAGE);
+    if (alt)
+      element_append(img, alt);
+    if (url)
+      element_append(img, url);
+    if (title)
+      element_append(img, title);
+    return img;
   }
-  element * img = gen_element((dynrange) {s, i}, (dynrange) {s, s}, "Image", INLINE, IMAGE);
-  if (alt)
-    element_append(img, alt);
-  if (url)
-    element_append(img, url);
-  if (title)
-    element_append(img, title);
-  return img;
+  return NULL;
 }
 
 static ds_bool
@@ -866,11 +863,55 @@ gen_link (dyniter *it)
   return link;
 }
 
+static size_t cite_r_n = 0;
+static regex * cite_rule = NULL;
+
+static ds_bool
+is_cite_def (dyniter *it,
+             element *parent)
+{
+  if (it->column == 0) {
+    if (!cite_rule)
+      cite_rule = parse_regex("[^(#!])]: ", &cite_r_n);
+    return dynstr_regex(*it, cite_rule, cite_r_n, NULL);
+  }
+  return FALSE;
+}
+
+static element*
+gen_cite_def (dyniter *it)
+{
+  dyniter s = *it;
+  dyniter i = s;
+  if (!cite_rule)
+    cite_rule = parse_regex("[^(#!])]: ", &cite_r_n);
+
+  if (dynstr_regex(*it, cite_rule, cite_r_n, &i) && i.i > s.i + 3) {
+    dyniter sr = s;
+    dyniter er = i;
+    dyniter_goto(&er, er.i - 4);
+    dyniter_skip(&sr, 2);
+    element * ref = gen_sin_element(sr, er, "RefId", INLINE, REFID);
+    dyniter si = i;
+    while (dyniter_next(&i)) {
+      if (is_cite_def(&i, NULL)) {
+        dyniter_prev(&i);
+        break;
+      }
+      dyniter_end_line(&i);
+    }
+    element * el = gen_element((dynrange) {s, i}, (dynrange) {si, i}, "CiteDef", BLOCK, CITEDEF);
+    element_append(el, ref);
+    return el;
+  }
+  return NULL;
+}
+
 
 parser
 default_parser ()
 {
-  size_t n = 16;
+  size_t n = 17;
   pfunc * funcs = malloc(n * sizeof *funcs);
 
   funcs[0] = pfunc_new (SECTION, 0, is_section, gen_section);
@@ -892,6 +933,8 @@ default_parser ()
   funcs[13] = pfunc_new (MONO, 0, is_mono, gen_mono);
   funcs[14] = pfunc_new (IMAGE, 0, is_image, gen_image);
   funcs[15] = pfunc_new (LINK, 0, is_link, gen_link);
+
+  funcs[16] = pfunc_new (CITEDEF, 0, is_cite_def, gen_cite_def);
 
   return (parser){funcs, n};
 };

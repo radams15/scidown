@@ -26,7 +26,8 @@ int main(int    argc,
 	                          "```\n"
 	                          "A simple python code.\n"
 	                          "this is a block equation: $$x = 3$$ where is $x$ is a variable.\n"
-	                          "an image ![Alt text](http://url/ title) with alt text and url\n");
+	                          "an image ![Alt text](http://url/ title) with alt text and url\n\n"
+	                          "[^cite1]: This is a reference");
 	printf("%s\n\n===============\n\n", doc->data);
 	parser standard = default_parser();
 	document* res = parse(doc, standard);
