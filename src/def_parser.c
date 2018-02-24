@@ -527,10 +527,344 @@ gen_quote_block(dyniter *iter)
 }
 
 
+
+static ds_bool
+is_code_block(dyniter *iter,
+              element *parent)
+{
+  if (iter->column == 0) {
+    dyniter i = *iter;
+    char c = dyniter_at(i);
+    if (c == '~' || c =='`') {
+      dyniter_next(&i);
+      size_t j;
+      for (j = 1; j < 3; j++) {
+        if (dyniter_at(i) != c)
+          return FALSE;
+        if (!dyniter_next(&i))
+          return FALSE;
+      }
+      if (dyniter_at(i) != c)
+        return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+static element*
+gen_code_block (dyniter *iter)
+{
+  dyniter start = *iter;
+  char c = dyniter_at(start);
+  dyniter_skip(iter, 3);
+  char k = dyniter_at(*iter);
+  element * lang = NULL;
+  if (!is_spacer(k) && k != '\n')
+  {
+    dyniter s = *iter;
+    while(dyniter_next(iter))
+    {
+      k = dyniter_at(*iter);
+      if (is_spacer(k) || k == '\n') {
+        break;
+      }
+    }
+    dyniter e = *iter;
+    dyniter_prev(&e);
+    lang = gen_sin_element(s, e, "Lang", INLINE, LANG);
+  }
+  dyniter_end_line(iter);
+  while (dyniter_next(iter)) {
+    k = dyniter_at(*iter);
+    if (k == c) {
+      size_t j = 1;
+      ds_bool stat = FALSE;
+      while (dyniter_next(iter)) {
+        j ++;
+        k = dyniter_at(*iter);
+        if (k == c && j == 4)
+          break;
+        if (k != c && j < 4)
+          break;
+        if ((is_spacer(k) || k == '\n') && j == 4) {
+          stat = TRUE;
+          break;
+        }
+      }
+      if (stat)
+        break;
+    }
+    dyniter_end_line(iter);
+  }
+  dyniter end = *iter;
+
+  dyniter s = start;
+  dyniter e = end;
+  dyniter_end_line(&s);
+  dyniter_next(&s);
+  dyniter_goto(&e, e.i -3);
+
+  element * t = text_block(s, e);
+  element * bq = gen_element((dynrange) {start, end}, (dynrange) {start, start}, "CodeBlock", BLOCK, CODE);
+  if (lang)
+    element_append(bq, lang);
+  element_append(bq, t);
+  return bq;
+}
+
+static ds_bool
+is_math_block(dyniter *it,
+              element *parent)
+{
+  if (dyniter_at(*it) == '$') {
+    dyniter i = *it;
+    dyniter_next(&i);
+    if (dyniter_at(i) == '$') {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+static element *
+gen_math_block (dyniter *it)
+{
+  dyniter s = *it;
+  dyniter i = s;
+  dyniter_skip(&i, 2);
+  size_t c = 2;
+  while (dyniter_next(&i)) {
+    char k = dyniter_at(i);
+    if (k == '\n') {
+      if (!c)
+        return NULL;;
+      c = 0;
+    } else if (k =='$') {
+      dyniter n = i;
+      dyniter_next(&n);
+      if (dyniter_at(n) == '$') {
+        dyniter ts = s;
+        dyniter_skip(&ts, 2);
+        dyniter te = i;
+        dyniter_prev(&te);
+        element * txt = text_block(ts, te);
+        element * math = gen_element((dynrange) {s, n}, (dynrange) {s, s}, "MathBlock", BLOCK, MATHBLOCK);
+        element_append(math, txt);
+        return math;
+      }
+    } else if (!is_spacer(k)) {
+      c++;
+    }
+  }
+  return NULL;
+}
+
+static ds_bool
+is_mono (dyniter *it,
+         element *el)
+{
+  if (dyniter_at(*it) == '`')
+  {
+    dyniter i = *it;
+    dyniter_next(&i);
+    if (dyniter_at(i) == '`')
+      return FALSE;
+    while (dyniter_next(&i)) {
+      char k = dyniter_at(i);
+      if (k == '`')
+        return TRUE;
+      if (k == '\n')
+        return FALSE;
+    }
+  }
+  return FALSE;
+}
+
+static element*
+gen_mono (dyniter *it)
+{
+  dyniter s = *it;
+  while (dyniter_next(it)) {
+    char k = dyniter_at(*it);
+    if (k == '`')
+      break;
+  }
+  dyniter e = *it;
+  dyniter ts = s;
+  dyniter te = e;
+  dyniter_next(&ts);
+  dyniter_prev(&te);
+  return gen_element((dynrange) {s, e}, (dynrange) {ts, te}, "Mono", INLINE, MONO);
+}
+
+static ds_bool
+is_image (dyniter *it,
+          element *parent)
+{
+  if (dyniter_at(*it) == '!') {
+    dyniter i = *it;
+    dyniter_next(&i);
+    if (dyniter_at(i) == '[') {
+      while(dyniter_next(&i)) {
+        char c = dyniter_at(i);
+        if (c == '\n' || c == '[')
+          return FALSE;
+        if (c == ']')
+          break;
+      }
+      dyniter_next(&i);
+      if (dyniter_at(i) == '(') {
+        while (dyniter_next(&i)) {
+          char c = dyniter_at(i);
+          if (c == '\n' || c == '(')
+            return FALSE;
+          if (c == ')')
+            return TRUE;
+        }
+      }
+    }
+  }
+  return FALSE;
+}
+
+static element*
+gen_image (dyniter *it)
+{
+  dyniter s = *it;
+  dyniter i = s;
+  dyniter_skip(&i,2);
+  dynrange alt_r = {i, i};
+  element * alt = NULL;
+  element * url = NULL;
+  element * title = NULL;
+  while(dyniter_next(&i)) {
+    char c = dyniter_at(i);
+    if (c == ']') {
+      if (i.i > (alt_r.start.i + 1)) {
+        alt_r.end = i;
+        dyniter_prev(&alt_r.end);
+        alt = gen_sin_element(alt_r.start, alt_r.end, "Alt", INLINE, ALT);
+      }
+      break;
+    }
+  }
+  dyniter_skip(&i, 2);
+  dynrange url_r = {i, i};
+  dynrange tit_r = {i, i};
+  ds_bool has_title = FALSE;
+  while (dyniter_next(&i)) {
+    char c = dyniter_at(i);
+    if (c == ' ') {
+      if (i.i > (url_r.start.i + 1)) {
+        url_r.end = i;
+        dyniter_prev(&url_r.end);
+        url = gen_sin_element(url_r.start, url_r.end, "Url", INLINE, URL);
+        has_title = TRUE;
+        tit_r.start = i;
+        dyniter_next(&tit_r.start);
+      }
+    }
+    if (c == ')') {
+      if (!has_title) {
+        if (i.i > (url_r.start.i + 1)) {
+          url_r.end = i;
+          dyniter_prev(&url_r.end);
+          url = gen_sin_element(url_r.start, url_r.end, "Url", INLINE, URL);
+        }
+      } else if (i.i > (tit_r.start.i + 1)) {
+        tit_r.end = i;
+        dyniter_prev(&tit_r.end);
+        title = gen_sin_element(tit_r.start, tit_r.end, "ImgTitle", INLINE, ITITLE);
+      }
+      break;
+    }
+  }
+  element * img = gen_element((dynrange) {s, i}, (dynrange) {s, s}, "Image", INLINE, IMAGE);
+  if (alt)
+    element_append(img, alt);
+  if (url)
+    element_append(img, url);
+  if (title)
+    element_append(img, title);
+  return img;
+}
+
+static ds_bool
+is_link (dyniter *it,
+         element *parent)
+{
+  if (dyniter_at(*it) == '[') {
+    dyniter i = *it;
+    while(dyniter_next(&i)) {
+      char c = dyniter_at(i);
+      if (c == '\n' || c == '[')
+        return FALSE;
+      if (c == ']')
+        break;
+    }
+    dyniter_next(&i);
+    if (dyniter_at(i) == '(') {
+      while (dyniter_next(&i)) {
+        char c = dyniter_at(i);
+        if (c == '\n' || c == '(')
+          return FALSE;
+        if (c == ')')
+          return TRUE;
+        }
+    }
+  }
+  return FALSE;
+}
+
+
+static element*
+gen_link (dyniter *it)
+{
+  dyniter s = *it;
+  dyniter i = s;
+  dyniter_skip(&i,1);
+  dynrange alt_r = {i, i};
+  element * url = NULL;
+  while(dyniter_next(&i)) {
+    char c = dyniter_at(i);
+    if (c == ']') {
+      if (i.i > (alt_r.start.i + 1)) {
+        alt_r.end = i;
+        dyniter_prev(&alt_r.end);
+      }
+      break;
+    }
+  }
+  dyniter_skip(&i, 2);
+  dynrange url_r = {i, i};
+
+  while (dyniter_next(&i)) {
+    char c = dyniter_at(i);
+    if (c == ')') {
+      if (i.i > (url_r.start.i + 1)) {
+        url_r.end = i;
+        dyniter_prev(&url_r.end);
+        url = gen_sin_element(url_r.start, url_r.end, "Url", INLINE, URL);
+      }
+      break;
+    }
+  }
+  element * link = gen_element((dynrange) {s, i}, alt_r, "Link", INLINE, LINK);
+  if (url) {
+    element_append(link, url);
+    if (alt_r.end.i <= alt_r.start.i) {
+      element * txt = text_block(url_r.start, url_r.end);
+      element_append(link, txt);
+    }
+  }
+  return link;
+}
+
+
 parser
 default_parser ()
 {
-  size_t n = 11;
+  size_t n = 16;
   pfunc * funcs = malloc(n * sizeof *funcs);
 
   funcs[0] = pfunc_new (SECTION, 0, is_section, gen_section);
@@ -546,5 +880,12 @@ default_parser ()
   funcs[9] = pfunc_new (UNDERLINE, 0, is_midleline , gen_middleline);
 
   funcs[10] = pfunc_new (QUOTEBLOCK, 0, is_quote_block, gen_quote_block);
+  funcs[11] = pfunc_new (CODE, 0, is_code_block, gen_code_block);
+  funcs[12] = pfunc_new (MATHBLOCK, 0, is_math_block, gen_math_block);
+
+  funcs[13] = pfunc_new (MONO, 0, is_mono, gen_mono);
+  funcs[14] = pfunc_new (IMAGE, 0, is_image, gen_image);
+  funcs[15] = pfunc_new (LINK, 0, is_link, gen_link);
+
   return (parser){funcs, n};
 };

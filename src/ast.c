@@ -17,6 +17,17 @@ element_new    (edef     definition,
   return el;
 }
 
+
+void
+element_free   (element    *el)
+{
+  if (el->next)
+    element_free(el->next);
+  if (el->child)
+    element_free(el->child);
+  free(el);
+}
+
 element *
 element_add    (element *root,
                 element *elmnt)

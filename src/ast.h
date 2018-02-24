@@ -22,34 +22,37 @@ enum BASIC {
   ROOT,
 
   /** sections elements **/
-  SECTION,
-  SUBSECTION,
-  SUBSUBSECTION,
-  PARAGRAPH,
-  SUBPARAGRAPH,
-  SUBSUBPARAGRAPH,
+  SECTION,        /*x*/
+  SUBSECTION,     /*x*/
+  SUBSUBSECTION,  /*x*/
+  PARAGRAPH,      /*x*/
+  SUBPARAGRAPH,   /*x*/
+  SUBSUBPARAGRAPH,/*x*/
 
-  HTITLE,
+  HTITLE,         /*x*/
+  LANG,           /*x*/
+  ITITLE,         /*x*/
+  ALT,            /*x*/
+  URL,            /*x*/
 
   /** block elements **/
-  TEXT,
-  CODE,
-  QUOTEBLOCK,
-  MATHBLOCK,
+  TEXT,           /*x*/
+  CODE,           /*x*/
+  QUOTEBLOCK,     /*x*/
+  MATHBLOCK,      /*x*/
   TABLE,
   CITEDEF,
 
 
   /** inline elements **/
-  BOLD,
-  ITALIC,
-  MONO,
-  UNDERLINE,
-  MIDDLELINE,
-  COLOR,
-  QUOTE,
-  IMAGE,
-  LINK,
+  BOLD,           /*x*/
+  ITALIC,         /*x*/
+  MONO,           /*x*/
+  UNDERLINE,      /*x*/
+  MIDDLELINE,     /*x*/
+  QUOTE,          /*x*/
+  LINK,           /*x*/
+  IMAGE,          /*x*/
   CITE,
   SUPERSCRIPT,
   UNDERSCRIPT,
@@ -69,6 +72,7 @@ enum SCIDOWN {
   REFERENCE,
   TOC,
   CAPTION,
+  COLOR
 } typedef SCIDOWN;
 
 
@@ -83,6 +87,8 @@ struct element {
 element * element_new    (edef        definition,
                           dynrange    range,
                           dynrange    inner);
+
+void      element_free   (element    *el);
 
 element * element_add    (element    *root,
                           element    *elmnt);

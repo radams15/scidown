@@ -68,17 +68,21 @@ parse_block    (dynstr    *doc,
       if (p.funcs[i].at(&it, root)) {
         next = p.funcs[i].parse(&it);
         if (next) {
-          if (next->range.start.i > last.i+1) {
-            dyniter to = next->range.start;
-            dyniter_prev(&to);
-            element * t = text_block(last, to);
-            element_append(root, t);
+          if (next->range.end.i > end) {
+            element_free(next);
+          } else {
+            if (next->range.start.i > last.i+1) {
+              dyniter to = next->range.start;
+              dyniter_prev(&to);
+              element * t = text_block(last, to);
+              element_append(root, t);
+            }
+            parse_block(doc, next, p);
+            element_append(root, next);
+            last = next->range.end;
+            it = last;
+            dyniter_next(&last);
           }
-          parse_block(doc, next, p);
-          element_append(root, next);
-          last = next->range.end;
-          it = last;
-          dyniter_next(&last);
         }
       }
     }
