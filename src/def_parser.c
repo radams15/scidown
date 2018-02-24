@@ -207,15 +207,18 @@ is_bold(dyniter *it,
     dyniter_next(&next);
     if (dyniter_at(next) != '\n' &&
         !is_spacer(dyniter_at(next))) {
+      dyniter pp = next;
       dyniter_next(&next);
       prev = next;
       while (dyniter_next(&next)) {
         if (dyniter_at(next) == '*' &&
-            dyniter_at(prev) == '*') {
+            dyniter_at(prev) == '*' &&
+            !is_spacer(dyniter_at(pp))) {
           return TRUE;
         }
         if (dyniter_at(next) == '\n')
           return FALSE;
+        pp = prev;
         prev = next;
       }
     }
@@ -385,15 +388,14 @@ gen_italic (dyniter *iter) {
       dyniter next =end;
       dyniter_next(&next);
       char n = dyniter_at(next);
-      if (n == '\n' || n == '*' || is_spacer(n)) {
-        dyniter s = start;
-        dyniter_next (&s);
-        dyniter e = end;
-        dyniter_prev (&e);
-        return gen_element((dynrange) {start, end},
-                           (dynrange) {s, e},
-                           "Italic", INLINE, ITALIC);
-      }
+      dyniter s = start;
+      dyniter_next (&s);
+      dyniter e = end;
+      dyniter_prev (&e);
+      return gen_element((dynrange) {start, end},
+                         (dynrange) {s, e},
+                         "Italic", INLINE, ITALIC);
+
     }
   }
   return NULL;
@@ -406,12 +408,13 @@ gen_bold (dyniter *iter) {
   dyniter start = *iter;
   dyniter end = start;
   dyniter_skip(&end, 2);
+  dyniter pp = end;
   dyniter prev = end;
   dyniter next;
   while(dyniter_next(&end)) {
     next = end;
     if (!dyniter_next(&next) || (dyniter_at(end) == '*' && dyniter_at(prev)=='*'
-                                 && is_spacer(dyniter_at(next)))) {
+                                 && dyniter_at(next)!='*') && !is_spacer(dyniter_at(pp))) {
       dyniter s = start;
       dyniter_next (&s);
       dyniter_next (&s);
@@ -422,6 +425,7 @@ gen_bold (dyniter *iter) {
                          (dynrange) {s, e},
                          "Bold", INLINE, BOLD);
     }
+    pp = prev;
     prev = end;
   }
   return NULL;

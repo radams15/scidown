@@ -12,7 +12,7 @@ int main(int    argc,
 	                          "## SECTION I\n"
 	                          "Donec egestas vitae **neque** ut molestie.\n"
 	                          "Donec `fermentum *placerat* lectus`.\n"
-	                          "This is a [link](www.google.com).\n"
+	                          "This is a [**link**](www.google.com).\n"
 	                          "## SECTION II\n"
 	                          "\tA Quote block\n"
 	                          "\tSecond line\n"
