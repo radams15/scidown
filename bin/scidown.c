@@ -19,7 +19,7 @@ int main(int    argc,
 	                          "\tThird line\n"
 	                          "### SUBSECTION I\n"
 	                          "Maecenas ut _dui_ nisi."
-	                          "Nullam tincidunt aliquet augue, a consectetur ***justo*** varius ut.\n"
+	                          "Nullam tincidunt aliquet augue[^cite1,cite2], a consectetur ***justo*** varius ut.\n"
 	                          "```python\n"
 	                          "def test():\n"
 	                          "\tprint(\"hello world\")\n"
@@ -29,7 +29,7 @@ int main(int    argc,
 	                          "an image ![Alt text](http://url/ title) with alt text and url\n\n"
 	                          "[^cite1]: This is a *reference*\n"
 	                          "Author: M.G.F\n"
-	                          "[^cite2]: This is another ref.");
+	                          "[^cite2]: This is another ref.\n");
 	printf("%s\n\n===============\n\n", doc->data);
 	parser standard = default_parser();
 	document* res = parse(doc, standard);

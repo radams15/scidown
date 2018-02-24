@@ -18,7 +18,8 @@ charter_sources = [
 ]
 
 dynstr_sources = [
-    'src/DynString/dynstring.c'
+    'src/DynString/dynstring.c',
+    'src/DynString/dynregex.c'
 ]
 
 lib_sources = [

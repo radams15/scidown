@@ -34,7 +34,7 @@ enum BASIC {
   ITITLE,         /*x*/
   ALT,            /*x*/
   URL,            /*x*/
-  REFID,
+  REFID,          /*x*/
 
   /** block elements **/
   TEXT,           /*x*/
@@ -42,7 +42,7 @@ enum BASIC {
   QUOTEBLOCK,     /*x*/
   MATHBLOCK,      /*x*/
   TABLE,
-  CITEDEF,
+  CITEDEF,        /*x*/
 
 
   /** inline elements **/
@@ -54,10 +54,9 @@ enum BASIC {
   QUOTE,          /*x*/
   LINK,           /*x*/
   IMAGE,          /*x*/
-  CITE,
-  SUPERSCRIPT,
-  UNDERSCRIPT,
-  MATH
+  CITE,           /*x*/
+  SUPERSCRIPT,    /*x*/
+  MATH            /*x*/
 } typedef BASIC;
 
 enum SCIDOWN {

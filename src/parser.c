@@ -81,7 +81,6 @@ parse_block    (dynstr    *doc,
             element_append(root, next);
             last = next->range.end;
             it = last;
-            dyniter_next(&last);
           }
         }
       }

@@ -4,8 +4,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static size_t cite_r_n = 0;
-static regex * cite_rule = NULL;
+static size_t  cite_block_r_n = 0;
+static regex  *cite_block_rule = NULL;
+
+static size_t  cite_r_n = 0;
+static regex  *cite_rule = NULL;
+
+static size_t  math_r_n = 0;
+static regex  *math_rule = NULL;
+
+static size_t  sups_r_n = 0;
+static regex  *sups_rule = NULL;
 
 static ds_bool
 is_spacer (char c)
@@ -39,18 +48,144 @@ is_cite_def (dyniter *it,
              element *parent)
 {
   if (it->column == 0) {
-    if (!cite_rule)
-      cite_rule = parse_regex("[^(#!])]: ", &cite_r_n);
-    return dynstr_regex(*it, cite_rule, cite_r_n, NULL);
+    if (!cite_block_rule)
+      cite_block_rule = parse_regex("[^(#!\\,&!])]: ", &cite_block_r_n);
+    return dynstr_regex(*it, cite_block_rule, cite_block_r_n, NULL);
   }
   return FALSE;
+}
+
+static element*
+gen_cite_def (dyniter *it)
+{
+  dyniter s = *it;
+  dyniter i = s;
+  if (!cite_block_rule)
+    cite_block_rule = parse_regex("[^(#!])]: ", &cite_block_r_n);
+
+  if (dynstr_regex(*it, cite_block_rule, cite_block_r_n, &i) && i.i > s.i + 3) {
+    dyniter sr = s;
+    dyniter er = i;
+    dyniter_goto(&er, er.i - 4);
+    dyniter_skip(&sr, 2);
+    element * ref = gen_sin_element(sr, er, "RefId", INLINE, REFID);
+    dyniter si = i;
+    while (dyniter_next(&i)) {
+      if (is_cite_def(&i, NULL)) {
+        dyniter_prev(&i);
+        break;
+      }
+      dyniter_end_line(&i);
+    }
+    element * el = gen_element((dynrange) {s, i}, (dynrange) {si, i}, "CiteDef", BLOCK, CITEDEF);
+    element_append(el, ref);
+    return el;
+  }
+  return NULL;
+}
+
+static ds_bool
+is_cite (dyniter *it,
+         element *parent)
+{
+  if (!cite_rule)
+    cite_rule = parse_regex("[^(#!])]", &cite_r_n);
+  return dynstr_regex(*it, cite_rule, cite_r_n, NULL);
+}
+
+static element*
+gen_cite (dyniter *it)
+{
+  dyniter start = *it;
+  dyniter end;
+  if (!cite_rule)
+    cite_rule = parse_regex("[^(#!])]", &cite_r_n);
+  if (dynstr_regex(start, cite_rule, cite_r_n, &end)) {
+    element * cite = gen_element((dynrange) {start, end}, (dynrange) {start, start},
+                                 "Cite", INLINE, CITE);
+    dyniter si = start;
+    dyniter_skip(&si, 2);
+    dyniter i = si;
+    dyniter last = si;
+    while (dyniter_next(&i)) {
+      if (i.i >= end.i - 2) {
+        break;
+      }
+      if (dyniter_at(i) == ',') {
+        dyniter_prev(&i);
+        element * id = gen_sin_element(last, i, "RefId", INLINE, REFID);
+        dyniter_skip(&i, 2);
+        last = i;
+        element_append(cite, id);
+      }
+    }
+    element * id = gen_sin_element(last, i, "RefId", INLINE, REFID);
+    element_append(cite, id);
+    return cite;
+  }
+  return NULL;
+}
+
+static ds_bool
+is_math (dyniter *i,
+         element *e)
+{
+  if (!math_rule)
+    math_rule = parse_regex("$(#!$)$", &math_r_n);
+  return dynstr_regex(*i, math_rule, math_r_n, NULL);
+}
+
+static element*
+gen_math (dyniter *it)
+{
+  if (!math_rule)
+    math_rule = parse_regex("$(#!$)$", &math_r_n);
+  dyniter start = *it;
+  dyniter end;
+  if (dynstr_regex(start, math_rule, math_r_n, &end)) {
+    dyniter sint = *it;
+    dyniter_next(&sint);
+    dyniter eint = end;
+    dyniter_prev(&eint);
+    element * math = gen_element((dynrange) {start, end}, (dynrange) {start, start},
+                                 "Math", INLINE, MATH);
+    element_append(math,
+                   text_block(sint, eint));
+    return math;
+  }
+  return NULL;
+}
+
+static ds_bool
+is_super (dyniter *i,
+         element *e)
+{
+  if (!sups_rule)
+    sups_rule = parse_regex("^(! )(#! &!\n)", &sups_r_n);
+  return dynstr_regex(*i, sups_rule, sups_r_n, NULL);
+}
+
+static element*
+gen_super (dyniter *i)
+{
+  dyniter start = *i;
+  dyniter end;
+  if (!sups_rule)
+    sups_rule = parse_regex("^(! )(#! &!\n)", &sups_r_n);
+  if (dynstr_regex(start, sups_rule, sups_r_n, &end)) {
+    dyniter si = start;
+    dyniter_next(&si);
+    return gen_element((dynrange) {start, end}, (dynrange) {si, end},
+                       "Superscript", INLINE, SUPERSCRIPT);
+  }
+  return NULL;
 }
 
 static ds_bool
 is_header(dyniter i,
           size_t  l)
 {
-  if (i.column == 0){
+  if (i.column == 0 && dyniter_at(i) == '#'){
     size_t j = 0;
     do {
       char c = dyniter_at(i);
@@ -64,8 +199,9 @@ is_header(dyniter i,
             c = dyniter_at(i);
             if (c == '\n')
               return FALSE;
-            else if (!is_spacer(c))
+            else if (!is_spacer(c)) {
               return TRUE;
+            }
           } while (dyniter_next(&i));
         }
         return FALSE;
@@ -751,6 +887,7 @@ gen_image (dyniter *it)
   } else {
     return NULL;
   }
+  dyniter_next(&i);
   dyniter url_s = i;
   if (dynstr_exp(url_s, "\\((#!\\)))", &i)) {
     element * url = NULL;
@@ -854,40 +991,10 @@ gen_link (dyniter *it)
 }
 
 
-static element*
-gen_cite_def (dyniter *it)
-{
-  dyniter s = *it;
-  dyniter i = s;
-  if (!cite_rule)
-    cite_rule = parse_regex("[^(#!])]: ", &cite_r_n);
-
-  if (dynstr_regex(*it, cite_rule, cite_r_n, &i) && i.i > s.i + 3) {
-    dyniter sr = s;
-    dyniter er = i;
-    dyniter_goto(&er, er.i - 4);
-    dyniter_skip(&sr, 2);
-    element * ref = gen_sin_element(sr, er, "RefId", INLINE, REFID);
-    dyniter si = i;
-    while (dyniter_next(&i)) {
-      if (is_cite_def(&i, NULL)) {
-        dyniter_prev(&i);
-        break;
-      }
-      dyniter_end_line(&i);
-    }
-    element * el = gen_element((dynrange) {s, i}, (dynrange) {si, i}, "CiteDef", BLOCK, CITEDEF);
-    element_append(el, ref);
-    return el;
-  }
-  return NULL;
-}
-
-
 parser
 default_parser ()
 {
-  size_t n = 17;
+  size_t n = 20;
   pfunc * funcs = malloc(n * sizeof *funcs);
 
   funcs[0] = pfunc_new (SECTION, 0, is_section, gen_section);
@@ -911,6 +1018,9 @@ default_parser ()
   funcs[15] = pfunc_new (LINK, 0, is_link, gen_link);
 
   funcs[16] = pfunc_new (CITEDEF, 0, is_cite_def, gen_cite_def);
+  funcs[17] = pfunc_new (CITE, 0, is_cite, gen_cite);
+  funcs[18] = pfunc_new (MATH, 0, is_math, gen_math);
+  funcs[19] = pfunc_new (SUPERSCRIPT, 0, is_super, gen_super);
 
   return (parser){funcs, n};
 };
