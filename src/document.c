@@ -3919,7 +3919,7 @@ free_meta(metadata * meta)
 	if (meta->keywords)
 		free(meta->keywords);
 	if (meta->style)
-		free(meta->keywords);
+		free(meta->style);
 	if (meta->title)
 		free(meta->title);
 	free_strings(meta->authors);
