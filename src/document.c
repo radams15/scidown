@@ -3743,12 +3743,12 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 	toc * current = root;
 	for (i = 0; i < size-1; i++)
 	{
-		if (data[i] == '\n' || i == 0)
+		if (i == 0 || data[i-1] == '\n')
 		{
-			if (is_atxheader(doc, (uint8_t*)data+i+1, size-i-1))
+			if (is_atxheader(doc, (uint8_t*)data+i, size-i))
 			{
 				size_t level = 0;
-				uint8_t * title = get_atxheader_info((uint8_t*)data+i+1, size-i-1, &level, NULL);
+				uint8_t * title = get_atxheader_info((uint8_t*)data+i, size-i, &level, NULL);
 				if (level <= 3 && title)
 				{
 					toc * next = malloc(sizeof(toc));
@@ -3762,8 +3762,9 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 					}
 					current = next;
 				}
-			} if (is_headerline((uint8_t*)data+i+1, size-i-1))
+			} if (is_headerline((uint8_t*)data+i, size-i))
 			{
+				fprintf(stderr, "(document.c line 3767): Headerline not yet implemented\n");
 				//printf("Header line!\n");
 			}
 		}
