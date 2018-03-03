@@ -3738,37 +3738,80 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 {
 	if (!data || !size)
 		return parent;
-	size_t i;
+	size_t i = 0;
 	toc * root = parent;
 	toc * current = root;
-	for (i = 0; i < size-1; i++)
+	char code_block = 0;
+
+	if (size > 4 && startsWith("---", (char*)data) && is_separator(data[3])){
+		i  = 4;
+		while (i < size) {
+			if (data[i-1] == '\n' && startsWith("---", (char*)data + i) &&  is_separator(data[i + 3])) {
+				i += 3;
+				break;
+			}
+			i++;
+		}
+
+	}
+
+	for (; i < size-1; i++)
 	{
 		if (i == 0 || data[i-1] == '\n')
 		{
-			if (is_atxheader(doc, (uint8_t*)data+i, size-i))
-			{
-				size_t level = 0;
-				uint8_t * title = get_atxheader_info((uint8_t*)data+i, size-i, &level, NULL);
-				if (level <= 3 && title)
+			if (!code_block) {
+				if (is_atxheader(doc, (uint8_t*)data+i, size-i))
 				{
-					toc * next = malloc(sizeof(toc));
-					next->sibling = NULL;
-					next->nesting = level;
-					next->text = (char*) title;
-					if (!current) {
-						root = next;
-					} else {
-						current->sibling = next;
+					size_t level = 0;
+					uint8_t * title = get_atxheader_info((uint8_t*)data+i, size-i, &level, NULL);
+					if (level <= 3 && title)
+					{
+						toc * next = malloc(sizeof(toc));
+						next->sibling = NULL;
+						next->nesting = level;
+						next->text = (char*) title;
+						if (!current) {
+							root = next;
+						} else {
+							current->sibling = next;
+						}
+						current = next;
 					}
-					current = next;
+				} else if (i > 0 && is_headerline((uint8_t*)data+i, size-i)){
+					size_t j = i - 1;
+					while (data[j - 1] != '\n') {
+						if (j == 0)
+							break;
+						j --;
+					}
+					if ((i - j) > 1) {
+						size_t level = data[i] == '-' ? 2 : 1;
+						char * title = malloc(i - j - 1);
+						memcpy(title, data+j, i-j-2);
+						title[i - j - 2] = 0;
+
+						toc * next = malloc(sizeof(toc));
+						next->sibling = NULL;
+						next->nesting = level;
+						next->text = (char*) title;
+						if (!current) {
+							root = next;
+						} else {
+							current->sibling = next;
+						}
+						current = next;
+
+					}
+					/* fprintf(stderr, "(document.c: generate_toc()): Headerline not yet implemented\n"); */
+					//printf("Header line!\n");
+				} else if (is_codefence((uint8_t*)data+i, size-i, NULL, NULL)) {
+					code_block = data[i];
 				}
-			} if (is_headerline((uint8_t*)data+i, size-i))
-			{
-				fprintf(stderr, "(document.c line 3767): Headerline not yet implemented\n");
-				//printf("Header line!\n");
+			} else if (data[i] == code_block && is_codefence((uint8_t*)data+i, size-i, NULL, NULL)) {
+				code_block = 0;
 			}
 		}
-		if (data[i] == '@' && startsWith("@include(", (char*)data+i))
+		if (!code_block && data[i] == '@' && startsWith("@include(", (char*)data+i))
 		{
 			size_t text_size;
 			char * text = load_text((uint8_t*)data+i, size-i, doc->base_folder, &text_size);
