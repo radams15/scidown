@@ -3779,12 +3779,15 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 					}
 				} else if (i > 0 && is_headerline((uint8_t*)data+i, size-i)){
 					size_t j = i - 1;
+					int somechar = 0;
 					while (data[j - 1] != '\n') {
 						if (j == 0)
 							break;
+						if (!is_separator(data[j -1]))
+							somechar = 1;
 						j --;
 					}
-					if ((i - j) > 1) {
+					if ((i - j) > 1 && somechar) {
 						size_t level = data[i] == '-' ? 2 : 1;
 						char * title = malloc(i - j - 1);
 						memcpy(title, data+j, i-j-2);
