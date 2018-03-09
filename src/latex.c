@@ -234,6 +234,7 @@ rndr_linebreak(hoedown_buffer *ob, const hoedown_renderer_data *data)
 static void
 rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter counter, int numbering)
 {
+
 	if (data->meta->doc_class == CLASS_BOOK || data->meta->doc_class == CLASS_REPORT) {
 		level --;
 	}
@@ -394,9 +395,14 @@ rndr_triple_emphasis(hoedown_buffer *ob, const hoedown_buffer *content, const ho
 static void
 rndr_hrule(hoedown_buffer *ob, const hoedown_renderer_data *data)
 {
-	/*scidown_latex_renderer_state *state = data->opaque;*/
+
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
-	hoedown_buffer_puts(ob, "\rule{\\linewidth}{.1pt}\n");
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		hoedown_buffer_puts(ob, "\end{frame}\n");
+		hoedown_buffer_puts(ob, "\begin{frame}\n");
+	} else {
+		hoedown_buffer_puts(ob, "\rule{\\linewidth}{.1pt}\n");
+	}
 }
 
 static int
@@ -645,20 +651,26 @@ rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_r
 }
 
 static void
-rndr_begin(hoedown_buffer *ob)
+rndr_begin(hoedown_buffer *ob, const hoedown_renderer_data *data)
 {
 
 }
 
 static void
-rndr_inner(hoedown_buffer *ob)
+rndr_inner(hoedown_buffer *ob , const hoedown_renderer_data *data)
 {
-
+	if (data->meta->doc_class == CLASS_BEAMER)
+		hoedown_buffer_puts(ob, "\begin{frame}\n");
 }
 
 static void
-rndr_end(hoedown_buffer *ob, ext_definition * extension)
+rndr_end(hoedown_buffer *ob, ext_definition * extension, const hoedown_renderer_data *data)
 {
+	if (ob->size) hoedown_buffer_putc(ob, '\n');
+
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		hoedown_buffer_puts(ob, "\end{frame}\n");
+	}
 
 	if (extension && extension->extra_closing)
 	{

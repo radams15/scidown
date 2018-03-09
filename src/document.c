@@ -3853,16 +3853,17 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	doc->table_of_contents = generate_toc(doc, data, size, NULL);
 
 	metadata * meta = parse_yaml(doc, ob, data, size);
-	if (doc->md.head)
-		doc->md.head(ob, meta, doc->extensions);
-	if (doc->md.begin)
-		doc->md.begin(ob);
-	render_metadata(doc, ob, meta);
 	doc->document_metadata = meta;
 	doc->data.meta = meta;
 
+	if (doc->md.head)
+		doc->md.head(ob, meta, doc->extensions);
+	if (doc->md.begin)
+		doc->md.begin(ob, &doc->data);
+	render_metadata(doc, ob, meta);
+
 	if (doc->md.inner)
-		doc->md.inner(ob);
+		doc->md.inner(ob, &doc->data);
 
 	sub_render(doc, ob, data, size);
 	/* footnotes */
@@ -3872,7 +3873,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 	if (doc->md.doc_footer)
 		doc->md.doc_footer(ob, 0, &doc->data);
 	if (doc->md.end)
-		doc->md.end(ob, doc->extensions);
+		doc->md.end(ob, doc->extensions, &doc->data);
 	/* clean-up */
 
 	free_link_refs(doc->refs);

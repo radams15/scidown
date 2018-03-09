@@ -213,7 +213,7 @@ paper_to_string(scidow_paper_size size) {
 
 
 scidown_doc_class
-string_to_class(char *str) {
+  string_to_class(char *str) {
   if(!str)
     return CLASS_ARTICLE;
 

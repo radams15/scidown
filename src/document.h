@@ -173,9 +173,9 @@ struct hoedown_renderer {
 	void (*authors)(hoedown_buffer *ob, Strings *authors);
 	void (*affiliation)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*keywords)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
-	void (*begin)(hoedown_buffer *ob);
-	void (*inner)(hoedown_buffer *ob);
-	void (*end)(hoedown_buffer *ob,  ext_definition * extensions);
+	void (*begin)(hoedown_buffer *ob, const hoedown_renderer_data *data);
+	void (*inner)(hoedown_buffer *ob, const hoedown_renderer_data *data);
+	void (*end)(hoedown_buffer *ob,  ext_definition * extensions, const hoedown_renderer_data *data);
 	void (*pagebreak)(hoedown_buffer *ob);
 
 	/* block level callbacks - NULL skips the block */

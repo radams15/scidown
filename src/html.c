@@ -442,9 +442,14 @@ rndr_triple_emphasis(hoedown_buffer *ob, const hoedown_buffer *content, const ho
 static void
 rndr_hrule(hoedown_buffer *ob, const hoedown_renderer_data *data)
 {
+
 	hoedown_html_renderer_state *state = data->opaque;
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
-	hoedown_buffer_puts(ob, USE_XHTML(state) ? "<hr/>\n" : "<hr>\n");
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		hoedown_buffer_puts(ob, "</div>\n");
+		hoedown_buffer_puts(ob, "<div class=\"slide\">");
+	} else
+		hoedown_buffer_puts(ob, USE_XHTML(state) ? "<hr/>\n" : "<hr>\n");
 }
 
 static int
@@ -696,7 +701,7 @@ rndr_authors(hoedown_buffer *ob, Strings *authors)
 	Strings *it;
 	for (it = authors; it != NULL; it = it->next){
 		if (it->str){
-			hoedown_buffer_printf(ob,"<span class=\"author\">%s</span> ", it->str);
+			hoedown_buffer_printf(ob,"<span class=\"author\">%s</span><span class=\"and\"> </span>", it->str);
 		}
 	}
 	hoedown_buffer_puts(ob, "</div>\n");
@@ -720,20 +725,29 @@ rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_r
 }
 
 static void
-rndr_begin(hoedown_buffer *ob)
+rndr_begin(hoedown_buffer *ob,  const hoedown_renderer_data *data)
 {
-	hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header\">\n");
+	if (data->meta->doc_class == CLASS_BEAMER)
+		hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header slide\">");
+	else
+		hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header\">");
 }
 
 static void
-rndr_inner(hoedown_buffer *ob)
+rndr_inner(hoedown_buffer *ob, const hoedown_renderer_data *data)
 {
 	hoedown_buffer_puts(ob, "</div><div class=\"inner\">");
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		hoedown_buffer_puts(ob, "\n<div class=\"slide\">");
+	}
 }
 
 static void
-rndr_end(hoedown_buffer *ob, ext_definition * extension)
+rndr_end(hoedown_buffer *ob, ext_definition * extension, const hoedown_renderer_data *data)
 {
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		hoedown_buffer_puts(ob, "</div>\n");
+	}
 	hoedown_buffer_puts(ob, "</div>\n</div>\n");
 	if (extension && extension->extra_closing)
 	{
@@ -763,9 +777,9 @@ rndr_close(hoedown_buffer *ob){
 static int rndr_ref (hoedown_buffer *ob, char * id, int count)
 {
 	if (count < 0 )	{
-		hoedown_buffer_printf(ob, "(<a href=\"#%s\">\?\?</a>)", id);
+		hoedown_buffer_printf(ob, "<a href=\"#%s\">(\?\?)</a>", id);
 	}else {
-		hoedown_buffer_printf(ob, "(<a href=\"#%s\">%d</a>)", id, count);
+		hoedown_buffer_printf(ob, "<a href=\"#%s\">%d</a>", id, count);
 	}
 	return 1;
 }
@@ -1110,7 +1124,8 @@ hoedown_html_renderer_new(scidown_render_flags render_flags, int nesting_level, 
 
 	state->localization = local;
 
-  state->toc_data.nesting_level = nesting_level;
+
+	state->toc_data.nesting_level = nesting_level;
 
 	/* Prepare the renderer */
 	renderer = hoedown_malloc(sizeof(hoedown_renderer));
