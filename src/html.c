@@ -446,8 +446,8 @@ rndr_hrule(hoedown_buffer *ob, const hoedown_renderer_data *data)
 	hoedown_html_renderer_state *state = data->opaque;
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		hoedown_buffer_puts(ob, "</div>\n");
-		hoedown_buffer_puts(ob, "<div class=\"slide\">");
+		hoedown_buffer_puts(ob, "</div></div>\n");
+		hoedown_buffer_puts(ob, "<div class=\"slide\"><div class=\"slide_body\">");
 	} else
 		hoedown_buffer_puts(ob, USE_XHTML(state) ? "<hr/>\n" : "<hr>\n");
 }
@@ -727,18 +727,25 @@ rndr_keywords(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_r
 static void
 rndr_begin(hoedown_buffer *ob,  const hoedown_renderer_data *data)
 {
-	if (data->meta->doc_class == CLASS_BEAMER)
-		hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header slide\">");
-	else
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		if (data->meta->title || data->meta->authors || data->meta->affiliation)
+			hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header slide\"><div class=\"slide_body\">");
+	} else
 		hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header\">");
 }
 
 static void
 rndr_inner(hoedown_buffer *ob, const hoedown_renderer_data *data)
 {
-	hoedown_buffer_puts(ob, "</div><div class=\"inner\">");
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		hoedown_buffer_puts(ob, "\n<div class=\"slide\">");
+		if (data->meta->title || data->meta->authors || data->meta->affiliation) {
+
+			hoedown_buffer_puts(ob, "</div></div><div class=\"inner\">");
+		}
+	} else
+		hoedown_buffer_puts(ob, "</div><div class=\"inner\">");
+	if (data->meta->doc_class == CLASS_BEAMER) {
+		hoedown_buffer_puts(ob, "\n<div class=\"slide\"><div class=\"slide_body\">");
 	}
 }
 
@@ -746,7 +753,7 @@ static void
 rndr_end(hoedown_buffer *ob, ext_definition * extension, const hoedown_renderer_data *data)
 {
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		hoedown_buffer_puts(ob, "</div>\n");
+		hoedown_buffer_puts(ob, "</div></div>\n");
 	}
 	hoedown_buffer_puts(ob, "</div>\n</div>\n");
 	if (extension && extension->extra_closing)
