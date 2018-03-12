@@ -258,6 +258,8 @@ void hoedown_document_render_inline(hoedown_document *doc, hoedown_buffer *ob, c
 void hoedown_document_free(hoedown_document *doc);
 
 
+metadata* document_metadata(const uint8_t *data, size_t size);
+
 #ifdef __cplusplus
 }
 #endif

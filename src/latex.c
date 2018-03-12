@@ -579,7 +579,7 @@ static void
 rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 {
 	hoedown_buffer_printf(ob, "\\documentclass[%s, %dpt]{%s}\n",
-	                      paper_to_string(doc_meta->paper_size),
+	                      paper_to_latex(doc_meta->paper_size),
 	                      doc_meta->font_size,
 	                      class_to_string(doc_meta->doc_class));
 	hoedown_buffer_puts(ob, "\\usepackage[utf8]{inputenc}\n"

@@ -3454,7 +3454,7 @@ sub_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 	hoedown_buffer_free(text);
 }
 
-int parse_keyword(char * keyword, hoedown_document * doc, metadata * meta,  const uint8_t *data, size_t size)
+int parse_keyword(char * keyword, metadata * meta,  const uint8_t *data, size_t size)
 {
 	/** clean keyword **/
 	remove_char(keyword, ' ');
@@ -3532,7 +3532,7 @@ add_reference(char * id, int counter, float_type type, reference * ref)
 }
 
 metadata *
-parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
+parse_yaml(const uint8_t *data, size_t size)
 {
 	metadata * meta = malloc(sizeof(metadata));
 
@@ -3559,7 +3559,7 @@ parse_yaml(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_
 				char type[j+3];
 				memset(type, 0, j+3);
 				memcpy(type, data+i, j+1);
-				j += parse_keyword(type, doc, meta, data+i+j+2, size - i - j - 2);
+				j += parse_keyword(type, meta, data+i+j+2, size - i - j - 2);
 	       }
 
             i+=j+3;
@@ -3833,6 +3833,12 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 	return root;
 }
 
+
+metadata* document_metadata(const uint8_t *data, size_t size)
+{
+	return parse_yaml(data, size);
+}
+
 void
 hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size)
 {
@@ -3855,7 +3861,7 @@ hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t
 
 	doc->table_of_contents = generate_toc(doc, data, size, NULL);
 
-	metadata * meta = parse_yaml(doc, ob, data, size);
+	metadata * meta = parse_yaml(data, size);
 	doc->document_metadata = meta;
 	doc->data.meta = meta;
 
