@@ -172,8 +172,8 @@ hoedown_autolink__www(
 
 	if (link_end == 0)
 		return 0;
-
-	hoedown_buffer_put(link, data, link_end);
+	if (link)
+		hoedown_buffer_put(link, data, link_end);
 	*rewind_p = 0;
 
 	return (int)link_end;
@@ -228,8 +228,8 @@ hoedown_autolink__email(
 
 	if (link_end == 0)
 		return 0;
-
-	hoedown_buffer_put(link, data - rewind, link_end + rewind);
+	if (link)
+		hoedown_buffer_put(link, data - rewind, link_end + rewind);
 	*rewind_p = rewind;
 
 	return link_end;
@@ -273,8 +273,8 @@ hoedown_autolink__url(
 
 	if (link_end == 0)
 		return 0;
-
-	hoedown_buffer_put(link, data - rewind, link_end + rewind);
+	if (link)
+		hoedown_buffer_put(link, data - rewind, link_end + rewind);
 	*rewind_p = rewind;
 
 	return link_end;
