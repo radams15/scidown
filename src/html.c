@@ -447,7 +447,10 @@ rndr_hrule(hoedown_buffer *ob, const hoedown_renderer_data *data)
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 	if (data->meta->doc_class == CLASS_BEAMER) {
 		hoedown_buffer_puts(ob, "</div></div>\n");
-		hoedown_buffer_puts(ob, "<div class=\"slide\"><div class=\"slide_body\">");
+		if (data->meta->paper_size == B169)
+			hoedown_buffer_puts(ob, "<div class=\"slide slide_169\"><div class=\"slide_body\">");
+		else
+			hoedown_buffer_puts(ob, "<div class=\"slide\"><div class=\"slide_body\">");
 	} else
 		hoedown_buffer_puts(ob, USE_XHTML(state) ? "<hr/>\n" : "<hr>\n");
 }
@@ -728,8 +731,12 @@ static void
 rndr_begin(hoedown_buffer *ob,  const hoedown_renderer_data *data)
 {
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		if (data->meta->title || data->meta->authors || data->meta->affiliation)
-			hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header slide\"><div class=\"slide_body\">");
+		if (data->meta->title || data->meta->authors || data->meta->affiliation) {
+			if (data->meta->paper_size == B169)
+				hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header slide slide_169\"><div class=\"slide_body\">");
+			else
+				hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header slide\"><div class=\"slide_body\">");
+		}
 	} else
 		hoedown_buffer_puts(ob, "<div class=\"document\">\n<div class=\"header\">");
 }
@@ -745,7 +752,10 @@ rndr_inner(hoedown_buffer *ob, const hoedown_renderer_data *data)
 	} else
 		hoedown_buffer_puts(ob, "</div><div class=\"inner\">");
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		hoedown_buffer_puts(ob, "\n<div class=\"slide\"><div class=\"slide_body\">");
+		if (data->meta->paper_size == B169)
+			hoedown_buffer_puts(ob, "\n<div class=\"slide slide_169\"><div class=\"slide_body\">");
+		else
+			hoedown_buffer_puts(ob, "\n<div class=\"slide\"><div class=\"slide_body\">");
 	}
 }
 
