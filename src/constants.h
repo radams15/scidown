@@ -100,6 +100,9 @@
 #define B6J_STRGTK   "jis_b6j"
 
 
+#define B43_STR      "4:3"
+#define B169_STR     "16:9"
+
 #define LETTE_STRING "letterpaper"
 #define EXECU_STRING "executivepaper"
 #define LEGAL_STRING "legalpaper"
@@ -155,6 +158,8 @@ typedef enum scidown_paper_size {
 	B5J,
 	B6J,
 
+	B43,
+	B169,
 
 	LETTERPAPER,
 	EXECUTIVEPAPER,

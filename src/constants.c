@@ -216,6 +216,13 @@ scidow_paper_size string_to_paper (char *            str)
      return LEGALPAPER;
    }
 
+   if(!strcmp(str, B43_STR)) {
+     return B43;
+   }
+   if(!strcmp(str, B169_STR)) {
+     return B169;
+   }
+
    return A4PAPER;
 }
 
@@ -325,6 +332,13 @@ gtkstr_to_paper (char *            str)
     return LEGALPAPER;
   }
 
+  if(!strcmp(str, B43_STR)) {
+    return B43;
+  }
+  if(!strcmp(str, B169_STR)) {
+    return B169;
+  }
+
   return A4PAPER;
 }
 
@@ -397,6 +411,9 @@ paper_to_latex(scidow_paper_size size) {
     return EXECU_STRING;
   case LEGALPAPER:
     return LEGAL_STRING;
+  default:
+    // B43 and B169
+    return A5_STRING;
   }
 }
 
@@ -470,6 +487,11 @@ paper_to_string (scidow_paper_size size)
     return EXECU_STR;
   case LEGALPAPER:
     return LEGAL_STR;
+
+  case B43:
+    return B43_STR;
+  case B169:
+    return B169_STR;
   }
 }
 
@@ -544,6 +566,11 @@ paper_to_gtkstr (scidow_paper_size size)
     return EXECU_STRGTK;
   case LEGALPAPER:
     return LEGAL_STRGTK;
+
+  case B43:
+    return B43_STR;
+  case B169:
+    return B169_STR;
   }
 }
 
@@ -593,4 +620,5 @@ class_to_string(scidown_doc_class cls) {
   case CLASS_BEAMER:
     return C_BEA_STRING;
   }
+  return C_ART_STRING;
 }
