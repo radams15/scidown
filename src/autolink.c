@@ -19,6 +19,7 @@ hoedown_autolink_is_safe(const uint8_t *data, size_t size)
 		"http://", "https://", "/", "#", "ftp://", "mailto:"
 	};
 	static const size_t valid_uris_size[] = { 7, 8, 1, 1, 6, 7 };
+	static const size_t uris_offset[] = { 4, 5, 1, 1, 3, 6 };
 	size_t i;
 
 	for (i = 0; i < valid_uris_count; ++i) {
@@ -27,7 +28,7 @@ hoedown_autolink_is_safe(const uint8_t *data, size_t size)
 		if (size > len &&
 			strncasecmp((char *)data, valid_uris[i], len) == 0 &&
 			isalnum(data[len]))
-			return 1;
+			return uris_offset[i];
 	}
 
 	return 0;
@@ -276,6 +277,5 @@ hoedown_autolink__url(
 	if (link)
 		hoedown_buffer_put(link, data - rewind, link_end + rewind);
 	*rewind_p = rewind;
-
 	return link_end;
 }
