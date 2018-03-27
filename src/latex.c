@@ -398,10 +398,10 @@ rndr_hrule(hoedown_buffer *ob, const hoedown_renderer_data *data)
 
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		hoedown_buffer_puts(ob, "\end{frame}\n");
-		hoedown_buffer_puts(ob, "\begin{frame}\n");
+		hoedown_buffer_puts(ob, "\\end{frame}\n");
+		hoedown_buffer_puts(ob, "\\begin{frame}\n");
 	} else {
-		hoedown_buffer_puts(ob, "\rule{\\linewidth}{.1pt}\n");
+		hoedown_buffer_puts(ob, "\\rule{\\linewidth}{.1pt}\n");
 	}
 }
 
@@ -660,7 +660,7 @@ static void
 rndr_inner(hoedown_buffer *ob , const hoedown_renderer_data *data)
 {
 	if (data->meta->doc_class == CLASS_BEAMER)
-		hoedown_buffer_puts(ob, "\begin{frame}\n");
+		hoedown_buffer_puts(ob, "\\begin{frame}\n");
 }
 
 static void
@@ -669,7 +669,7 @@ rndr_end(hoedown_buffer *ob, ext_definition * extension, const hoedown_renderer_
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 
 	if (data->meta->doc_class == CLASS_BEAMER) {
-		hoedown_buffer_puts(ob, "\end{frame}\n");
+		hoedown_buffer_puts(ob, "\\end{frame}\n");
 	}
 
 	if (extension && extension->extra_closing)
