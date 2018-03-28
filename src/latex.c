@@ -248,7 +248,7 @@ rndr_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const 
   	if (level == 0) {
 	  hoedown_buffer_puts(ob, "\\chapter{");
 	} else if (level == 1) {
-	  if (data->meta->doc_class == CLASS_BEAMER)
+		  if (data->meta->doc_class == CLASS_BEAMER)
 	  	hoedown_buffer_puts(ob, "\\frametitle{");
 	  else
   	    hoedown_buffer_puts(ob, "\\section{");
@@ -629,9 +629,9 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 }
 
 static void
-rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const metadata *data)
 {
-	if (data->meta->doc_class == CLASS_BEAMER) {
+	if (data->doc_class == CLASS_BEAMER) {
 		hoedown_buffer_puts(ob, "\\frame{\\titlepage}");
 	} else {
 		hoedown_buffer_puts(ob, "\\maketitle");

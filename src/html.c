@@ -690,7 +690,7 @@ rndr_head(hoedown_buffer *ob, metadata * doc_meta, ext_definition * extension)
 }
 
 static void
-rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown_renderer_data *data)
+rndr_title(hoedown_buffer *ob, const hoedown_buffer *content, const metadata *data)
 {
 	hoedown_buffer_puts(ob, "<h1 class=\"title\">");
 	escape_html(ob, content->data, content->size);

@@ -169,7 +169,7 @@ struct hoedown_renderer {
 
 	/* document level callbacks */
 	void (*head)(hoedown_buffer *ob, metadata * doc_metadata, ext_definition * extensions);
-	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
+	void (*title)(hoedown_buffer *ob, const hoedown_buffer *content,  const metadata *data);
 	void (*authors)(hoedown_buffer *ob, Strings *authors);
 	void (*affiliation)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);
 	void (*keywords)(hoedown_buffer *ob, const hoedown_buffer *content,  const hoedown_renderer_data *data);

@@ -3576,7 +3576,7 @@ render_metadata(hoedown_document *doc, hoedown_buffer *ob, metadata * meta)
 	{
 		hoedown_buffer * b = hoedown_buffer_new(1);
 		hoedown_buffer_puts(b, meta->title);
-		doc->md.title(ob,b,NULL);
+		doc->md.title(ob,b, meta);
 		hoedown_buffer_free(b);
 	}
 	if (meta->authors != NULL && doc->md.authors)
