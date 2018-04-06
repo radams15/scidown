@@ -340,7 +340,7 @@ static void
 rndr_list(hoedown_buffer *ob, const hoedown_buffer *content, hoedown_list_flags flags, const hoedown_renderer_data *data)
 {
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
-	hoedown_buffer_put(ob, (const uint8_t *)(flags & HOEDOWN_LIST_ORDERED ? "<ol>\n" : "<ul>\n"), 5);
+	hoedown_buffer_puts(ob, (flags & HOEDOWN_LIST_ORDERED ? "<ol dir=\"auto\">\n" : "<ul dir=\"auto\">\n"));
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
 	hoedown_buffer_put(ob, (const uint8_t *)(flags & HOEDOWN_LIST_ORDERED ? "</ol>\n" : "</ul>\n"), 6);
 }
