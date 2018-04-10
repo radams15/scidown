@@ -881,7 +881,7 @@ rndr_toc_entry(hoedown_buffer *ob, toc * tree, int * chapter, int * section, int
 		hoedown_buffer_printf(ob, "<li><a href=\"#toc_%d\">", (*chapter));
 		if (numbering)
 			hoedown_buffer_printf(ob, "%d. ", (*chapter));
-		hoedown_buffer_printf(ob, "%s</a></li>\n<ul>\n", tree->text);
+		hoedown_buffer_printf(ob, "%s</a></li>\n<ul dir=\"auto\">\n", tree->text);
 	} else if (tree->nesting == 2)
 	{
 		if ((*section))
@@ -891,7 +891,7 @@ rndr_toc_entry(hoedown_buffer *ob, toc * tree, int * chapter, int * section, int
 		hoedown_buffer_printf(ob, "<li><a href=\"#toc_%d.%d\">", (*chapter), (*section));
 		if (numbering)
 			hoedown_buffer_printf(ob, "%d.%d. ", (*chapter), (*section));
-		hoedown_buffer_printf(ob, "%s</a></li>\n<ul>\n", tree->text);
+		hoedown_buffer_printf(ob, "%s</a></li>\n<ul dir=\"auto\">\n", tree->text);
 	} else if (tree->nesting == 3)
 	{
 		(*subsection) ++;
@@ -929,7 +929,7 @@ toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const h
 
 		if (level > state->toc_data.current_level) {
 			while (level > state->toc_data.current_level) {
-				HOEDOWN_BUFPUTSL(ob, "<ul>\n<li>\n");
+				HOEDOWN_BUFPUTSL(ob, "<ul dir=\"auto\">\n<li>\n");
 				state->toc_data.current_level++;
 			}
 		} else if (level < state->toc_data.current_level) {
