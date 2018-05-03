@@ -3295,7 +3295,7 @@ hoedown_document_new(
 	const hoedown_renderer *renderer,
 	hoedown_extensions extensions,
     ext_definition * user_ext,
-    char * base_folder,
+    const char * base_folder,
 	size_t max_nesting)
 {
 	hoedown_document *doc = NULL;
@@ -3306,7 +3306,7 @@ hoedown_document_new(
 	memcpy(&doc->md, renderer, sizeof(hoedown_renderer));
 
 	doc->extensions = user_ext;
-	doc->base_folder = base_folder;
+	doc->base_folder = (base_folder != NULL) ? strdup (base_folder) : NULL;
 
 	doc->counter = (h_counter){0, 0, 0};
 

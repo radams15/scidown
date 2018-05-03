@@ -244,7 +244,7 @@ hoedown_document *hoedown_document_new(
 	const hoedown_renderer *renderer,
 	hoedown_extensions extensions,
 	ext_definition * exeternal_extensions,
-    char * base_folder,
+    const char * base_folder,
 	size_t max_nesting
 ) __attribute__ ((malloc));
 
