@@ -3,6 +3,8 @@
 #ifndef SCIDOWN_UTILS_H
 #define SCIDOWN_UTILS_H
 
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,6 +55,8 @@ Strings* add_string   (Strings *head,
 
 void     remove_char  (char    *source,
                        char     target);
+char*    clean_string (char    *string,
+                       size_t  size);
 
 #ifdef __cplusplus
 }

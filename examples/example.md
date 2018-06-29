@@ -18,7 +18,7 @@ vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facil
 | D      | E     | F     |
 | G      | H     | I     |
 
-@caption(This is a table.)
+@caption(This is a table \(with 3 columns\).)
 
 @/
 
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 ```
-@caption(This is a simple code.)
+@caption(This is a simple code \\\\not a very interesting example....)
 @/
 
 ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in

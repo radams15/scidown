@@ -161,7 +161,6 @@ struct hoedown_document {
     return lenstr < lenpre ? 0 : strncmp(pre, str, lenpre) == 0;
  }
 
-
 int
 is_separator(uint8_t chr)
 {
@@ -1243,10 +1242,12 @@ char_autolink_email(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, si
    	}
     if (startsWith("@caption(", (char*)data))
    	{
-
    		/** skip it **/
    		size_t i;
-   		for (i=9;data[i] != ')' && data[i] != '\n' && i < size; i++){}
+   		for (i=9; data[i] != '\n' && i < size; i++){
+   			if (data[i] == ')' && data[i-1] != '\\')
+   				break;
+   		}
    		return i+1;
    	}
 	hoedown_buffer *link;
@@ -2757,7 +2758,9 @@ parse_caption(hoedown_document *doc,
 	if (!data || size <= 0)
 		return NULL;
 	uint32_t i=0;
-	while (i < size && (data[i] !=')' && data[i] !='\n')){
+	while (i < size && data[i] !='\n'){
+		if (data[i] == ')' && (i==0 || data[i-1] != '\\'))
+			break;
 		i++;
 	}
 	if (i) {
@@ -2766,6 +2769,8 @@ parse_caption(hoedown_document *doc,
 		uint8_t * tmp = malloc(sizeof(uint8_t) * (buf->size+1));
 		tmp[buf->size] = 0;
 		memcpy(tmp, buf->data, buf->size);
+		// clean escape chars 
+		tmp = (uint8_t*)clean_string((char*)tmp, buf->size);
 		hoedown_buffer_free(buf);
 		return tmp;
 	}
