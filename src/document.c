@@ -1802,7 +1802,45 @@ prefix_oli(uint8_t *data, size_t size)
 	return i + 2;
 }
 
-/* prefix_uli • returns ordered list item prefix */
+/* prefix_checkbox_open returns open checkbox prefix*/ 
+static size_t
+prefix_checkbox(uint8_t *data, size_t size)
+{
+	size_t i = 0;
+	if (i < size && data[i] == ' ') i++;
+	if (i < size && data[i] == ' ') i++;
+	if (i < size && data[i] == ' ') i++;
+	
+	if (i + 3 >= size ||
+		(data[i] != '-') ||
+		data[i + 1] != ' ' || data[i+2] != '[' || data[i+3] != ' ' || data[i+4] != ']' || data[i+5] != ' ')
+		return 0;
+	
+	if (is_next_headerline(data + i, size - i))
+		return 0;
+	return i + 6;
+}
+
+/* prefix_checkbox_open returns checked checkbox prefix*/ 
+static size_t
+prefix_checkbox_checked(uint8_t *data, size_t size)
+{
+	size_t i = 0;
+	if (i < size && data[i] == ' ') i++;
+	if (i < size && data[i] == ' ') i++;
+	if (i < size && data[i] == ' ') i++;
+	
+	if (i + 3 >= size ||
+		(data[i] != '-') ||
+		data[i + 1] != ' ' || data[i+2] != '[' || data[i+3] != 'x' || data[i+4] != ']' || data[i+5] != ' ')
+		return 0;
+	
+	if (is_next_headerline(data + i, size - i))
+		return 0;
+	return i + 6;
+}
+
+/* prefix_uli • returns unordered list item prefix */
 static size_t
 prefix_uli(uint8_t *data, size_t size)
 {
@@ -2074,10 +2112,14 @@ parse_listitem(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t 
 	while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
 		orgpre++;
 
-	beg = prefix_uli(data, size);
+	beg = prefix_checkbox(data, size);
+	if (!beg)
+		beg=prefix_checkbox_checked(data,size);
+	if (!beg)
+		beg = prefix_uli(data, size);
 	if (!beg)
 		beg = prefix_oli(data, size);
-
+	
 	if (!beg)
 		return 0;
 
