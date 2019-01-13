@@ -66,7 +66,8 @@ static struct html_flag_info html_flags_info[] = {
 	{SCIDOWN_RENDER_HARD_WRAP, "hard-wrap", "Render each linebreak as <br>."},
 	{SCIDOWN_RENDER_USE_XHTML, "xhtml", "Render XHTML."},
 	{SCIDOWN_RENDER_MERMAID, "mermaid", "Render mermaid diagrams."},
-	{SCIDOWN_RENDER_GNUPLOT, "gnuplot", "Render gnuplot plot."}
+	{SCIDOWN_RENDER_GNUPLOT, "gnuplot", "Render gnuplot plot."},
+	{SCIDOWN_RENDER_CSS, "style", "Set specified style-sheet."}
 };
 
 static const char *category_prefix = "all-";
@@ -109,6 +110,7 @@ print_help(const char *basename)
 	print_option(  0, "html", "Render (X)HTML. The default.");
 	print_option(  0, "latex", "Render as LATEX.");
 	print_option(  0, "html-toc", "Render the Table of Contents in (X)HTML.");
+	
 
 	print_option('T', "time", "Show time spent in rendering.");
 	print_option('i', "input-unit=N", "Reading block size. Default is " str(DEF_IUNIT) ".");
@@ -352,10 +354,9 @@ parse_long_option(char *opt, char *next, void *opaque)
 	if (strcmp(opt, "latex")==0) {
 		data->renderer = RENDERER_LATEX;
 		return 1;
-	}
+	}	
 	if (parse_category_option(opt, data) || parse_flag_option(opt, data) || parse_negative_option(opt, data))
 		return 1;
-
 	fprintf(stderr, "Wrong option '--%s' found.\n", opt);
 	return 0;
 }
