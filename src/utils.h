@@ -22,7 +22,8 @@ typedef enum scidown_render_flags {
 	/* -- experimental flags -- */
 	SCIDOWN_RENDER_MERMAID    = (1 << 4),
 	SCIDOWN_RENDER_CHARTER    = (1 << 5),
-	SCIDOWN_RENDER_GNUPLOT    = (1 << 6)
+	SCIDOWN_RENDER_GNUPLOT    = (1 << 6),
+	SCIDOWN_RENDER_CSS        = (1 << 7),
 } scidown_render_flags;
 
 typedef enum scidown_render_tag {
