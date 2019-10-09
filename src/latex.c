@@ -138,7 +138,7 @@ rndr_blockquote(hoedown_buffer *ob, const hoedown_buffer *content, const hoedown
 	if (ob->size) hoedown_buffer_putc(ob, '\n');
 	HOEDOWN_BUFPUTSL(ob, "\\begin{quote}\n");
 	if (content) hoedown_buffer_put(ob, content->data, content->size);
-	HOEDOWN_BUFPUTSL(ob, "\\end{qoute}\n");
+	HOEDOWN_BUFPUTSL(ob, "\\end{quote}\n");
 }
 
 static int
