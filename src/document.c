@@ -3020,6 +3020,9 @@ parse_block(hoedown_buffer *ob, hoedown_document *doc, uint8_t *data, size_t siz
 		else
 			beg += parse_paragraph(ob, doc, txt_data, end);
 	}
+	if (position > 0) {
+		parse_position(ob, doc);
+	}
 }
 
 
