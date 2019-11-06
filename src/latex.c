@@ -848,7 +848,8 @@ scidown_latex_renderer_new(scidown_render_flags render_flags, int nesting_level,
 		rndr_normal_text,
 
 		NULL,
-		NULL
+		NULL,
+		NULL,
 	};
 
 	scidown_latex_renderer_state *state;

@@ -229,6 +229,9 @@ struct hoedown_renderer {
 	/* miscellaneous callbacks */
 	void (*doc_header)(hoedown_buffer *ob, int inline_render, const hoedown_renderer_data *data);
 	void (*doc_footer)(hoedown_buffer *ob, int inline_render, const hoedown_renderer_data *data);
+	
+	/* position reference */
+	void (*position)(hoedown_buffer *ob);
 };
 typedef struct hoedown_renderer hoedown_renderer;
 
@@ -249,10 +252,10 @@ hoedown_document *hoedown_document_new(
 ) __attribute__ ((malloc));
 
 /* hoedown_document_render: render regular Markdown using the document processor */
-void hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size);
+void hoedown_document_render(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size, int position);
 
 /* hoedown_document_render_inline: render inline Markdown using the document processor */
-void hoedown_document_render_inline(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size);
+void hoedown_document_render_inline(hoedown_document *doc, hoedown_buffer *ob, const uint8_t *data, size_t size, int position);
 
 /* hoedown_document_free: deallocate a document processor instance */
 void hoedown_document_free(hoedown_document *doc);

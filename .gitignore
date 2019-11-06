@@ -15,3 +15,5 @@ libscidown.a
 *.toc
 *.log
 *~
+*.sublime-project
+*.sublime-workspace

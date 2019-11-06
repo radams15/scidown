@@ -915,6 +915,13 @@ rndr_toc(hoedown_buffer *ob, toc * tree, int numbering)
 }
 
 static void
+rndr_position(hoedown_buffer *ob)
+{
+	hoedown_buffer_puts(ob, "<span id=\"cursor_pos\"></span>");
+}
+
+
+static void
 toc_header(hoedown_buffer *ob, const hoedown_buffer *content, int level, const hoedown_renderer_data *data, h_counter none, int numbering)
 {
 	hoedown_html_renderer_state *state = data->opaque;
@@ -1036,7 +1043,8 @@ hoedown_html_toc_renderer_new(int nesting_level, localization local)
 		rndr_normal_text,
 
 		NULL,
-		toc_finalize
+		toc_finalize,
+		NULL
 	};
 
 	hoedown_html_renderer_state *state;
@@ -1123,7 +1131,8 @@ hoedown_html_renderer_new(scidown_render_flags render_flags, int nesting_level, 
 		rndr_normal_text,
 
 		NULL,
-		NULL
+		NULL,
+		rndr_position,
 	};
 
 	hoedown_html_renderer_state *state;

@@ -448,7 +448,7 @@ main(int argc, char **argv)
 	document = hoedown_document_new(renderer, data.extensions,&ext, NULL, data.max_nesting);
 
 	t1 = clock();
-	hoedown_document_render(document, ob, ib->data, ib->size);
+	hoedown_document_render(document, ob, ib->data, ib->size, -1);
 	t2 = clock();
 
 	/* Cleanup */
