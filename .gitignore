@@ -12,7 +12,7 @@ libscidown.so*
 libscidown.a
 *.out
 *.gz
-*.toc
+*.toc_t
 *.log
 *~
 *.sublime-project

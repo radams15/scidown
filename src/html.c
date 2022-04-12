@@ -863,7 +863,7 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 }
 
 static void
-rndr_toc_entry(hoedown_buffer *ob, toc * tree, int * chapter, int * section, int * subsection, int numbering)
+rndr_toc_entry(hoedown_buffer *ob, toc_t * tree, int * chapter, int * section, int * subsection, int numbering)
 {
 	if (!tree)
 		return;
@@ -906,7 +906,7 @@ rndr_toc_entry(hoedown_buffer *ob, toc * tree, int * chapter, int * section, int
 }
 
 static void
-rndr_toc(hoedown_buffer *ob, toc * tree, int numbering)
+rndr_toc(hoedown_buffer *ob, toc_t * tree, int numbering)
 {
 	hoedown_buffer_puts(ob, "<div class=\"toc_container\">\n<h2 class=\"toc_header\">Table of Contents</h2>\n<ul class=\"toc_list\">\n");
 	int cpt=0, sct=0, sbs=0;
@@ -982,7 +982,7 @@ toc_finalize(hoedown_buffer *ob, int inline_render, const hoedown_renderer_data 
 }
 
 hoedown_renderer *
-hoedown_html_toc_renderer_new(int nesting_level, localization local)
+hoedown_html_toc_renderer_new(int nesting_level, localization_t local)
 {
 	static const hoedown_renderer cb_default = {
 		NULL,
@@ -1070,7 +1070,7 @@ hoedown_html_toc_renderer_new(int nesting_level, localization local)
 }
 
 hoedown_renderer *
-hoedown_html_renderer_new(scidown_render_flags render_flags, int nesting_level, localization local)
+hoedown_html_renderer_new(scidown_render_flags render_flags, int nesting_level, localization_t local)
 {
 	static const hoedown_renderer cb_default = {
 		NULL,

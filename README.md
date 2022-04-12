@@ -97,10 +97,10 @@ Lorem ipsum ....
 
 ### Table of Contents
 
-To show the table of contents simple use the `@toc` command:
+To show the table of contents simple use the `@toc_t` command:
 
 ```markdown
-@toc
+@toc_t
 
 # Chapter
 Lorem ipsum

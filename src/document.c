@@ -132,7 +132,7 @@ struct hoedown_document {
 	metadata * document_metadata;
 	reference * floating_references;
 	ext_definition * extensions;
-	toc * table_of_contents;
+	toc_t * table_of_contents;
 	h_counter counter;
 
 	char * base_folder;
@@ -1868,7 +1868,7 @@ prefix_float(uint8_t * data, size_t size)
 	return (startsWith("@figure", txt) || startsWith("@table",txt) ||
 	        startsWith("@code", txt) || startsWith("@listing",txt) ||
 	        startsWith("@abstract", txt) || startsWith("@equation", txt) ||
-	        startsWith("@toc", txt));
+	        startsWith("@toc_t", txt));
 }
 
 /* parse_block • parsing of one block, returning next uint8_t to parse */
@@ -2937,7 +2937,7 @@ parse_float(
 	if (startsWith("@equation", (char*)data) && is_separator(data[9])) {
 		return parse_eq(ob, doc, data+9, size-9) + 9;
 	}
-	if (startsWith("@toc", (char*)data) && is_separator(data[4]))
+	if (startsWith("@toc_t", (char*)data) && is_separator(data[4]))
 	{
 		if (doc->md.toc && doc->table_of_contents)
 			doc->md.toc(ob, doc->table_of_contents, doc->document_metadata->numbering);
@@ -3794,14 +3794,14 @@ find_references(hoedown_document *doc, const uint8_t *data, size_t size, html_co
 	}
 }
 
-toc *
-generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* parent)
+toc_t *
+generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc_t* parent)
 {
 	if (!data || !size)
 		return parent;
 	size_t i = 0;
-	toc * root = parent;
-	toc * current = root;
+	toc_t * root = parent;
+	toc_t * current = root;
 	char code_block = 0;
 
 	if (size > 4 && startsWith("---", (char*)data) && is_separator(data[3])){
@@ -3827,7 +3827,7 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 					uint8_t * title = get_atxheader_info((uint8_t*)data+i, size-i, &level, NULL);
 					if (level <= 3 && title)
 					{
-						toc * next = malloc(sizeof(toc));
+						toc_t * next = malloc(sizeof(toc_t));
 						next->sibling = NULL;
 						next->nesting = level;
 						next->text = (char*) title;
@@ -3854,7 +3854,7 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 						memcpy(title, data+j, i-j-2);
 						title[i - j - 2] = 0;
 
-						toc * next = malloc(sizeof(toc));
+						toc_t * next = malloc(sizeof(toc_t));
 						next->sibling = NULL;
 						next->nesting = level;
 						next->text = (char*) title;
@@ -3882,7 +3882,7 @@ generate_toc(hoedown_document * doc, const uint8_t * data, size_t size, toc* par
 			if (text_size && text)
 			{
 
-				toc * t = generate_toc(doc,(const uint8_t*) text, text_size, current);
+				toc_t * t = generate_toc(doc, (const uint8_t*) text, text_size, current);
 				if (!root && t)
 				{
 					root = t;
@@ -4014,7 +4014,7 @@ free_references(reference * ref)
 }
 
 void
-free_toc(toc * ToC)
+free_toc(toc_t * ToC)
 {
 	if (ToC)
 	{

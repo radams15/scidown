@@ -781,13 +781,13 @@ static void rnrd_close_float(hoedown_buffer *ob, float_args args, const hoedown_
 
 
 static void
-rndr_toc(hoedown_buffer *ob, toc * tree, int numbering)
+rndr_toc(hoedown_buffer *ob, toc_t * tree, int numbering)
 {
 	hoedown_buffer_puts(ob, "\\tableofcontents");
 }
 
 hoedown_renderer *
-scidown_latex_renderer_new(scidown_render_flags render_flags, int nesting_level, localization local)
+scidown_latex_renderer_new(scidown_render_flags render_flags, int nesting_level, localization_t local)
 {
 	static const hoedown_renderer cb_default = {
 		NULL,

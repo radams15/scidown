@@ -23,7 +23,7 @@ struct scidown_latex_renderer_state {
 
 	scidown_render_flags flags;
 	html_counter counter;
-	localization localization;
+	localization_t localization;
 
 	/* extra callbacks */
 	void (*link_attributes)(hoedown_buffer *ob, const hoedown_buffer *url, const hoedown_renderer_data *data);
@@ -44,9 +44,9 @@ scidown_render_tag scidown_latex_is_tag(const uint8_t *data, size_t size, const 
 
 /* hoedown_html_renderer_new: allocates a regular HTML renderer */
 hoedown_renderer *scidown_latex_renderer_new(
-	scidown_render_flags render_flags,
-	int nesting_level,
-	localization local
+        scidown_render_flags render_flags,
+        int nesting_level,
+        localization_t local
 ) __attribute__ ((malloc));
 
 /* hoedown_html_renderer_free: deallocate an HTML renderer */

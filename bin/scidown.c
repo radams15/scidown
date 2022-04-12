@@ -78,9 +78,9 @@ static const char *negative_prefix = "no-";
 #define DEF_MAX_NESTING 16
 
 /* Get local info */
-localization get_local()
+localization_t get_local()
 {
-  localization local;
+  localization_t local;
   local.figure = "Figure";
   local.listing = "Listing";
   local.table = "Table";
@@ -106,10 +106,10 @@ print_help(const char *basename)
 	/* main options */
 	printf("Main options:\n");
 	print_option('n', "max-nesting=N", "Maximum level of block nesting parsed. Default is " str(DEF_MAX_NESTING) ".");
-	print_option('t', "toc-level=N", "Maximum level for headers included in the TOC. Zero disables TOC (the default).");
+	print_option('t', "toc_t-level=N", "Maximum level for headers included in the TOC. Zero disables TOC (the default).");
 	print_option(  0, "html", "Render (X)HTML. The default.");
 	print_option(  0, "latex", "Render as LATEX.");
-	print_option(  0, "html-toc", "Render the Table of Contents in (X)HTML.");
+	print_option(  0, "html-toc_t", "Render the Table of Contents in (X)HTML.");
 	
 
 	print_option('T', "time", "Show time spent in rendering.");
@@ -330,7 +330,7 @@ parse_long_option(char *opt, char *next, void *opaque)
 		data->max_nesting = num;
 		return 2;
 	}
-	if (strcmp(opt, "toc-level")==0 && isNum) {
+	if (strcmp(opt, "toc_t-level")==0 && isNum) {
 		data->toc_level = num;
 		return 2;
 	}
@@ -347,7 +347,7 @@ parse_long_option(char *opt, char *next, void *opaque)
 		data->renderer = RENDERER_HTML;
 		return 1;
 	}
-	if (strcmp(opt, "html-toc")==0) {
+	if (strcmp(opt, "html-toc_t")==0) {
 		data->renderer = RENDERER_HTML_TOC;
 		return 1;
 	}

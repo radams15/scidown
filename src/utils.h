@@ -40,7 +40,7 @@ typedef struct {
 	char* figure;
 	char* listing;
 	char* table;
-} localization;
+} localization_t;
 
 
 struct {

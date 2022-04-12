@@ -9,6 +9,6 @@ numbering: true
 ---
 @include(abstract.md)
 
-@toc
+@toc_t
 
 @include(example.md)
