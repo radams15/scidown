@@ -35,7 +35,4 @@ set(BIN_SRC
 
 add_library(scidown SHARED ${CHARTER_SRC} ${LIB_SRC})
 
-add_executable(Scidown ${CHARTER_SRC} ${LIB_SRC} ${BIN_SRC})
-target_link_libraries(Scidown m)
-
 include_directories(src/)
