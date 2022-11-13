@@ -33,7 +33,7 @@ set(BIN_SRC
 	bin/scidown.c
 )
 
-add_library(scidown SHARED ${CHARTER_SRC} ${LIB_SRC})
+add_library(scidown STATIC ${CHARTER_SRC} ${LIB_SRC})
 
 include_directories(src/)
 
